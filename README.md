@@ -52,7 +52,7 @@ This release has been tested on Linux Ubuntu 16.04 with
 
 # Usage
 Atfer installation
-1. Run pointnet and go to the **sem_seng** folder.
+1. Run pointnet and go to the **sem_seg** folder.
 * Download prepared HDF5 data for training:
 **Only hdf5 train file**
 ```sh
