@@ -64,40 +64,48 @@ $ python collect_indoor3d_data.py
 $ python gen_indoor3d_h5.py
 ```
 * To prepare your own HDF5 data, you need to firstly download 3D indoor parsing dataset and then use
-# Training if no model has been learnt
+Training if no model has been learnt
 1. Trianning  
-* Once you have downloaded prepared HDF5 files or prepared them by yourself, to start training:
+    * Once you have downloaded prepared HDF5 files or prepared them by yourself, to start training:
 ```sh
 $ python train.py --log_dir log6 --test_area 6
 ```
 In default a simple model based on vanilla PointNet is used for training. Area 6 is used for test set.
 
 2. Test  
-* Testing requires download of 3D indoor parsing data and preprocessing with collect_indoor3d_data.py
+    * Testing requires download of 3D indoor parsing data and preprocessing with collect_indoor3d_data.py
 
 After training, use batch_inference.py command to segment rooms in test set. In our work we use 6-fold training that trains 6 models. For model 1, area2-6 are used as train set, area1 is used as test set. For model2, area1, 3-6 are used as train set and area2 is used as test set... Note that S3DIS dataset paper uses a different 3-fold training, which was not publicly announced at the time of our work.
 For example, to test model6, use command:
 ```sh
-$ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/area_data_label.txt --visu
+$ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/area6_data_label.txt --visu
 ```
+--model_path : Path where model.ckpt file is stored  
+--dump_dir : Folder where forecasted results are stored  
+--output_filelist : Set file path / name where the path of the prediction result is stored  
+--room_data_filelist : .npy file path to test  
+--visu : Use when visualizing  
 
 3. Check the result  
-* Check the result with CloudCompare.
+    * Check the result with CloudCompare.
 
 4. Run Postgresql pgadmin  
 
 5. Testing PinSout  
-* Change Sem_seng's file to PinsOut file and execute it in the same way.
+    * Change the data to be trained to area1.  
+    * Change the class name to five(ceiling, floor, wall, window, door).  
+    * Start Trainning  
+    * Modify the contents of area_data_label to "data/your result folder/Area_1_office_1.npy" and run it.  
 
 6. Check the result  
-* Check the result using pgadmin or 3DCityDB importer&exporter.
+    * Check the result using pgadmin or 3DCityDB importer&exporter.
 
 7. Export the CityGML  
-* Export the CityGML file using 3DCityDB importer&exporter.
+    * Export the CityGML file using 3DCityDB importer&exporter.
 
 8. Check the CityGML File  
-* Run the FZK Viewer to visualize the CityGML file.
-* Select and execute the "Unknown SRS" at the bottom of the Spatial Reference System.
+    * Run the FZK Viewer to visualize the CityGML file.
+    * Select and execute the "Unknown SRS" at the bottom of the Spatial Reference System.
 
 # More Information
 OGC CityGML is an open data model and XML-based format for the storage and exchange of semantic 3D city models. It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible international standard for spatial data exchange issued by the Open Geospatial Consortium (OGC) and the ISO TC211. The aim of the development of CityGML is to reach a common definition of the basic entities, attributes, and relations of a 3D city model.
