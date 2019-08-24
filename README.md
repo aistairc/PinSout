@@ -13,7 +13,7 @@ In this project, we create the three steps that are Semantic Segmentation, Polyg
 * [3DCityDB] - Free 3D geo database to store, represent, and manage virtual 3D city models
 
 <div>
-  <img width="800" src=https://user-images.githubusercontent.com/17999237/63635603-37d02b80-c69f-11e9-84cc-abe9d36d6456.png>
+  <img width="800" src=https://user-images.githubusercontent.com/17999237/63635662-c8a70700-c69f-11e9-8fda-99881e6be107.png>
 </div>
   
 # System Requirements
