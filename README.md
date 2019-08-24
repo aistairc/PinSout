@@ -1,9 +1,11 @@
 # PinSout
 Accelerating 3D Indoor Space Construction from Point Clouds with Deep Learning
 
+# Introduction
+
 * [PointNet] - Deep Learning on Point Sets for 3D Classification and Segmentation
-* [PCL] - small python binding to the pointcloud library
-* [3DCityDB] - free 3D geo database to store, represent, and manage virtual 3D city models
+* [PCL] - Small python binding to the pointcloud library
+* [3DCityDB] - Free 3D geo database to store, represent, and manage virtual 3D city models
   
 # System Requirements
 This release has been tested on Linux Ubuntu 16.04 with
