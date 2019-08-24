@@ -6,12 +6,19 @@ Accelerating 3D Indoor Space Construction from Point Clouds with Deep Learning
 # Introduction
 In general, the procedure for creating a 3D model has five steps that are Data Segmentation, Componenets separation, Surface generation, Components assembling and Alignment. In the process of creating a 3D model manually, high time-consuming and labor-intensice tasks occur. We think "How can make the process quickly and easily?". So, We are starting a project to automatically generate 3D model from raw point data.
 
-In this project, we create the three steps that are Semantic Segmentation, Polygonization and Featurization. These three steps automaticaly chnged the process of maually building 3D model. We uesd the following open sources in each step.
+In this project, we create the three steps that are Semantic Segmentation, Polygonization and Featurization. These three steps automaticaly chnged the process of maually building 3D model.
 
-* [PointNet] - Deep Learning on Point Sets for 3D Classification and Segmentation
-* [PCL] - Small python binding to the pointcloud library
-* [3DCityDB] - Free 3D geo database to store, represent, and manage virtual 3D city models
+The three steps produce the following result:
+1. Semantic Segmentation - Classify sematntics from point
+2. Polygonization - Construct polygons from point
+3. Featurizaiotn - Mapping between semantic faeatures and surfaces
 
+We uesd the following open sources in each step.
+1. [PointNet] - Deep Learning on Point Sets for 3D Classification and Segmentation
+2. [PCL] - Small python binding to the pointcloud library
+3. [3DCityDB] - Free 3D geo database to store, represent, and manage virtual 3D city models
+
+This is PinSout result.
 <div>
   <img width="800" src=https://user-images.githubusercontent.com/17999237/63635662-c8a70700-c69f-11e9-8fda-99881e6be107.png>
 </div>
@@ -22,7 +29,7 @@ This release has been tested on Linux Ubuntu 16.04 with
 > PostgreSQL DBMS >= 9.3 with PostGIS extension >= 2.0
 
 # Installation
-> Install CUDA 9.0 cuDNN 7.05
+1. Install CUDA 9.0 cuDNN 7.05
  Checking the GPU drivers (https://www.nvidia.com/Download/index.aspx?) 
  
  * Add nivida drivers ppa and update repos
@@ -136,7 +143,7 @@ $ ./mnistCUDNN
 ```
 If installed correctly you should see Test passed! at the end of the output
 
-4. Configure CUDA and cuDNN paths
+Configure CUDA and cuDNN paths
 Put the following line in the end or your bashrc file
 ```sh
 $ nano ~/.bashrc
@@ -183,12 +190,12 @@ Install Tensorflow gpu version
 ```sh
 $ pip install tensorflow-gpu==1.8.0
 $ pip install numpy
-```sh
+```
 To install h5py for python
 ```sh
 $ sudo apt-get install libhdf5-dev
 $ pip install h5py
-```sh
+```
 Install python-pcl 1.7.2
 https://ubuntu.pkgs.org/16.04/ubuntu-universe-amd64/pcl-tools_1.7.2-14build1_amd64.deb.html
 ```sh
@@ -202,7 +209,7 @@ $ pip install cython==0.22
 $ sudo add-apt-repository ppa:v-launchpad-jochen-sprickerhof-de/pcl
 $ sudo apt-get update
 $ sudo apt-get install libpcl-all
-```sh
+```
 If an ERROR occurs in the libpcl-all
 Manually install related libraries with this command
 ```sh
@@ -216,7 +223,7 @@ $ python setup.py install
 # Test if PCL is available
 $ cd python_pcl/examples
 $ python kdtree.py
-```sh
+```
 Note : https://github.com/NLeSC/python-pcl
 PointNet repository download.
 Move the semantic segmentation of the pointnet to the folder where you want to run it.
@@ -236,7 +243,7 @@ Download 3D indoor parsing dataset (S3DIS Dataset) for testing and visualization
 ```sh
 $ python collect_indoor3d_data.py
 $ python gen_indoor3d_h5.py
-```sh
+```
 To prepare your own HDF5 data, you need to firstly download 3D indoor parsing dataset and then use
 Training if no model has been learnt
 Training : 
