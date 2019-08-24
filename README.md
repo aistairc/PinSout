@@ -96,7 +96,7 @@ $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls
     * Change the class name to five(ceiling, floor, wall, window, door).  
     * Start Trainning  
     * Modify the contents of area_data_label to "data/your result folder/Area_1_office_1.npy" and run it. 
-    * Add the PinSout's files
+    * Add the PinSout's files in **sem_seg**
 
 6. Check the result  
     * Check the result using pgadmin or 3DCityDB importer&exporter.
