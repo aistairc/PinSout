@@ -9,10 +9,8 @@ import tensorflow as tf
 import pcl as pc
 from collections import OrderedDict
 
-import PointCloud_To_CityGML as gml
-
-import Make_CityGML_Data3 as mcd2
-import PointCloud_To_CityGML2 as gml2
+import Make_CityGML_Data as mcd2
+import PointCloud_To_CityGML as gml2
 
 file_data = OrderedDict()
 file_wall_data = OrderedDict()
