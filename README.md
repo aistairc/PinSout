@@ -31,7 +31,78 @@ This release has been tested on Linux Ubuntu 16.04 with
 > PostgreSQL DBMS >= 9.3 with PostGIS extension >= 2.0
 
 # Installation
+**1. PointNet**  
+* PointNet github address : https://github.com/charlesq34/pointnet
+  
+**2. Python-PCL**  
+* Python-PCL github address : https://github.com/strawlab/python-pcl
 
+**3. 3DCityDB**  
+* 3DCityDB github address : https://github.com/3dcitydb/3dcitydb
+* 3DCityDB download page : https://www.3dcitydb.org/3dcitydb/d3ddatabase/
+
+**4. 3DCityDB importer&exporter**  
+* 3DCityDB importer&exporter download page : https://www.3dcitydb.org/3dcitydb/d3dimpexp/
+
+**5. FZK Viewer**  
+* FZK Viewer download page : https://www.iai.kit.edu/1302.php
+
+**6. CloudCompare**
+* CloudCompare download page : https://www.danielgm.net/cc/
+
+# Usage
+Atfer installation
+1. Run pointnet and go to the **sem_seng** folder.
+* Download prepared HDF5 data for training:
+**Only hdf5 train file**
+```sh
+$ sh download_data.sh
+```
+* Download 3D indoor parsing dataset (S3DIS Dataset) for testing and visualization. Version 1.2 of the dataset is used in this work.
+```sh
+$ python collect_indoor3d_data.py
+$ python gen_indoor3d_h5.py
+```
+* To prepare your own HDF5 data, you need to firstly download 3D indoor parsing dataset and then use
+# Training if no model has been learnt
+2. Trianning
+Once you have downloaded prepared HDF5 files or prepared them by yourself, to start training:
+```sh
+$ python train.py --log_dir log6 --test_area 6
+```
+In default a simple model based on vanilla PointNet is used for training. Area 6 is used for test set.
+
+3. Test
+Testing requires download of 3D indoor parsing data and preprocessing with collect_indoor3d_data.py
+
+After training, use batch_inference.py command to segment rooms in test set. In our work we use 6-fold training that trains 6 models. For model 1, area2-6 are used as train set, area1 is used as test set. For model2, area1, 3-6 are used as train set and area2 is used as test set... Note that S3DIS dataset paper uses a different 3-fold training, which was not publicly announced at the time of our work.
+For example, to test model6, use command:
+```sh
+$ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/area_data_label.txt --visu
+```
+
+4. Check the result
+Check the result with CloudCompare.
+
+5. Run Postgresql pgadmin
+
+6. Testing PinSout
+Change Sem_seng's file to PinsOut file and execute it in the same way.
+
+7. Check the result
+Check the result using pgadmin or 3DCityDB importer&exporter.
+
+8. Export the CityGML
+Export the CityGML file using 3DCityDB importer&exporter.
+
+9. Check the CityGML File
+Run the FZK Viewer to visualize the CityGML file.
+Select and execute the "Unknown SRS" at the bottom of the Spatial Reference System.
+
+# More Information
+OGC CityGML is an open data model and XML-based format for the storage and exchange of semantic 3D city models. It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible international standard for spatial data exchange issued by the Open Geospatial Consortium (OGC) and the ISO TC211. The aim of the development of CityGML is to reach a common definition of the basic entities, attributes, and relations of a 3D city model.
+
+**CityGML** is an international **OGC** standard and can be used **free of charge**.
 
    [PointNet]: <https://github.com/charlesq34/pointnet>
    [PCL]: <https://anaconda.org/sirokujira/python-pcl>
