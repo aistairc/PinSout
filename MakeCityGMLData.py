@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import Point_Sort as ps
 import matplotlib.pylab as plb
 
-class MakeCityGMLData2:
+class MakeCityGMLData:
 
     def __init__(self, pred_data, ceiling_data, floor_data, wall_data, door_data, window_data):
 
@@ -1647,7 +1647,7 @@ class MakeCityGMLData2:
    # door_cloud = pcl.load("/home/dprt/Desktop/dump2/Area_2_office_14_door.ply")
    # window_cloud = pcl.load("/home/dprt/Desktop/dump2/Area_2_office_14_window.ply")
 
-   # test = MakeCityGMLData2(pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud)
+   # test = MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud)
    # test.get_normal_vector(wall_cloud)
 
     # wall_normal_vector, wall_surface, ceiling_surface, floor_surface, door_surface, window_surface = test.make_point_surface()
