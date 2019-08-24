@@ -13,6 +13,30 @@ This release has been tested on Linux Ubuntu 16.04 with
 > PostgreSQL DBMS >= 9.3 with PostGIS extension >= 2.0
 
 # Installation
+ - Install CUDA 9.0 cuDNN 7.05
+ 1. install Nvidia drivers
+ Checking the GPU drivers (https://www.nvidia.com/Download/index.aspx?) 
+ 
+ * Add nivida drivers ppa and update repos
+  ```sh
+  $ sudo add-apt-repository ppa:graphics-drivers/ppa
+  $ sudo apt-get update
+  ```
+Re-run apt-get update as root if issues arise (sudo -i)
+
+** install from apt-get, Minium driver version for CUDA 9.0 is 384
+```sh
+$ sudo apt-get install nivida-384
+```
+For current install latest driver was 396 which was used
+
+* Restart Verify everything is working by running
+```sh
+$ nvidia-smi
+```
+All graphics cards should be detected and using the nividia driver installed
+  
+  ddd
 
 
 #
