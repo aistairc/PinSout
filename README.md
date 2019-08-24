@@ -1,3 +1,5 @@
+![pinsout](https://user-images.githubusercontent.com/17999237/63635418-58978180-c69d-11e9-9e7e-89065b3c54d7.png)
+
 # PinSout
 Accelerating 3D Indoor Space Construction from Point Clouds with Deep Learning
 
@@ -10,7 +12,9 @@ In this project, we create the three steps that are Semantic Segmentation, Polyg
 * [PCL] - Small python binding to the pointcloud library
 * [3DCityDB] - Free 3D geo database to store, represent, and manage virtual 3D city models
 
-
+<div>
+  <img width="800" src=https://user-images.githubusercontent.com/17999237/63635591-14a57c00-c69f-11e9-9a1e-0fa4aa6dc93e.png>
+</div>
   
 # System Requirements
 This release has been tested on Linux Ubuntu 16.04 with
