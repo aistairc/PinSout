@@ -53,7 +53,7 @@ buildingCounter = 0
 buildingMaxArray = []
 buildingMinArray = []
 ''' END '''
-class PointCloudToCityGML2:
+class PointCloudToCityGML:
 
     def __init__(self, ceiling_point, floor_point, wall_point, door_point, window_point):
         self.ceiling_list = ceiling_point
