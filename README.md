@@ -45,6 +45,11 @@ This release has been tested on Linux Ubuntu 16.04 with
 > Anaconda - Python 2.7.6  
 > PostgreSQL DBMS >= 9.3 with PostGIS extension >= 2.0
 
+# Data information
+* Stanford 2D-3D-Semantics Dataset ( http://buildingparser.stanford.edu/dataset.html )
+* Office type rooms, except complex types ( Convert all offices in area1)
+* Contract ( http://buildingparser.stanford.edu/contact.html )
+
 # Installation
 **1. PointNet**  
 * PointNet github address : https://github.com/charlesq34/pointnet
@@ -125,7 +130,7 @@ For example, to test model6, use command:
     * Select and execute the "Unknown SRS" at the bottom of the Spatial Reference System.
     
 # Reference
-### 1.Make_CityGML_Data
+### 1. Make_CityGML_Data
 ```python
 import Make_CityGML_Data as mcd
 make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud)
@@ -149,7 +154,7 @@ make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall
 | cloud_list | List |  | list of pcl.PointCloud() |  
 * check_distance_point_1
     
-2. PointCloud_To_CityGML
+### 2. PointCloud_To_CityGML
 ```python
 import PointCloud_To_CityGML as gml
 make_gml_file = gml.PointCloudToCityGML(ceiling_point, floor_point, wall_point, door_point, window_point)
@@ -157,18 +162,19 @@ make_gml_file = gml.PointCloudToCityGML(ceiling_point, floor_point, wall_point, 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
 |:--------:|:--------:|:--------:|:--------:|
 | ceiling_point, floor_point, wall_point, door_point, window_point | List |  | each surface's points |
-
-3. Point_Sort
+#### Methods
+### 3. Point_Sort
 ```python
 import Point_sort as ps
 point_sort = ps.Point_sort()
 sort_result = point_sort.SortPointsClockwise2(point_list, True)
 ```
+#### Methods
+* SortPointsClockwise
+
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
 |:--------:|:--------:|:--------:|:--------:|
 | point_list | List | True | CounterClockWiseSort |
-
-
 
    [PointNet]: <https://github.com/charlesq34/pointnet>
    [PCL]: <https://github.com/strawlab/python-pcl>
