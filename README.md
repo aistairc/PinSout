@@ -139,7 +139,7 @@ make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall
 |:--------:|:--------:|:--------:|:--------:|
 | pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud | pcl.PointCloud() |  | pcl.PointCloud() of pcl library |
 #### Methods
-* get_normal_vector()
+* get_normal_vector
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
@@ -147,13 +147,47 @@ make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall
 | distance_rate | float | 0.95 | distance between points and plane | 
 | min_size | int | 200 | min count of point for clustering | 
 | ksearch | int | 50 | nearest ksearch value | 
+
 * sorting_Z()
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
 | cloud_list | List |  | list of pcl.PointCloud() |  
-* check_distance_point_1
-    
+* check_distance_plane
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() |
+| coeff | List |  | plane's normal X, Y, Z and Hessian component of the plane's equation |
+
+
+* check_distance_cylinde
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
+| coeff | List |  | cylinder's X, Y, Z, cylinder's normal X, Y, Z and r |
+* check_distance_point_1search_point_bounding
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
+* make_straight
+* make_straight_2
+* get_intersection_line
+* check_boundary
+* make_ceiling_info
+* make_floor_info
+* make_wall_info
+* make_door_info
+* make_window_info
+* make_point_surface
+* visual_viewer
+* visual_graph
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 ### 2. PointCloud_To_CityGML
 ```python
 import PointCloud_To_CityGML as gml
