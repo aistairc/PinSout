@@ -251,7 +251,103 @@ make_gml_file = gml.PointCloudToCityGML(ceiling_point, floor_point, wall_point, 
 |:--------:|:--------:|:--------:|:--------:|
 | ceiling_point, floor_point, wall_point, door_point, window_point | List |  | each surface's points |
 * makePolygonz
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| sideinfo | List |  | point list of exterior surface |
 * makePolygonz2
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| sideinfo | List |  | point list of interior surface |
+* insertString
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| myString | String |  | Existing string |
+| position | Int |  | Location to be added |
+| insertStr | String |  | Additional string |
+* deleteString
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| myString | String |  | Existing string |
+| position | Int |  | Location to be deleted |
+* getCityObjectID : PointCloud_To_CityGML.getCityObjectID
+To get the cityobject id from cityobject table
+* getSurfaceGeometryID
+To get the surface_geometry id from surface_geometry table
+* getBuildingID
+To get the building id from building table
+* getOpeningID
+To get the opening id from opening table
+* getThematicSurfaceID
+To get the thematic_surface id from thematic_surface table
+* getSurfaceGmlID
+To get the surface_geometry gmlID from surface_geometry table
+* getRoomID
+To get the room id from room table
+* getSurfaceGeometry
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| surface_id, | String |  | surface_geometry id |
+| surface | String |  | interior surface_geometry |
+* makeOpening
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| id | Int |  | opening id |
+| objectClassID | Int |  | objectclass_id |
+| rootSurfaceID | Int |  | root surface_geometry id |
+* makeOpeningToThemSurface
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| id | Int |  | opening id |
+| openingID | Int |  | opening_id |
+| thematicID | Int |  | thematic_surface id |
+* makeThematicSurfaceRoom
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| id | Int |  | opening id |
+| objectClassID | Int |  | objectclass_id |
+| CityObjectRoom | Int |  | room_id |
+| rootSurfaceID | Int |  | root surface_geometry id |
+* makeThematicSurface
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| id | Int |  | id of table |
+| objectClassID | Int |  | objectclass_id |
+| CityObjectRoom | Int |  | building_id |
+| rootSurfaceID | Int |  | root surface_geometry id |
+
+* makeCityObject
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| objectClassID | Int |  | objectclass_id |
+
+* makeRoomObject
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| objectClassID | Int |  | objectclass_id |
+
+* makeRoom
+* getEnvelopEachSurface
+* updateBuildingEnvelop
+* updateEnvelop
+* makeNodeList
+* polygonArea
+* makeSurfaceGeometry
+* make_room_ceiling
+* make_room_floor
+* make_room_wall
+* makeBuildingSurfaceGeometry
+* MakeRoomObject
 #### Methods
 ### 3. Point_Sort
 ```python
