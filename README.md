@@ -161,28 +161,84 @@ make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall
 | coeff | List |  | plane's normal X, Y, Z and Hessian component of the plane's equation |
 
 
-* check_distance_cylinde
+* check_distance_cylinder
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
 | cloud_list | List |  | list of pcl.PointCloud() | 
 | coeff | List |  | cylinder's X, Y, Z, cylinder's normal X, Y, Z and r |
-* check_distance_point_1search_point_bounding
+* check_distance_point_1
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| point_list | List |  | range of clouda_list |
+| coeff | List |  | line's normal X, Y, Z and point x, y, z |
+| epsilon | float | 0.1 | epsilon |
+* search_point_bounding
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
+* check_distance_door
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
 | cloud_list | List |  | list of pcl.PointCloud() | 
 * make_straight
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * make_straight_2
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * get_intersection_line
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * check_boundary
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * make_ceiling_info
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * make_floor_info
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * make_wall_info
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * make_door_info
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * make_window_info
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * make_point_surface
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * visual_viewer
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() | 
 * visual_graph
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
