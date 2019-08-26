@@ -4,7 +4,9 @@
 Accelerating 3D Indoor Space Construction from Point Clouds with Deep Learning
 
 # Introduction
-In general, the procedure for creating a 3D model has five steps that are Data Segmentation, Componenets separation, Surface generation, Components assembling and Alignment. In the process of creating a 3D model manually, high time-consuming and labor-intensice tasks occur. We think "How can make the process quickly and easily?". So, we are starting a project to automatically generate 3D model from raw point data.
+In general, the procedure for creating a 3D model has five steps that are Data Segmentation, Componenets separation, Surface generation, Components assembling and Alignment. Actually, it is performed using man-power, all tasks involve very high time-consuming and labor intensive. We think how can improve the processes quickly and easily?
+
+So, we are starting a project to automatically generate 3d models from raw point data. Before we start, we need two pieces of background.
 
 In this project, we create the three steps that are Semantic Segmentation, Polygonization and Featurization. These three steps automatically changed the process of maually building 3D model. 
 
