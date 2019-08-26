@@ -11,9 +11,8 @@ So, we are starting a project to automatically generate 3d models from raw point
   * ### PointCloud
     Point cloud is a set of data point which is reflected a real-world by 3D scanning. The important thing is point cloud can include several features, including geometry information, color, intensity and so on.
     specially, we can use geometry information of point cloud data for constructing 3D model
-  * ### CityGML
+  * ### CityGML ( https://www.opengeospatial.org/standards/citygml )
     OGC CityGML is an open data model and XML-based format for the storage and exchange of semantic 3D city models. It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible international standard for spatial data exchange issued by the Open Geospatial Consortium (OGC) and the ISO TC211. The aim of the development of CityGML is to reach a common definition of the basic entities, attributes, and relations of a 3D city model.
-
     **CityGML** is an international **OGC** standard and can be used **free of charge**.
 
   
@@ -67,7 +66,7 @@ This release has been tested on Linux Ubuntu 16.04 with
 * CloudCompare download page : https://www.danielgm.net/cc/
 
 # Usage
-Atfer installation
+After installation
 1. Run pointnet and go to the **sem_seg** folder.
     * Download prepared HDF5 data for training:
     **Only hdf5 train file**
@@ -127,8 +126,9 @@ For example, to test model6, use command:
     
 # Reference
 ### 1.Make_CityGML_Data
-```
-make_gml_data = MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud)
+```python
+import Make_CityGML_Data as mcd
+make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud)
 ```
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
 |:--------:|:--------:|:--------:|:--------:|
@@ -150,16 +150,18 @@ make_gml_data = MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_clo
 * check_distance_point_1
     
 2. PointCloud_To_CityGML
-```
-make_gml_file = PointCloudToCityGML(ceiling_point, floor_point, wall_point, door_point, window_point)
+```python
+import PointCloud_To_CityGML as gml
+make_gml_file = gml.PointCloudToCityGML(ceiling_point, floor_point, wall_point, door_point, window_point)
 ```
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
 |:--------:|:--------:|:--------:|:--------:|
 | ceiling_point, floor_point, wall_point, door_point, window_point | List |  | each surface's points |
 
 3. Point_Sort
-```
-point_sort = Point_sort()
+```python
+import Point_sort as ps
+point_sort = ps.Point_sort()
 sort_result = point_sort.SortPointsClockwise2(point_list, True)
 ```
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
