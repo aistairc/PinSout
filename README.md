@@ -122,14 +122,29 @@ $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls
     * Select and execute the "Unknown SRS" at the bottom of the Spatial Reference System.
     
 # Reference
-1. Make_CityGML_Data
+### 1.Make_CityGML_Data
 ```
 make_gml_data = MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud)
 ```
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
 |:--------:|:--------:|:--------:|:--------:|
 | pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud | pcl.PointCloud() |  | pcl.PointCloud() of pcl library |
+#### Methods
+* get_normal_vector()
 
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud | pcl.PointCloud() |  | pcl.PointCloud() of pcl library |  
+| distance_rate=0.95 | float |  | distance between points and plane | 
+| min_size=200 | int |  | min count of point for clustering | 
+| ksearch=50 | int |  | nearest ksearch value | 
+* sorting_Z()
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
+|:--------:|:--------:|:--------:|:--------:|  
+| cloud_list | List |  | list of pcl.PointCloud() |  
+* check_distance_point_1
+    
 2. PointCloud_To_CityGML
 ```
 make_gml_file = PointCloudToCityGML(ceiling_point, floor_point, wall_point, door_point, window_point)
