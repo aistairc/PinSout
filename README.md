@@ -8,6 +8,12 @@ In general, the procedure for creating a 3D model has five steps that are Data S
 
 So, we are starting a project to automatically generate 3d models from raw point data. Before we start, we need two pieces of background.
 
+  * ### PointCloud
+    Point cloud is a set of data point which is reflected a real-world by 3D scanning. The important thing is point cloud can include several features, including geometry information, color, intensity and so on.
+    specially, we can use geometry information of point cloud data for constructing 3D model
+  * ### CityGML
+    gggg
+  
 In this project, we create the three steps that are Semantic Segmentation, Polygonization and Featurization. These three steps automatically changed the process of maually building 3D model. 
 
 The three steps produce the following result:
@@ -19,6 +25,11 @@ We uesd the following open sources in each step.
 1. [PointNet] - Deep Learning on Point Sets for 3D Classification and Segmentation
 2. [PCL] - Small python binding to the pointcloud library
 3. [3DCityDB] - Free 3D geo database to store, represent, and manage virtual 3D city models
+
+  * ### Deep Learning (PointNet)
+  * ### PCL
+  * ### 3DCityDB
+
 
 The 3D model is expressed in **CityGML**, which is an **open standardized data model and exchange format to store digital 3D model proposed by OGC**.
 
