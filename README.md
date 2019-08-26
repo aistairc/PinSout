@@ -122,7 +122,32 @@ $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls
     * Select and execute the "Unknown SRS" at the bottom of the Spatial Reference System.
     
 # Reference
-1. Make_City
+1. Make_CityGML_Data
+```
+make_gml_data = MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud)
+```
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud | pcl.PointCloud() |  | pcl.PointCloud() of pcl library |
+
+2. PointCloud_To_CityGML
+```
+make_gml_file = PointCloudToCityGML(ceiling_point, floor_point, wall_point, door_point, window_point)
+```
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| ceiling_point, floor_point, wall_point, door_point, window_point | List |  | each surface's points |
+
+3. Point_Sort
+```
+point_sort = Point_sort()
+sort_result = point_sort.SortPointsClockwise2(point_list, True)
+```
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| point_list | List | True | CounterClockWiseSort |
+
+
 
 # More Information
 OGC CityGML is an open data model and XML-based format for the storage and exchange of semantic 3D city models. It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible international standard for spatial data exchange issued by the Open Geospatial Consortium (OGC) and the ISO TC211. The aim of the development of CityGML is to reach a common definition of the basic entities, attributes, and relations of a 3D city model.
