@@ -170,5 +170,5 @@ OGC CityGML is an open data model and XML-based format for the storage and excha
 **CityGML** is an international **OGC** standard and can be used **free of charge**.
 
    [PointNet]: <https://github.com/charlesq34/pointnet>
-   [PCL]: <https://anaconda.org/sirokujira/python-pcl>
-   [3DCityDB]: <https://www.3dcitydb.org/3dcitydb/d3ddatabase/>
+   [PCL]: <https://github.com/strawlab/python-pcl>
+   [3DCityDB]: <https://github.com/3dcitydb/3dcitydb>
