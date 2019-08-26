@@ -139,9 +139,9 @@ make_gml_data = MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_clo
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
 | cloud | pcl.PointCloud() |  | pcl.PointCloud() of pcl library |  
-| distance_rate=0.95 | float |  | distance between points and plane | 
-| min_size=200 | int |  | min count of point for clustering | 
-| ksearch=50 | int |  | nearest ksearch value | 
+| distance_rate | float | 0.95 | distance between points and plane | 
+| min_size | int | 200 | min count of point for clustering | 
+| ksearch | int | 50 | nearest ksearch value | 
 * sorting_Z()
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
