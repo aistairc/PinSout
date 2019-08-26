@@ -12,7 +12,10 @@ So, we are starting a project to automatically generate 3d models from raw point
     Point cloud is a set of data point which is reflected a real-world by 3D scanning. The important thing is point cloud can include several features, including geometry information, color, intensity and so on.
     specially, we can use geometry information of point cloud data for constructing 3D model
   * ### CityGML
-    gggg
+    OGC CityGML is an open data model and XML-based format for the storage and exchange of semantic 3D city models. It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible international standard for spatial data exchange issued by the Open Geospatial Consortium (OGC) and the ISO TC211. The aim of the development of CityGML is to reach a common definition of the basic entities, attributes, and relations of a 3D city model.
+
+    **CityGML** is an international **OGC** standard and can be used **free of charge**.
+
   
 In this project, we create the three steps that are Semantic Segmentation, Polygonization and Featurization. These three steps automatically changed the process of maually building 3D model. 
 
@@ -66,23 +69,24 @@ This release has been tested on Linux Ubuntu 16.04 with
 # Usage
 Atfer installation
 1. Run pointnet and go to the **sem_seg** folder.
-* Download prepared HDF5 data for training:
-**Only hdf5 train file**
-```sh
-$ sh download_data.sh
-```
-* Download 3D indoor parsing dataset (S3DIS Dataset) for testing and visualization. Version 1.2 of the dataset is used in this work.
-```sh
-$ python collect_indoor3d_data.py
-$ python gen_indoor3d_h5.py
-```
-* To prepare your own HDF5 data, you need to firstly download 3D indoor parsing dataset and then use
+    * Download prepared HDF5 data for training:
+    **Only hdf5 train file**
+    ```sh
+    $ sh download_data.sh
+    ```    
+    * Download 3D indoor parsing dataset (S3DIS Dataset) for testing and visualization. Version 1.2 of the dataset is used in this work.
+
+    ```sh
+    $ python collect_indoor3d_data.py
+    $ python gen_indoor3d_h5.py
+    ```  
+    * To prepare your own HDF5 data, you need to firstly download 3D indoor parsing dataset and then use
 Training if no model has been learnt
 2. Trianning  
     * Once you have downloaded prepared HDF5 files or prepared them by yourself, to start training:
-```sh
-$ python train.py --log_dir log6 --test_area 6
-```
+    ```sh
+    $ python train.py --log_dir log6 --test_area 6
+    ```
 In default a simple model based on vanilla PointNet is used for training. Area 6 is used for test set.
 
 3. Test  
@@ -91,7 +95,7 @@ In default a simple model based on vanilla PointNet is used for training. Area 6
 After training, use batch_inference.py command to segment rooms in test set. In our work we use 6-fold training that trains 6 models. For model 1, area2-6 are used as train set, area1 is used as test set. For model2, area1, 3-6 are used as train set and area2 is used as test set... Note that S3DIS dataset paper uses a different 3-fold training, which was not publicly announced at the time of our work.
 For example, to test model6, use command:
 ```sh
-$ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/area6_data_label.txt --visu
+    $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/area6_data_label.txt --visu
 ```
 --model_path : Path where model.ckpt file is stored  
 --dump_dir : Folder where forecasted results are stored  
@@ -104,7 +108,7 @@ $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls
 
 5. Run Postgresql pgadmin  
 
-6 . Testing PinSout  
+6. Testing PinSout  
     * Change the data to be trained to area1.  
     * Change the class name to five(ceiling, floor, wall, window, door).  
     * Start Trainning  
@@ -163,11 +167,6 @@ sort_result = point_sort.SortPointsClockwise2(point_list, True)
 | point_list | List | True | CounterClockWiseSort |
 
 
-
-# More Information
-OGC CityGML is an open data model and XML-based format for the storage and exchange of semantic 3D city models. It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible international standard for spatial data exchange issued by the Open Geospatial Consortium (OGC) and the ISO TC211. The aim of the development of CityGML is to reach a common definition of the basic entities, attributes, and relations of a 3D city model.
-
-**CityGML** is an international **OGC** standard and can be used **free of charge**.
 
    [PointNet]: <https://github.com/charlesq34/pointnet>
    [PCL]: <https://github.com/strawlab/python-pcl>
