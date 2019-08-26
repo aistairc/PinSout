@@ -139,7 +139,15 @@ make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall
 |:--------:|:--------:|:--------:|:--------:|
 | pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud | pcl.PointCloud() |  | pcl.PointCloud() of pcl library |
 #### Methods
-* get_normal_vector
+* make_ceiling_info  
+To make the ceiling list with points and plane info
+* make_floor_info  
+To make the floor list with points and plane info
+* make_wall_info  
+To make the wall list with points and plane info
+* make_point_surface  
+To make the ceiling, floor, wall, window and door surface information
+* get_normal_vector  
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
@@ -242,6 +250,11 @@ make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
 | point_list | List |  | list of point | 
+* clockwise_sort
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| wall_surface_list, ceiling_surface_list, floor_surface_list, door_surface_list, window_surface_list | List |  | each surface point list |
 ### 2. PointCloud_To_CityGML
 ```python
 import PointCloud_To_CityGML as gml
@@ -250,6 +263,36 @@ make_gml_file = gml.PointCloudToCityGML(ceiling_point, floor_point, wall_point, 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
 |:--------:|:--------:|:--------:|:--------:|
 | ceiling_point, floor_point, wall_point, door_point, window_point | List |  | each surface's points |
+#### Methods
+* getCityObjectID  
+To get the cityobject id from cityobject table
+* getSurfaceGeometryID  
+To get the surface_geometry id from surface_geometry table
+* getBuildingID  
+To get the building id from building table
+* getOpeningID  
+To get the opening id from opening table
+* getThematicSurfaceID  
+To get the thematic_surface id from thematic_surface table
+* getSurfaceGmlID  
+To get the surface_geometry gmlID from surface_geometry table
+* getRoomID  
+To get the room id from room table
+* getSurfaceGeometry
+* updateBuildingEnvelop  
+To update the building envelop
+* makeSurfaceGeometry  
+To make a room's ceiling, floor and wall surface
+* makeRoom  
+To make a room object on the room table
+* make_room_ceiling  
+To make a room's ceiling surface
+* make_room_floor  
+To make a room's floor surface
+* make_room_wall  
+To make a room's wall surface with door and window surface
+* MakeRoomObject  
+To make all room's element
 * makePolygonz
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
@@ -273,21 +316,6 @@ make_gml_file = gml.PointCloudToCityGML(ceiling_point, floor_point, wall_point, 
 |:--------:|:--------:|:--------:|:--------:|
 | myString | String |  | Existing string |
 | position | Int |  | Location to be deleted |
-* getCityObjectID : PointCloud_To_CityGML.getCityObjectID
-To get the cityobject id from cityobject table
-* getSurfaceGeometryID
-To get the surface_geometry id from surface_geometry table
-* getBuildingID
-To get the building id from building table
-* getOpeningID
-To get the opening id from opening table
-* getThematicSurfaceID
-To get the thematic_surface id from thematic_surface table
-* getSurfaceGmlID
-To get the surface_geometry gmlID from surface_geometry table
-* getRoomID
-To get the room id from room table
-* getSurfaceGeometry
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
 |:--------:|:--------:|:--------:|:--------:|
@@ -335,20 +363,20 @@ To get the room id from room table
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
 |:--------:|:--------:|:--------:|:--------:|
 | objectClassID | Int |  | objectclass_id |
-
-* makeRoom
 * getEnvelopEachSurface
-* updateBuildingEnvelop
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| array | Array |  | point array |
+| components | Int |  | count of range |
+
 * updateEnvelop
-* makeNodeList
-* polygonArea
-* makeSurfaceGeometry
-* make_room_ceiling
-* make_room_floor
-* make_room_wall
-* makeBuildingSurfaceGeometry
-* MakeRoomObject
-#### Methods
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| surfaceData | Array |  | surface envelop |
+| objectID | Int |  | cityobject_id |
+
 ### 3. Point_Sort
 ```python
 import Point_sort as ps
@@ -361,6 +389,19 @@ sort_result = point_sort.SortPointsClockwise2(point_list, True)
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
 |:--------:|:--------:|:--------:|:--------:|
 | point_list | List | True | CounterClockWiseSort |
+
+* GetIsLess
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| x | List |  | current point |
+| y | List |  | next point |
+
+* cmp_to_key
+
+|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
+|:--------:|:--------:|:--------:|:--------:|
+| mycmp | List |  | result of GetIsLess |
 
    [PointNet]: <https://github.com/charlesq34/pointnet>
    [PCL]: <https://github.com/strawlab/python-pcl>
