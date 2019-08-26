@@ -144,9 +144,9 @@ make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
 | cloud | pcl.PointCloud() |  | pcl.PointCloud() of pcl library |  
-| distance_rate | float | 0.95 | distance between points and plane | 
-| min_size | int | 200 | min count of point for clustering | 
-| ksearch | int | 50 | nearest ksearch value | 
+| distance_rate | Float | 0.95 | distance between points and plane | 
+| min_size | Int | 200 | min count of point for clustering | 
+| ksearch | Int | 50 | nearest ksearch value | 
 
 * sorting_Z()
 
@@ -173,8 +173,8 @@ make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall
 |:--------:|:--------:|:--------:|:--------:|  
 | point_list | List |  | range of clouda_list |
 | coeff | List |  | line's normal X, Y, Z and point x, y, z |
-| epsilon | float | 0.1 | epsilon |
-* search_point_bounding
+| epsilon | Float | 0.1 | epsilon |
+* get_range
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
@@ -188,52 +188,50 @@ make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
-| cloud_list | List |  | list of pcl.PointCloud() | 
+| normal_vector | List |  | line's normal X, Y, Z and point x, y, z |
+| boundary_point | List |  | range of points | 
+| point_1 | List |  | point x, y, z | 
+| point_2 | List |  | point x, y, z | 
+| epsilon | Float | 0.1 | epslion | 
 * make_straight_2
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
-| cloud_list | List |  | list of pcl.PointCloud() | 
+| normal_vector | List |  | line's normal X, Y, Z and point x, y, z |
+| boundary_point | List |  | range of points | 
+| point_1 | List |  | point x, y, z | 
+| point_2 | List |  | point x, y, z | 
+| check | Boolean |  | check the return value | 
+| check | Boolean |  | check the return value | 
 * get_intersection_line
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
-| cloud_list | List |  | list of pcl.PointCloud() | 
+| normal_vector | List |  | plane's normal X, Y, Z and Hessian component of the plane's equation | 
+| point_cloud | List |  | list of pcl.PointCloud() | 
 * check_boundary
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
 | cloud_list | List |  | list of pcl.PointCloud() | 
-* make_ceiling_info
+| epslion | Float | 0.5 | epslion |
+* search_point_bounding(self, point_list, wall_vector_list):
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
-| cloud_list | List |  | list of pcl.PointCloud() | 
-* make_floor_info
-
-|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
-|:--------:|:--------:|:--------:|:--------:|  
-| cloud_list | List |  | list of pcl.PointCloud() | 
-* make_wall_info
-
-|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
-|:--------:|:--------:|:--------:|:--------:|  
-| cloud_list | List |  | list of pcl.PointCloud() | 
+| point_list | List |  | list of pcl.PointCloud() | 
+| wall_vector_list | List |  | plane's normal X, Y, Z and Hessian component of the plane's equation with range |
 * make_door_info
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
-| cloud_list | List |  | list of pcl.PointCloud() | 
+| wall_normal_vector | List |  | plane's normal X, Y, Z and Hessian component of the plane's equation with range | 
 * make_window_info
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
-| cloud_list | List |  | list of pcl.PointCloud() | 
-* make_point_surface
+| wall_normal_vector | List |  | plane's normal X, Y, Z and Hessian component of the plane's equation with range |
 
-|  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
-|:--------:|:--------:|:--------:|:--------:|  
-| cloud_list | List |  | list of pcl.PointCloud() | 
 * visual_viewer
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
@@ -243,7 +241,7 @@ make_gml_data = mcd.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall
 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |  
 |:--------:|:--------:|:--------:|:--------:|  
-| cloud_list | List |  | list of pcl.PointCloud() | 
+| point_list | List |  | list of point | 
 ### 2. PointCloud_To_CityGML
 ```python
 import PointCloud_To_CityGML as gml
@@ -252,6 +250,8 @@ make_gml_file = gml.PointCloudToCityGML(ceiling_point, floor_point, wall_point, 
 |  <center>Name</center> |  <center>Type</center> |  <center>Default</center> |  <center>Description</center> |
 |:--------:|:--------:|:--------:|:--------:|
 | ceiling_point, floor_point, wall_point, door_point, window_point | List |  | each surface's points |
+* makePolygonz
+* makePolygonz2
 #### Methods
 ### 3. Point_Sort
 ```python
