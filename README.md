@@ -138,8 +138,8 @@ This release has been tested on Linux Ubuntu 16.04 with
 ## Usage
 For detail information about usage, please see the [User Guide](https://github.com/aistairc/PinSout/wiki)
 * [Make a CityGML data from point cloud](https://github.com/aistairc/PinSout/wiki/Make_CityGML_Data)
-    * [Convert a PointCloud to CityGML](https://github.com/aistairc/PinSout/wiki/PointCloud_To_CityGML)
-    * [Point sorting](https://github.com/aistairc/PinSout/wiki/Point_Sort)
+* [Convert a PointCloud to CityGML](https://github.com/aistairc/PinSout/wiki/PointCloud_To_CityGML)
+* [Point sorting](https://github.com/aistairc/PinSout/wiki/Point_Sort)
 
 ## License
 This project is licensed under the [MIT](https://opensource.org/licenses/MIT) licenses. - see the [LICENSE](https://github.com/aistairc/PinSout/blob/master/LICENSE) file for details
