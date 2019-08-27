@@ -28,10 +28,15 @@ We uesd the following open sources in each step.
 2. [PCL] - Small python binding to the pointcloud library
 3. [3DCityDB] - Free 3D geo database to store, represent, and manage virtual 3D city models
 
-  * ### Deep Learning (PointNet)
-  * ### PCL
-  * ### 3DCityDB
+  * #### Deep Learning (PointNet)
+  Deep learning can help to analyze massive point cloud data. In terms of classification, clustering, segmentation, annotation and so on. PointNet is popular open deep neural network for analyzing point cloud data. We can segment the indoor components such as walls, ceilings, floor, windows and door. Using the Stanford data to do the test
 
+  * #### PCL
+  PCL is the open source project for 2D/3D image and point cloud processing. it Contains numerous state-of-the art algorithms and create surfaces from point clouds and visualize them. Usually the indoor space is a closed space consisting of planar surface, so we are using the RANSAC to extract the plane
+
+  * #### 3DCityDB
+  Using the 3DCityDB to deal with the CityGML. We are mapping the geometry and semantic using the table defined in 3DCityDB.
+3DCityDB is the free geo database to store, represent, and manage virtual 3D city models on top of a standard spatial relational database. Database schema implement the CityGML standard.
 
 The 3D model is expressed in **CityGML**, which is an **open standardized data model and exchange format to store digital 3D model proposed by OGC**.
 
