@@ -52,32 +52,23 @@ This release has been tested on Linux Ubuntu 16.04 with
 > PostgreSQL DBMS >= 9.3 with PostGIS extension >= 2.0
 
 ## Installation
-**PostgreSQL with PostGIS**
-* PostgreSQL download page: https://www.postgresql.org/download/
+* [PostgreSQL with PostGIS](https://www.postgresql.org/download/)
 
-**Anaconda**
-* Anaconda download page: https://www.anaconda.com/distribution/
+* [Anaconda](https://www.anaconda.com/distribution/)
 
-**PointNet**  
-* PointNet github address: https://github.com/charlesq34/pointnet
-  
-**Python-PCL**  
-* Python-PCL github address: https://github.com/strawlab/python-pcl
+* [PointNet]  
+   
+* [Python-PCL]  
 
-**3DCityDB**  
-* 3DCityDB github address: https://github.com/3dcitydb/3dcitydb
-* 3DCityDB download page: https://www.3dcitydb.org/3dcitydb/d3ddatabase/
+* [3DCityDB](https://www.3dcitydb.org/3dcitydb/d3ddatabase/)  
 
-**3DCityDB importer&exporter**  
-* 3DCityDB importer&exporter download page: https://www.3dcitydb.org/3dcitydb/d3dimpexp/
+* [3DCityDB importer&exporter](https://www.3dcitydb.org/3dcitydb/d3dimpexp/)  
 
-**FZK Viewer**  
-* FZK Viewer download page: https://www.iai.kit.edu/1302.php
+* [FZK Viewer](https://www.iai.kit.edu/1302.php)  
 
-**CloudCompare**
-* CloudCompare download page: https://www.danielgm.net/cc/
+* [CloudCompare](https://www.danielgm.net/cc/)
 
-## Quick Start with Sample Data
+## Quick Start with Example
 
 ### 0. Data information
 * [Stanford 2D-3D-Semantics Dataset](http://buildingparser.stanford.edu/dataset.html)
