@@ -19,9 +19,9 @@ So, we are starting a project to automatically generate 3d models from raw point
 In this project, we create the three steps that are Semantic Segmentation, Polygonization and Featurization. These three steps automatically changed the process of maually building 3D model. 
 
 The three steps produce the following result:
-1. Semantic Segmentation - Classify semantics from point
-2. Polygonization - Construct polygons from point
-3. Featurizaiotn - Mapping between semantic features and surfaces
+1. ***Semantic Segmentation*** - Classify semantics from point
+2. ***Polygonization*** - Construct polygons from point
+3. ***Featurizaiotn*** - Mapping between semantic features and surfaces
 
 The 3D model is expressed in **CityGML**, which is an **open standardized data model and exchange format to store digital 3D model proposed by OGC**.
 
