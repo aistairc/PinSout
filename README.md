@@ -77,7 +77,7 @@ This release has been tested on Linux Ubuntu 16.04 with
 **CloudCompare**
 * CloudCompare download page: https://www.danielgm.net/cc/
 
-## Quick Start with Example
+## Quick Start with Sample Data
 
 ### 0. Data information
 * [Stanford 2D-3D-Semantics Dataset](http://buildingparser.stanford.edu/dataset.html)
