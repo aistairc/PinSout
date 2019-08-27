@@ -133,7 +133,7 @@ This release has been tested on Linux Ubuntu 16.04 with
 
 4. Check the CityGML file  
     * Run the FZK Viewer to visualize the CityGML file.
-        * Select and execute the "Local CRS" at the bottom of the Spatial Reference System.
+    * Select and execute the "Local CRS" at the bottom of the Spatial Reference System.
     
 ## Usage
 For detail information about usage, please see the [User Guide](https://github.com/aistairc/PinSout/wiki)
