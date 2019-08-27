@@ -106,7 +106,7 @@ This release has been tested on Linux Ubuntu 16.04 with
     Note that S3DIS dataset paper uses a different 3-fold training, which was not publicly announced at the time of our work.
     For example, to test model_6, using the below command:
     ```sh
-        $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/area6_data_label.txt --visu
+    $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/area6_data_label.txt --visu
     ```
     --model_path : The path where model.ckpt file is stored  
     --dump_dir : The folder where forecasted results are stored  
