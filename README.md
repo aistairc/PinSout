@@ -28,7 +28,7 @@ From the process of manually building the 3D model(**CityGML**) from the point c
 
 So, in this project, our purpose is making each step results automatically as below figure.
 <div>
-  <img width="800" src=https://user-images.githubusercontent.com/17999237/63635662-c8a70700-c69f-11e9-8fda-99881e6be107.png>
+  <img width="800" src=https://user-images.githubusercontent.com/10336074/63822591-ce486980-c98b-11e9-9d43-54af7920177c.png>
 </div>
 
 ## Dependencies
