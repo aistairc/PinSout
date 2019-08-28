@@ -8,7 +8,7 @@ In general, the procedure for creating a 3D model has five steps that are Data S
 Actually, it is performed using man-power, all tasks involve very high time-consuming and labor-intensive. 
 We think about how can improve the processes quickly and easily.
 
-So, we are starting a project to automatically generate 3d models from raw point data. 
+So, we start a project to generate 3d models from raw point data automatically.
 Before we start, we need two pieces of background.
 
   * ### PointCloud
@@ -20,17 +20,13 @@ Before we start, we need two pieces of background.
     It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible **international standard** for spatial data exchange issued by the **Open Geospatial Consortium (OGC)** and the **ISO TC211**. 
     The aim of the development of CityGML is to reach a common definition of the basic entities, attributes, and relations of a 3D city model.
 
-In this project, we create the three steps that are Semantic Segmentation, Polygonization, and Featurization. 
-These three steps automatically changed the process of manually building the 3D model. 
-The 3D model is expressed in **CityGML**.
+From the process of manually building the 3D model(**CityGML**) from the point cloud data, we derived the three steps: Semantic Segmentation, Polygonization, and Featurization. 
 
-
-The three steps produce the following result:
 1. ***Semantic Segmentation*** - Classify semantics from point
 2. ***Polygonization*** - Construct polygons from point
 3. ***Featurizaiotn*** - Mapping between semantic features and surfaces
 
-### "This is PinSout result."
+So, in this project, our purpose is making each step results automatically as below figure.
 <div>
   <img width="800" src=https://user-images.githubusercontent.com/17999237/63635662-c8a70700-c69f-11e9-8fda-99881e6be107.png>
 </div>
