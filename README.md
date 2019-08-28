@@ -79,11 +79,11 @@ This release has been tested on Linux Ubuntu 16.04 with
 
 ## Quick Start with Example
 
-### 0) Data information
+### -) Data information
 * [Stanford 2D-3D-Semantics Dataset](http://buildingparser.stanford.edu/dataset.html)
 * Office type rooms, except complex types ( Convert all offices in area_1)
 
-### 1) Semantic Segmentation
+### 1) Preparing to use **PointNet**
 1. Run [PointNet] and go to the **sem_seg** folder.
     * Download prepared HDF5 data for training: **Only hdf5 train file**
     ```sh
@@ -129,7 +129,7 @@ This release has been tested on Linux Ubuntu 16.04 with
 4. Check the result  
     * Check the result with CloudCompare.
     
-### 2) Polygonization & Featurizaiotn
+### 2) Generate CityGML data from point cloud 
 1. Run **PostgreSQL pgadmin**
 
 2. Run **PinSout**  
@@ -149,8 +149,8 @@ This release has been tested on Linux Ubuntu 16.04 with
     
 ## Usage
 For detail information about usage, please see the [User Guide](https://github.com/aistairc/PinSout/wiki)
-* [Make a CityGML data from point cloud](https://github.com/aistairc/PinSout/wiki/Make_CityGML_Data)
-* [Convert a point cloud to CityGML](https://github.com/aistairc/PinSout/wiki/PointCloud_To_CityGML)
+* [Polygonization](https://github.com/aistairc/PinSout/wiki/Make_CityGML_Data)
+* [Featurizaiotn](https://github.com/aistairc/PinSout/wiki/PointCloud_To_CityGML)
 * [Point list sorting](https://github.com/aistairc/PinSout/wiki/Point_Sort)
 
 ## License
