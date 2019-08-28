@@ -12,12 +12,12 @@ So, we are starting a project to automatically generate 3d models from raw point
 Before we start, we need two pieces of background.
 
   * ### PointCloud
-    Point cloud is a set of data point which is reflected a real-world by 3D scanning. 
+    **Point cloud** is a set of data point which is reflected a real-world by 3D scanning. 
     The important thing is point cloud can include several features, including geometry information, color, intensity and so on.
     Specially, we can use geometry information of point cloud data for constructing a 3D model
   * ### [CityGML]( https://www.opengeospatial.org/standards/citygml )
     **OGC CityGML** is an open data model and XML-based format for the storage and exchange of semantic 3D city models. 
-    It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible international standard for spatial data exchange issued by the **Open Geospatial Consortium (OGC)** and the **ISO TC211**. 
+    It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible **international standard** for spatial data exchange issued by the **Open Geospatial Consortium (OGC)** and the **ISO TC211**. 
     The aim of the development of CityGML is to reach a common definition of the basic entities, attributes, and relations of a 3D city model.
 
 In this project, we create the three steps that are Semantic Segmentation, Polygonization, and Featurization. 
