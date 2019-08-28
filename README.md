@@ -4,26 +4,31 @@
 Accelerating 3D Indoor Space Construction from Point Clouds with Deep Learning
 
 ## Introduction
-In general, the procedure for creating a 3D model has five steps that are Data Segmentation, Components separation, Surface generation, Components assembling and Alignment. Actually, it is performed using man-power, all tasks involve very high time-consuming and labor-intensive. We think about how can improve the processes quickly and easily.
+In general, the procedure for creating a 3D model has five steps that are Data Segmentation, Components separation, Surface generation, Components assembling and Alignment. 
+Actually, it is performed using man-power, all tasks involve very high time-consuming and labor-intensive. 
+We think about how can improve the processes quickly and easily.
 
-So, we are starting a project to automatically generate 3d models from raw point data. Before we start, we need two pieces of background.
+So, we are starting a project to automatically generate 3d models from raw point data. 
+Before we start, we need two pieces of background.
 
   * ### PointCloud
-    Point cloud is a set of data point which is reflected a real-world by 3D scanning. The important thing is point cloud can include several features, including geometry information, color, intensity and so on.
-    specially, we can use geometry information of point cloud data for constructing a 3D model
+    Point cloud is a set of data point which is reflected a real-world by 3D scanning. 
+    The important thing is point cloud can include several features, including geometry information, color, intensity and so on.
+    Specially, we can use geometry information of point cloud data for constructing a 3D model
   * ### [CityGML]( https://www.opengeospatial.org/standards/citygml )
-    OGC CityGML is an open data model and XML-based format for the storage and exchange of semantic 3D city models. It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible international standard for spatial data exchange issued by the Open Geospatial Consortium (OGC) and the ISO TC211. The aim of the development of CityGML is to reach a common definition of the basic entities, attributes, and relations of a 3D city model.
-    **CityGML** is an international **OGC** standard and can be used **free of charge**.
+    **OGC CityGML** is an open data model and XML-based format for the storage and exchange of semantic 3D city models. 
+    It is an application schema for the Geography Markup Language version 3.1.1 (GML3), the extendible international standard for spatial data exchange issued by the **Open Geospatial Consortium (OGC)** and the **ISO TC211**. 
+    The aim of the development of CityGML is to reach a common definition of the basic entities, attributes, and relations of a 3D city model.
 
-  
-In this project, we create the three steps that are Semantic Segmentation, Polygonization, and Featurization. These three steps automatically changed the process of manually building the 3D model. 
+In this project, we create the three steps that are Semantic Segmentation, Polygonization, and Featurization. 
+These three steps automatically changed the process of manually building the 3D model. 
+The 3D model is expressed in **CityGML**.
+
 
 The three steps produce the following result:
 1. ***Semantic Segmentation*** - Classify semantics from point
 2. ***Polygonization*** - Construct polygons from point
 3. ***Featurizaiotn*** - Mapping between semantic features and surfaces
-
-The 3D model is expressed in **CityGML**, which is an **open standardized data model and exchange format to store a digital 3D model proposed by OGC**.
 
 ### "This is PinSout result."
 <div>
@@ -37,14 +42,22 @@ We used the following open sources in each step (*Semantic segmentation, Polygon
 3. [3DCityDB] - Free 3D geodatabase to store, represent, and manage virtual 3D city models
 
   * #### PointNet
-      Deep learning can help to analyze massive point cloud data. In terms of classification, clustering, segmentation, annotation and so on. PointNet is a popular open deep neural network for analyzing point cloud data. We can segment the indoor components such as walls, ceilings, floor, windows, and door. Using the Stanford data to do the test
+      Deep learning can help to analyze massive point cloud data. 
+      In terms of classification, clustering, segmentation, annotation and so on. 
+      PointNet is a popular open deep neural network for analyzing point cloud data. 
+      We can segment the indoor components such as walls, ceilings, floor, windows, and door. 
+      Using the Stanford data to do the test.
 
   * #### Point Cloud Library (PCL)
-      PCL is the open-source project for 2D/3D image and point cloud processing. it contains numerous state-of-the-art algorithms and create surfaces from point clouds and visualize them. Usually, the indoor space is a closed space consisting of a planar surface, so we are using the RANSAC to extract the plane
+      PCL is the open-source project for 2D/3D image and point cloud processing. 
+      it contains numerous state-of-the-art algorithms and create surfaces from point clouds and visualize them. 
+      Usually, the indoor space is a closed space consisting of a planar surface, so we are using the RANSAC to extract the plane.
 
   * #### 3DCityDB
-      Using the 3DCityDB to deal with the CityGML. We are mapping the geometry and semantic using the table defined in 3DCityDB. 
-      3DCityDB is the free geodatabase to store, represent, and manage virtual 3D city models on top of a standard spatial relational database. Database schema implements the CityGML standard.
+      Using the 3DCityDB to deal with the CityGML. 
+      We are mapping the geometry and semantic using the table defined in 3DCityDB. 
+      3DCityDB is the free geodatabase to store, represent, and manage virtual 3D city models on top of a standard spatial relational database. 
+      Database schema implements the CityGML standard.
 
 ## System Requirements
 This release has been tested on Linux Ubuntu 16.04 with
@@ -80,7 +93,8 @@ This release has been tested on Linux Ubuntu 16.04 with
     ```sh
     $ sh download_data.sh
     ```    
-    * Download 3D indoor parsing dataset (S3DIS Dataset) for testing and visualization. Dataset version 1.2 is used in this work.
+    * Download 3D indoor parsing dataset (S3DIS Dataset) for testing and visualization. 
+    Dataset version 1.2 is used in this work.
     ```sh
     $ python collect_indoor3d_data.py
     $ python gen_indoor3d_h5.py
@@ -92,12 +106,14 @@ This release has been tested on Linux Ubuntu 16.04 with
     ```sh
     $ python train.py --log_dir log6 --test_area 6
     ```
-    In default, a simple model based on vanilla PointNet is used for training. Area_6 is used for the test set.
+    In default, a simple model based on vanilla PointNet is used for training. 
+    Area_6 is used for the test set.
 
 3. Test  
     * Testing requires a download of 3D indoor parsing data and preprocessing with collect_indoor3d_data.py
 
-    After training, use batch_inference.py command to segment rooms in the test set. In this work, we use 6-fold training that trains six models. 
+    After training, use batch_inference.py command to segment rooms in the test set. 
+    In this work, we use 6-fold training that trains six models. 
         
         For model_1, area_2 ~ _6 are used as the training data set, and area_1 is used as the test data set. 
         For model_2, area_1, _3 ~ _6 are used as the training data set and area_2 is used as the test data set
@@ -110,7 +126,7 @@ This release has been tested on Linux Ubuntu 16.04 with
     ```
     --model_path : The path where model.ckpt file is stored  
     --dump_dir : The folder where forecasted results are stored  
-    --output_filelist : Set file path/name where the path of the prediction result is stored
+    --output_filelist : Set file path/name where the path of the prediction result is stored  
     --room_data_filelist : .npy file path to test  
     --visu : Use when visualizing  
 
@@ -138,8 +154,8 @@ This release has been tested on Linux Ubuntu 16.04 with
 ## Usage
 For detail information about usage, please see the [User Guide](https://github.com/aistairc/PinSout/wiki)
 * [Make a CityGML data from point cloud](https://github.com/aistairc/PinSout/wiki/Make_CityGML_Data)
-* [Convert a PointCloud to CityGML](https://github.com/aistairc/PinSout/wiki/PointCloud_To_CityGML)
-* [Point sorting](https://github.com/aistairc/PinSout/wiki/Point_Sort)
+* [Convert a point cloud to CityGML](https://github.com/aistairc/PinSout/wiki/PointCloud_To_CityGML)
+* [Point list sorting](https://github.com/aistairc/PinSout/wiki/Point_Sort)
 
 ## License
 This project is licensed under the [MIT](https://opensource.org/licenses/MIT) licenses. - see the [LICENSE](https://github.com/aistairc/PinSout/blob/master/LICENSE) file for details
