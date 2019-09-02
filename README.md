@@ -126,7 +126,7 @@ This release has been tested on Linux Ubuntu 16.04 with
 2. Training  
     * To change the value in train.py
     ```python
-    NUM_CLASSES = 13 -> 5
+    NUM_CLASSES = 5
     ```
     * Once you have downloaded prepared HDF5 files or prepared them by yourself, to start training:
     ```sh
