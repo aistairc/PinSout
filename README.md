@@ -94,6 +94,31 @@ This release has been tested on Linux Ubuntu 16.04 with
     ```sh
     $ python collect_indoor3d_data.py
     ```
+    * Before we start collect_indoor3d_data.py, We change the entry in the **"class_names.txt"** to ceiling, floor, wall, door and window
+    * 
+    ```python
+    g_classes = [x.rstrip() for x in open(os.path.join(BASE_DIR, 'meta/class_names.txt'))]
+    """g_class2color = {'ceiling':	 [0, 255, 0],  # 0
+                 'floor':	 [0, 0, 255],      # 1
+                 'wall':	 [0, 255, 255],    # 2
+                 'beam':     [255, 255, 0],    # 3
+                 'column':   [255, 0, 255],    # 4
+                 'window':   [100, 100, 255],  # 5
+                 'door':     [200, 200, 100],  # 6
+                 'table':    [170, 120, 200],  # 7
+                 'chair':    [255, 0, 0],      # 8
+                 'sofa':     [200, 100, 100],  # 9
+                 'bookcase': [10, 200, 100],   # 10
+                 'board':    [200, 200, 200],  # 11
+                 'clutter':  [50, 50, 50]}     # 12"""
+     g_class2color = {'ceiling':	 [0, 255, 0],
+                 'floor':	 [0, 0, 255],
+                 'wall':	 [0, 255, 255],
+                 'window':   [100, 100, 255],
+                 'door':     [200, 200, 100]}
+
+    ```
+    
     ```sh
     $ python gen_indoor3d_h5.py
     ```  
