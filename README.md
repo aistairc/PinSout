@@ -71,11 +71,11 @@ This release has been tested on Linux Ubuntu 16.04 with
 
 * [3DCityDB](https://www.3dcitydb.org/3dcitydb/d3ddatabase/)  
 
-* [3DCityDB importer&exporter](https://www.3dcitydb.org/3dcitydb/d3dimpexp/)  
+* [3DCityDB importer&exporter]
 
-* [FZK Viewer](https://www.iai.kit.edu/1302.php)  
+* [FZK Viewer]
 
-* [CloudCompare](https://www.danielgm.net/cc/)
+* [CloudCompare]
 
 ## Quick Start with Example
 
@@ -162,7 +162,12 @@ Should you have any questions, comments, or suggestions, please contact me at ch
 **_Wijae Cho_**
 
 https://www.airc.aist.go.jp/en/dprt/
-
+[PostgreSQL with PostGIS]: <https://www.postgresql.org/download/>
+[Anaconda]: <https://www.anaconda.com/distribution/>
 [PointNet]: <https://github.com/charlesq34/pointnet>
 [Python-PCL]: <https://github.com/strawlab/python-pcl>
 [3DCityDB]: <https://github.com/3dcitydb/3dcitydb>
+[3DCityDB importer&exporter]: <https://www.3dcitydb.org/3dcitydb/d3dimpexp/>
+[FZK Viewer]: <https://www.iai.kit.edu/1302.php>
+[CloudCompare]: <https://www.danielgm.net/cc/>
+
