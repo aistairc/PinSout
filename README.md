@@ -93,6 +93,8 @@ This release has been tested on Linux Ubuntu 16.04 with
     Dataset version 1.2 is used in this work.
     ```sh
     $ python collect_indoor3d_data.py
+    ```
+    ```sh
     $ python gen_indoor3d_h5.py
     ```  
     * To prepare your HDF5 data, you need to firstly download 3D indoor parsing dataset and then use training if no model has been learned
