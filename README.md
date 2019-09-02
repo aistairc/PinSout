@@ -91,11 +91,8 @@ This release has been tested on Linux Ubuntu 16.04 with
     ```    
     * Download 3D indoor parsing dataset (S3DIS Dataset) for testing and visualization. 
     Dataset version 1.2 is used in this work.
-    ```sh
-    $ python collect_indoor3d_data.py
-    ```
-    * Before we start collect_indoor3d_data.py, We change the entry in the **"class_names.txt"** to ceiling, floor, wall, door and window
-    * 
+    * Before we start collect_indoor3d_data.py, we change the entry in the **"meta/class_names.txt"** to ceiling, floor, wall, door and window
+    * To change the value of **"g_class2color"** to 5class 
     ```python
     g_classes = [x.rstrip() for x in open(os.path.join(BASE_DIR, 'meta/class_names.txt'))]
     """g_class2color = {'ceiling':	 [0, 255, 0],  # 0
@@ -118,13 +115,19 @@ This release has been tested on Linux Ubuntu 16.04 with
                  'door':     [200, 200, 100]}
 
     ```
-    
+    ```sh
+    $ python collect_indoor3d_data.py
+    ```
     ```sh
     $ python gen_indoor3d_h5.py
     ```  
     * To prepare your HDF5 data, you need to firstly download 3D indoor parsing dataset and then use training if no model has been learned
 
 2. Training  
+    * To change the value in train.py
+    ```python
+    NUM_CLASSES = 13 -> 5
+    ```
     * Once you have downloaded prepared HDF5 files or prepared them by yourself, to start training:
     ```sh
     $ python train.py --log_dir log6 --test_area 6
