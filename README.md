@@ -130,7 +130,7 @@ This release has been tested on Linux Ubuntu 16.04 with
     ```
     * Once you have downloaded prepared HDF5 files or prepared them by yourself, to start training:
     ```sh
-    $ python train.py --log_dir log6 --test_area 6
+    $ python train.py --log_dir log_5cls --test_area 6
     ```
     In default, a simple model based on vanilla PointNet is used for training. 
     Area_6 is used for the test set.
