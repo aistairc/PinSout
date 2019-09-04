@@ -85,14 +85,10 @@ This release has been tested on Linux Ubuntu 16.04 with
 
 ### 1) Preparing to use **PointNet**
 1. Run [PointNet] and go to the **sem_seg** folder.
-    * Download prepared HDF5 data for training: **Only hdf5 train file**
-    ```sh
-    $ sh download_data.sh
-    ```    
     * Download 3D indoor parsing dataset (S3DIS Dataset) for testing and visualization. 
     Dataset version 1.2 is used in this work.
     * Before we start collect_indoor3d_data.py, we change the entry in the **"meta/class_names.txt"** to ceiling, floor, wall, door and window
-    * To change the value of **"g_class2color"** to 5class 
+    * Change the value of **"g_class2color and g_easy_view_labels"** in the "indoor3d_util.py" 
     ```python
     g_classes = [x.rstrip() for x in open(os.path.join(BASE_DIR, 'meta/class_names.txt'))]
     """g_class2color = {'ceiling':	 [0, 255, 0],  # 0
@@ -107,13 +103,16 @@ This release has been tested on Linux Ubuntu 16.04 with
                  'sofa':     [200, 100, 100],  # 9
                  'bookcase': [10, 200, 100],   # 10
                  'board':    [200, 200, 200],  # 11
-                 'clutter':  [50, 50, 50]}     # 12"""
-     g_class2color = {'ceiling':	 [0, 255, 0],
-                 'floor':	 [0, 0, 255],
-                 'wall':	 [0, 255, 255],
-                 'window':   [100, 100, 255],
-                 'door':     [200, 200, 100]}
-
+                 'clutter':  [50, 50, 50]}     # 12
+       g_easy_view_labels = [7, 8, 9, 10, 11, 1]
+    """
+            
+    g_class2color = {'ceiling':	[0, 255, 0],
+                     'floor':	  [0, 0, 255],
+                     'wall':	   [0, 255, 255],
+                     'window':  [100, 100, 255],
+                     'door':    [200, 200, 100]}
+    g_easy_view_labels = [0, 1, 2, 3, 4]
     ```
     ```sh
     $ python collect_indoor3d_data.py
@@ -124,9 +123,12 @@ This release has been tested on Linux Ubuntu 16.04 with
     * To prepare your HDF5 data, you need to firstly download 3D indoor parsing dataset and then use training if no model has been learned
 
 2. Training  
-    * To change the value in train.py
+    * Change the value of **"NUM_CLASSES"** and directory path in "train.py"
     ```python
+    """ NUM_CLASSES = 13 """
     NUM_CLASSES = 5
+    ALL_FILES = provider.getDataFiles('Your indoor3d_sem_seg_hdf5_data path/all_files.txt')
+    room_filelist = [line.rstrip() for line in open('Your indoor3d_sem_seg_hdf5_data path/room_filelist.txt')]
     ```
     * Once you have downloaded prepared HDF5 files or prepared them by yourself, to start training:
     ```sh
@@ -146,6 +148,11 @@ This release has been tested on Linux Ubuntu 16.04 with
         ...
          
     Note that S3DIS dataset paper uses a different 3-fold training, which was not publicly announced at the time of our work.
+    * Chage the value of **"NUM_CLASSES"** in the "batch_inference.py" 
+    ```python
+    """ NUM_CLASSES = 13 """
+    NUM_CLASSES = 5
+    ```
     For example, to test model_6, using the below command:
     ```sh
     $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/area6_data_label.txt --visu
@@ -163,12 +170,14 @@ This release has been tested on Linux Ubuntu 16.04 with
 1. Run **PostgreSQL pgadmin**
 
 2. Run **PinSout**  
-    * Set the data to be trained to area_1.
-    * Set the class name to five categories(ceiling, floor, wall, window, door).  
-    * Doing training
-    * Modify the contents of area_data_label to "data/***your result folder***/Area_1_office_1.npy" and run it. 
+    * Modify the contents of area_data_label to "data/***your result folder***/Area_1_office_1.npy"
     * Add the PinSout's files in **sem_seg**
-
+    * Running the **"batch_inference.py"**
+    ```sh
+    $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/Your area_data_label.txt --visu
+    ```
+    
+    
 3. Export to CityGML file 
     * Check the result using **pgadmin** or **3DCityDB importer&exporter**.
     * Export the CityGML file using **3DCityDB importer&exporter**.
