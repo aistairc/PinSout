@@ -171,7 +171,7 @@ This release has been tested on Linux Ubuntu 16.04 with
     * Modify the contents of area_data_label to "data/***your result folder***/Area_1_office_1.npy"
     * Add the PinSout's files in **sem_seg**
     * We are conducting the three functions in the **batch_inference.py**
-    * ***Semantic Segmentation*** - Classify semantics from point
+    1. ***Semantic Segmentation*** - Classify semantics from point
     ```python
     """ Ceiling ""
     if pred[i] == 0:
