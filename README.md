@@ -104,14 +104,12 @@ This release has been tested on Linux Ubuntu 16.04 with
                  'bookcase': [10, 200, 100],   # 10
                  'board':    [200, 200, 200],  # 11
                  'clutter':  [50, 50, 50]}     # 12
-       g_easy_view_labels = [7, 8, 9, 10, 11, 1]
-    """
-            
-    g_class2color = {'ceiling':	[0, 255, 0],
-                     'floor':	  [0, 0, 255],
-                     'wall':	   [0, 255, 255],
-                     'window':  [100, 100, 255],
-                     'door':    [200, 200, 100]}
+           g_easy_view_labels = [7, 8, 9, 10, 11, 1]"""
+    g_class2color = {'ceiling':	 [0, 255, 0],  # 0
+                 'floor':	 [0, 0, 255],        # 1
+                 'wall':	 [0, 255, 255],       # 2                 
+                 'window':   [100, 100, 255],  # 3
+                 'door':     [200, 200, 100]}  # 4   
     g_easy_view_labels = [0, 1, 2, 3, 4]
     ```
     ```sh
@@ -172,12 +170,40 @@ This release has been tested on Linux Ubuntu 16.04 with
 2. Run **PinSout**  
     * Modify the contents of area_data_label to "data/***your result folder***/Area_1_office_1.npy"
     * Add the PinSout's files in **sem_seg**
+    * We are conducting the three functions in the **batch_inference.py**
+    * ***Semantic Segmentation*** - Classify semantics from point
+    ```python
+    """ Ceiling ""
+    if pred[i] == 0:
+    cnt_ceiling += 1
+    coord_ceiling = str(pts[i, 6]) + ' ' + str(pts[i, 7]) + ' ' + str(pts[i, 8]) + '\n'
+    ceiling_list.append(coord_ceiling)
+    ceiling_list2.append([pts[i, 6], pts[i, 7], pts[i, 8]])
+    fout_ceiling_label.write('ply\n'
+                             'format ascii 1.0\n'
+                             'element vertex %d\n'
+                             'property float x\n'
+                             'property float y\n'
+                             'property float z\n'
+                             'end_header\n' % cnt_ceiling)
+    fout_ceiling_label.writelines(ceiling_list)
+    ceiling_cloud = pc.PointCloud() 
+    ceiling_cloud.from_array(np.asarray(ceiling_list2, dtype=np.float32))
+    ```
+    2. ***Polygonization*** - Construct polygons from point
+    ```python
+    make_gml_data2 = mcd2.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud)
+    wall_surface, ceiling_surface, floor_surface, door_surface, window_surface = make_gml_data2.make_point_surface()
+    ```
+    3. ***Featurizaiotn*** - Mapping between semantic features and surfaces
+    ```python
+    make_gml_file2 = gml2.PointCloudToCityGML(ceiling_surface, floor_surface, wall_surface, door_surface, window_surface)
+    make_gml_file2.MakeRoomObject()
+    ```
     * Running the **"batch_inference.py"**
     ```sh
     $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/Your area_data_label.txt --visu
     ```
-    
-    
 3. Export to CityGML file 
     * Check the result using **pgadmin** or **3DCityDB importer&exporter**.
     * Export the CityGML file using **3DCityDB importer&exporter**.
