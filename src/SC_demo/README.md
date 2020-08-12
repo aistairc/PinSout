@@ -77,6 +77,9 @@ This release has been tested on Linux Ubuntu 16.04 with
 
 * [CloudCompare]
 
+## How to use
+You can browse the [document](https://breeze0512.github.io/PinSout/) for more information about function.
+
 ## Process of SC-Demo
 
 ### -) Data information
