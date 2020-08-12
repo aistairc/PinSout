@@ -77,41 +77,22 @@ This release has been tested on Linux Ubuntu 16.04 with
 
 * [CloudCompare]
 
-## Quick Start with Example
+## How to use
+You can browse the [document](https://breeze0512.github.io/PinSout/) for more information about function.
+
+## Process of SC-Demo
 
 ### -) Data information
-* [Stanford 2D-3D-Semantics Dataset](http://buildingparser.stanford.edu/dataset.html)
-* Office type rooms, except complex types ( Convert all offices in area_1)
+* Collected PointCloud data
 
-### 1) Preparing to use **PointNet**
+
+### 1) Preparing to use **PointNet** 
+
 1. Run [PointNet] and go to the **sem_seg** folder.
     * Download 3D indoor parsing dataset (S3DIS Dataset) for testing and visualization. 
     Dataset version 1.2 is used in this work.
     * Before we start collect_indoor3d_data.py, we change the entry in the **"meta/class_names.txt"** to ceiling, floor, wall, door and window
-    * Change the value of **"g_class2color and g_easy_view_labels"** in the "indoor3d_util.py" 
-    ```python
-    g_classes = [x.rstrip() for x in open(os.path.join(BASE_DIR, 'meta/class_names.txt'))]
-    """g_class2color = {'ceiling':	 [0, 255, 0],  # 0
-                 'floor':	 [0, 0, 255],      # 1
-                 'wall':	 [0, 255, 255],    # 2
-                 'beam':     [255, 255, 0],    # 3
-                 'column':   [255, 0, 255],    # 4
-                 'window':   [100, 100, 255],  # 5
-                 'door':     [200, 200, 100],  # 6
-                 'table':    [170, 120, 200],  # 7
-                 'chair':    [255, 0, 0],      # 8
-                 'sofa':     [200, 100, 100],  # 9
-                 'bookcase': [10, 200, 100],   # 10
-                 'board':    [200, 200, 200],  # 11
-                 'clutter':  [50, 50, 50]}     # 12
-           g_easy_view_labels = [7, 8, 9, 10, 11, 1]"""
-    g_class2color = {'ceiling':	 [0, 255, 0],  # 0
-                 'floor':	 [0, 0, 255],        # 1
-                 'wall':	 [0, 255, 255],       # 2                 
-                 'window':   [100, 100, 255],  # 3
-                 'door':     [200, 200, 100]}  # 4   
-    g_easy_view_labels = [0, 1, 2, 3, 4]
-    ```
+    * Change the value of **"g_class2color and g_easy_view_labels"** in the 
     ```sh
     $ python collect_indoor3d_data.py
     ```
@@ -163,47 +144,79 @@ This release has been tested on Linux Ubuntu 16.04 with
 
 4. Check the result  
     * Check the result with CloudCompare.
-    
-### 2) Generate CityGML data from point cloud 
+
+### 2) Running the **PlyTo3Dmodel**
+1. Run PlyTo3Dmodel.py
+```sh
+$ python PlyTo3Dmodel.py path_of_your_pointcloud_data
+```
+2. Dividing the entire PointCloud data into a certain size
+    * default_x, defulat_y = 10.0
+3. Move data of each area to the origin
+4. Convert data from all areas to .npy format
+5. Perform semantic segmentation of [PointNet] using the converted data
+```python
+"""
+Run PinSout
+    model_path: Path with the trained model needed to do Semantic segmentation.
+    out_filename: The path where the 3D model will be saved
+    npy_list: List of split PointCloud information
+    min_list: Minimum value of each PointCloud data
+"""
+batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
+
+```
+
+### 3) Generate CityGML data from point cloud 
 1. Run **PostgreSQL pgadmin**
 
 2. Run **PinSout**  
-    * Modify the contents of area_data_label to "data/***your result folder***/Area_1_office_1.npy"
-    * Add the PinSout's files in **sem_seg**
-    * We are conducting the three functions in the **batch_inference.py**
-    1. ***Semantic Segmentation*** - Classify semantics from point
+    1. ***Semantic Segmentation*** - Classify semantics from PointCloud
     ```python
-    """ Ceiling ""
-    if pred[i] == 0:
-    cnt_ceiling += 1
-    coord_ceiling = str(pts[i, 6]) + ' ' + str(pts[i, 7]) + ' ' + str(pts[i, 8]) + '\n'
-    ceiling_list.append(coord_ceiling)
-    ceiling_list2.append([pts[i, 6], pts[i, 7], pts[i, 8]])
-    fout_ceiling_label.write('ply\n'
-                             'format ascii 1.0\n'
-                             'element vertex %d\n'
-                             'property float x\n'
-                             'property float y\n'
-                             'property float z\n'
-                             'end_header\n' % cnt_ceiling)
-    fout_ceiling_label.writelines(ceiling_list)
-    ceiling_cloud = pc.PointCloud() 
-    ceiling_cloud.from_array(np.asarray(ceiling_list2, dtype=np.float32))
+    """
+    sem_seg/bactch_inference.py
+    1) Classify A data using trained models
+        - Basic model : log_6cls_test16 (ceiling, floor, wall, chair, desk)
+        - If the model does not exist or is newly created
+            1) Preparing to use **PointNet** 
+    2) The classified results are stored in each classification item array
+    3) Use PCL-RANSAC function to extract the surface of each item
+    Wall 
+    """
+    if len(wall_list) != 0:
+        temp_value_3 = np.asarray(wall_list)
+        temp_value_3 += min_list[each_i]
+        wall_cloud = pcl.PointCloud()
+        wall_cloud.from_list(temp_value_3.tolist())
+        pcl.save(wall_cloud, os.path.join(DUMP_DIR, os.path.basename(out_filename)) + '_wall' + "_" + str(each_i)+".pcd")
+        all_wall += temp_value_3.tolist()
+    wall_cloud = pcl.PointCloud()
+    wall_cloud.from_list(all_wall)
     ```
-    2. ***Polygonization*** - Construct polygons from point
+    2. ***Polygonization*** - Construct polygons from PointCloud using PCL-RANSAC
+
     ```python
-    make_gml_data2 = mcd2.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud)
-    wall_surface, ceiling_surface, floor_surface, door_surface, window_surface = make_gml_data2.make_point_surface()
+    """
+    plane_ransac_test.py
+    1) Clustering the the semantic segmented result data
+    2) Finding the plane from each clustered PointCloud data
+    3) Finding the intersection points between planes
+    """
+    wall_surface_list = make_wall_info(wall_cloud)
+    ```
+    3. ***3DModel*** - Making the 3D model using each surface of clustered data
+    ```python
+    poly2obj = po.Ply2Obj(wall_surface_list)
+    poly2obj.poly_2_obj('All')
+    poly2obj.output_dae(dae_filename)
     ```
     3. ***Featurizaiotn*** - Mapping between semantic features and surfaces
     ```python
     make_gml_file2 = gml2.PointCloudToCityGML(ceiling_surface, floor_surface, wall_surface, door_surface, window_surface)
     make_gml_file2.MakeRoomObject()
     ```
-    * Running the **"batch_inference.py"**
-    ```sh
-    $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/Your area_data_label.txt --visu
-    ```
+    
+    
 3. Export to CityGML file 
     * Check the result using **pgadmin** or **3DCityDB importer&exporter**.
     * Export the CityGML file using **3DCityDB importer&exporter**.
