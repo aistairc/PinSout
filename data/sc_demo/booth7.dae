@@ -1,0 +1,93 @@
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <created>2020-07-06T16:52:34.508532</created>
+    <modified>2020-07-06T16:52:34.508558</modified>
+    <up_axis>Y_UP</up_axis>
+  </asset>
+  <library_effects>
+    <effect id="effect0" name="effect0">
+      <profile_COMMON>
+        <technique sid="common">
+          <phong>
+            <emission>
+              <color>0.0 0.0 0.0 1.0</color>
+            </emission>
+            <ambient>
+              <color>0.0 0.0 0.0 1.0</color>
+            </ambient>
+            <diffuse>
+              <color>0 0 0 1.0</color>
+            </diffuse>
+            <specular>
+              <color>0 0 0 1.0</color>
+            </specular>
+            <shininess>
+              <float>0.0</float>
+            </shininess>
+            <reflective>
+              <color>0.0 0.0 0.0 1.0</color>
+            </reflective>
+            <reflectivity>
+              <float>0.0</float>
+            </reflectivity>
+            <transparent>
+              <color>0.0 0.0 0.0 1.0</color>
+            </transparent>
+            <transparency>
+              <float>1.0</float>
+            </transparency>
+          </phong>
+        </technique>
+        <extra>
+          <technique profile="GOOGLEEARTH">
+            <double_sided>0</double_sided>
+          </technique>
+        </extra>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="geometry0" name="mycube">
+      <mesh>
+        <source id="test-array">
+          <float_array count="108" id="test-array-array">3.908466 2.348448 2.77304 3.908466 2.348448 0.0809246 3.944404 5.707855 0.0809246 3.944404 5.707855 2.77304 6.848367 -0.6578188 -0.04275437 6.91162 2.340683 -0.04275437 6.848367 -0.6578188 2.90649 6.91162 2.340683 2.90649 6.981573 5.656799 -0.04275437 6.981573 5.656799 2.90649 3.908466 2.348448 2.742188 3.908466 2.348448 0.1951665 6.91162 2.340683 0.1951665 6.91162 2.340683 2.742188 6.848367 -0.6578188 0.04812482 1.203984 -0.6185531 0.04812482 1.203984 -0.6185531 2.84692 6.848367 -0.6578188 2.84692 1.203984 -0.6185531 2.846234 1.203984 -0.6185531 0.300214 1.210912 5.753805 0.300214 1.210912 5.753805 2.846234 1.210912 5.753805 2.17449 3.944404 5.707855 2.17449 1.210912 5.753805 2.76598 3.944404 5.707855 2.76598 6.981573 5.656799 2.17449 6.981573 5.656799 2.76598 1.281795 2.91254 1.733033 1.224611 5.542849 1.733033 1.299359 5.542849 0.051509 1.356542 2.91254 0.051509 3.231484 6.034245 1.58534 3.194618 1.651436 -0.043662 3.13855 1.651436 1.58534 3.287552 6.034245 -0.043662</float_array>
+          <technique_common>
+            <accessor count="36" source="#test-array-array" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="test-array-vertices">
+          <input semantic="POSITION" source="#test-array" />
+        </vertices>
+        <triangles count="20" material="materialref">
+          <input offset="0" semantic="VERTEX" source="#test-array-vertices" />
+          <p>0 1 2 2 3 0 4 5 6 6 5 7 7 8 9 8 7 5 10 11 12 12 13 10 14 15 16 16 17 14 18 19 20 20 21 18 22 23 24 24 23 25 25 26 27 26 25 23 28 29 30 30 31 28 32 33 34 33 32 35</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_materials>
+    <material id="material0" name="mymaterial">
+      <instance_effect url="#effect0" />
+    </material>
+  </library_materials>
+  <library_visual_scenes>
+    <visual_scene id="myscene">
+      <node id="node0" name="node0">
+        <instance_geometry url="#geometry0">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="materialref" target="#material0" />
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#myscene" />
+  </scene>
+</COLLADA>
