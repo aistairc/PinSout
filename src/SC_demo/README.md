@@ -193,12 +193,7 @@ batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
     2. ***Polygonization*** - Construct polygons from PointCloud using PCL-RANSAC
 
     ```python
-    """
-    plane_ransac_test.py
-    1) Clustering the the semantic segmented result data
-    2) Finding the plane from each clustered PointCloud data
-    3) Finding the intersection points between planes
-    """
+    plan   e_ransac.py            
     wall_surface_list = make_wall_info(wall_cloud)
     ```
     3. ***3DModel*** - Making the 3D model using each surface of clustered data

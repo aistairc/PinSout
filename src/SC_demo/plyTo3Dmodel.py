@@ -1,7 +1,10 @@
 from plyfile import PlyData
 import os
+import math
+import numpy as np
+# from src.SC_demo.sem_seg import batch_inference
 from src.SC_demo.sem_seg import batch_inference
-from plane_ransac_test import *
+
 # /usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 def ply_to_collada(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'):
@@ -213,24 +216,10 @@ def check_area_exist(data_list, index_area):
                 return data_list.index(data)
         return -1
 
-if __name__ == '__main__':
-    #
-    # ply_to_collada("/home/dprt/Desktop/SC_DEMO/New Folder/test/conferenceRoom_1.ply")
-    # ply_to_collada("/home/dprt/Desktop/SC_DEMO/New Folder/test/auditorium_1.ply")
-    # ply_to_collada("/home/dprt/Desktop/SC_DEMO/New Folder/test/merge_colorized_subsampled.ply")
-    ply_to_collada("/home/dprt/Desktop/Sigspatial_LBJ/booth1.ply")
-    # ply_to_collada("/home/dprt/Desktop/SC_DEMO/New Folder/test/chairtest1.ply")
-    # ply_to_collada("/home/dprt/Desktop/SC_DEMO/New Folder/room2.ply")
-    # ply_to_collada("/home/dprt/Desktop/SC_DEMO/New Folder/all_booth.ply")
-    # ply_to_collada("/home/dprt/Desktop/SC_DEMO/20191112144908_colorized.ply")
-    # # ply_to_collada("/home/dprt/Desktop/SC_DEMO/New Folder/test/office_18.ply")
-    # # ply_to_collada("/home/dprt/Desktop/SC_DEMO/New Folder/testply.ply")
-    # # print 1//7
-    # # print 0.7 // 7
-    # # print -0.7 // 7
-    # # print -1.7 // 7
-    # # print -7.1 // 7
-    # x = np.array([[[1,2,3,4,5,5]]],
-    #               [[1,2,3,4,5,5]])
-    # print x.shape
+def txt2ply():
+    print "hi"
 
+
+if __name__ == '__main__':
+
+    ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/Area_2/Area_2_All_office.ply")
