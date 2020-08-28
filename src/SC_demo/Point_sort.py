@@ -35,7 +35,7 @@ class Point_sort:
         # self.center_point = np.asarray([center_x, center_y])
         self.center_point = (reduce(lambda x, y: np.array(x) + np.array(y), point_list)) / float(len(point_list))
         # center_point = [center_point_0[0] / float(len(point_list)), center_point_0[1] / float(len(point_list)), center_point_0[2] / float(len(point_list))]
-        print self.center_point
+
         self.normal_vector = np.cross(np.array(point_list[0]) - np.array(self.center_point), np.array(point_list[1]) - np.array(self.center_point)) * float(sign)
 
         new_point_list = sorted(point_list, key=self.cmp_to_key(self.GetIsLess))
@@ -54,11 +54,12 @@ class Point_sort:
         # self.center_point = np.asarray([center_x, center_y])
         self.center_point = centre_point
         # center_point = [center_point_0[0] / float(len(point_list)), center_point_0[1] / float(len(point_list)), center_point_0[2] / float(len(point_list))]
-        print self.center_point
+
         self.normal_vector = np.cross(np.array(point_list[0]) - np.array(self.center_point),
                                       np.array(point_list[1]) - np.array(self.center_point)) * float(sign)
 
         new_point_list = sorted(point_list, key=self.cmp_to_key(self.GetIsLess))
+        new_point_list.append(new_point_list[0])
         self.center_point = []
         self.normal_vector = []
         return new_point_list
