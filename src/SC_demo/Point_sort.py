@@ -16,7 +16,7 @@ class Point_sort:
         # center_point = [center_point_0[0] / float(len(point_list)), center_point_0[1] / float(len(point_list)), center_point_0[2] / float(len(point_list))]
 
         self.normal_vector = np.cross(np.array(point_list[0]) - np.array(self.center_point), np.array(point_list[1]) - np.array(self.center_point)) * float(sign)
-
+        print self.center_point
         new_point_list = sorted(point_list, key=self.cmp_to_key(self.GetIsLess))
 
         new_point_list.append(new_point_list[0])
@@ -35,8 +35,28 @@ class Point_sort:
         # self.center_point = np.asarray([center_x, center_y])
         self.center_point = (reduce(lambda x, y: np.array(x) + np.array(y), point_list)) / float(len(point_list))
         # center_point = [center_point_0[0] / float(len(point_list)), center_point_0[1] / float(len(point_list)), center_point_0[2] / float(len(point_list))]
-
+        print self.center_point
         self.normal_vector = np.cross(np.array(point_list[0]) - np.array(self.center_point), np.array(point_list[1]) - np.array(self.center_point)) * float(sign)
+
+        new_point_list = sorted(point_list, key=self.cmp_to_key(self.GetIsLess))
+        self.center_point = []
+        self.normal_vector = []
+        return new_point_list
+
+    def SortPointsClockwise3(self, centre_point, point_list, direction):
+
+        sign = 1.0 if direction else -1.0
+        # center_x = 0
+        # center_y = 0
+        # for i in point_list:
+        #     center_x = center_x + i[0]
+        #     center_y = center_y + i[1]
+        # self.center_point = np.asarray([center_x, center_y])
+        self.center_point = centre_point
+        # center_point = [center_point_0[0] / float(len(point_list)), center_point_0[1] / float(len(point_list)), center_point_0[2] / float(len(point_list))]
+        print self.center_point
+        self.normal_vector = np.cross(np.array(point_list[0]) - np.array(self.center_point),
+                                      np.array(point_list[1]) - np.array(self.center_point)) * float(sign)
 
         new_point_list = sorted(point_list, key=self.cmp_to_key(self.GetIsLess))
         self.center_point = []
@@ -112,7 +132,7 @@ class Point_sort:
         print point_list
         for index in point_list:
             x.append(index[0])
-            y.append(index[1])
+            y.append(index[2])
             plt.annotate(str(point_list.index(index)), (index[0], index[1]))
         plt.scatter(x, y, label="star", color="green",
                     marker="*", s=50)
