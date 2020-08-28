@@ -105,7 +105,7 @@ def do_plane_ransac(cloud):
     segmenter.set_optimize_coefficients(True)  # Do a little bit more optimisation once the plane has been fitted.
     segmenter.set_normal_distance_weight(0.05)
     segmenter.set_method_type(pcl.SAC_RANSAC)  # Use RANSAC for the sample consensus algorithm.
-    segmenter.set_max_iterations(1000)  # Number of iterations for the RANSAC algorithm.
+    segmenter.set_max_iterations(100000)  # Number of iterations for the RANSAC algorithm.
     segmenter.set_distance_threshold(0.05) # The max distance from the fitted model a point can be for it to be an inlier.
 
     inlier_indices, coefficients = segmenter.segment() # Returns all the points that fit the model, and the parameters of the model.
@@ -240,12 +240,12 @@ def merge_dup_plane(plane_list, normal_vector):
     for i in range(len(plane_list) - 1):
         for j in range(i + 1, len(plane_list)):
             if len(prev_bbox[i]) == 0:
-                main_bbox = get_range(plane_list[i], 0.2)
+                main_bbox = get_range(plane_list[i], 0.05)
                 prev_bbox[i].extend(main_bbox)
             else:
                 main_bbox = prev_bbox[i]
             if len(prev_bbox[j]) == 0:
-                sub_bbox = get_range(plane_list[j], 0.2)
+                sub_bbox = get_range(plane_list[j], 0.05)
                 prev_bbox[j].extend(sub_bbox)
             else:
                 sub_bbox = prev_bbox[j]
@@ -265,7 +265,7 @@ def merge_dup_plane(plane_list, normal_vector):
                     distance_bw_planes = math.fabs(normal_vector[j][0] * main_point[0] + normal_vector[j][1] * main_point[1] + normal_vector[j][2] * main_point[2] + normal_vector[j][3]) / \
                                         math.sqrt(math.pow(normal_vector[j][0],2) + math.pow(normal_vector[j][1],2) + math.pow(normal_vector[j][2],2))
                     print model_cos, distance_bw_planes, i, j, check_distance_plane(plane_list[i], normal_vector[i]), check_distance_plane(plane_list[j], normal_vector[j])
-                    if distance_bw_planes <= 0.1:
+                    if distance_bw_planes <= 0.05:
                         if len(dup_plane_index) == 0:
                             dup_plane_index.append([i, j])
                         else:
@@ -339,7 +339,7 @@ def get_plane_list(clustered_cloud):
     while True:
         # print cloud.height * cloud.width < original_size * min_percentage / 100
 
-        if cloud.height * cloud.width < original_size * min_percentage / 100:
+        if cloud.height * cloud.width < 100:
 
             break
 
@@ -362,7 +362,7 @@ def get_plane_list(clustered_cloud):
         else:
             cloud = outliers_p
 
-    # visual_viewer(plane_list)
+
     new_plane_list, new_normal_vector, new_bbox_list = merge_dup_plane(plane_list, normal_vector)
 
 
@@ -387,18 +387,19 @@ def make_wall_info(cloud):
 
     # clustering the pointcloud data
     cluster_list = clustering(cloud)
-    surface_point_list = list()
+
+    room_surface_list = list()
     p_s = ps.Point_sort()
 
 
-    visual_viewer(cluster_list)
-    all_a = []
+
+    all_room = []
     for clustered_cloud in cluster_list:
         # Exporting the plane data from each clustered cloud data
         wall_point_list, wall_vector_list, wall_bbox_list = get_plane_list(clustered_cloud)
         # visual_viewer(wall_point_list)
         print len(wall_point_list), len(wall_vector_list), len(wall_bbox_list)
-        visual_viewer(wall_point_list)
+        # visual_viewer(wall_point_list)
         side_line_count = list()
         side_line_list = list()
         # print "side_line_info"
@@ -411,28 +412,40 @@ def make_wall_info(cloud):
             # p_s.visual_graph(a)
             side_line_list.append(side_line_info)
             side_line_count.append(len(side_line_info))
-        print side_line_list
-        wall_surface_list = get_intersection_line(wall_bbox_list, wall_vector_list, side_line_list)
+        print len(side_line_list), side_line_count
 
+        # print side_line_list
+        wall_surface_list = get_intersection_line(wall_bbox_list, wall_vector_list, side_line_list)
+        surface_point_list = list()
+        # visual_viewer(wall_point_list)
+        all_a = []
         for w_i in wall_surface_list:
 
+            t_w_i = len(w_i)
+            print "original size : ", t_w_i
             if len(w_i) >= 4:
+
                 w_i.pop(0)
                 w_i.pop(0)
-            a = []
+                print "remove : ", t_w_i, len(w_i)
+            else:
+                continue
+
+            # a = []
             all_a.append(w_i)
-            print len(w_i)
-            for w in w_i:
-                a.extend(w)
-            print a
-            c = p_s.SortPointsClockwise(a, True)
-            surface_point_list.append(c)
-        print surface_point_list
-        print len(surface_point_list), len(wall_surface_list)
-#         test_graph = MakingGraph([[[3.90846583538452, 2.34844838828785, 0.08092460036277771], [3.90846583538452, 2.34844838828785, 2.7730400562286377]], [[3.94440403637520, 5.70785470504333, 0.08092460036277771], [3.94440403637520, 5.70785470504333, 2.7730400562286377]]], [[[6.91161990299326, 2.34068288045553, -0.04275437444448471], [6.91161990299326, 2.34068288045553, 2.9064900875091553]], [[6.84836677829886, -0.657818792669299, -0.04275437444448471], [6.84836677829886, -0.657818792669299, 2.9064900875091553]], [[6.98157308188523, 5.65679927725593, -0.04275437444448471], [6.98157308188523, 5.65679927725593, 2.9064900875091553]]], [[[3.90846583538452, 2.34844838828785, 0.19516649842262268], [3.90846583538452, 2.34844838828785, 2.7421875]], [[6.91161990299326, 2.34068288045553, 0.19516649842262268], [6.91161990299326, 2.34068288045553, 2.7421875]]], [[[6.84836677829886, -0.657818792669299, 0.04812482371926308], [6.84836677829886, -0.657818792669299, 2.8469200134277344]], [[1.20398386210918, -0.618553097855484, 0.04812482371926308], [1.20398386210918, -0.618553097855484, 2.8469200134277344]]], [[[1.20398386210918, -0.618553097855484, 0.3002139925956726], [1.20398386210918, -0.618553097855484, 2.8462343215942383]], [[1.21091214887766, 5.75380525819936, 0.3002139925956726], [1.21091214887766, 5.75380525819936, 2.8462343215942383]]], [[[3.94440403637520, 5.70785470504333, 2.174489974975586], [3.94440403637520, 5.70785470504333, 2.7659800052642822]], [[6.98157308188523, 5.65679927725593, 2.174489974975586], [6.98157308188523, 5.65679927725593, 2.7659800052642822]], [[1.21091214887766, 5.75380525819936, 2.174489974975586], [1.21091214887766, 5.75380525819936, 2.7659800052642822]]], [[[1.2993586796643264, 5.542848777770996, 0.05150900036096573], [1.2246109795685844, 5.542848777770996, 1.733033299446106]], [[1.3565422359495487, 2.912540006637573, 0.05150900036096573], [1.2817945358538059, 2.912540006637573, 1.733033299446106]]], [[[3.287551747537691, 6.034244728088379, -0.04366200044751167], [3.231484093605423, 6.034244728088379, 1.5853400230407715]], [[3.194617512431096, 1.6514357805252076, -0.04366200044751167], [3.138549858498828, 1.6514357805252076, 1.5853400230407715]]]
-# )
-#         test_graph.make_first_graph()
-        #
+
+            # for w in w_i:
+            #     a.extend(w)
+            # print a
+            # c = p_s.SortPointsClockwise(a, True)
+            # surface_point_list.append(c)
+        # print surface_point_list
+        # print "surface_point_list count", len(surface_point_list), len(wall_surface_list)
+        all_room.append(all_a)
+    print(all_room)
+    test_graph = MakingGraph(all_room)
+    test_graph.make_first_graph()
+    #     #
         # for wall_i in range(len(wall_surface_list)):
         #     if side_line_count[wall_i] == 0:
         #         merge_wall_info = reduce(lambda x, y: x+y, wall_surface_list[wall_i])
@@ -711,11 +724,43 @@ def find_side_point(plane_vector, boundary_info):
     for min_index in min_value:
         if len(min_index) != 0:
             point_list.append(min_index)
-
+    print len(point_list), point_list
     if len(point_list) == 4:
         return point_list
     else:
         return []
+
+
+def check_point_side(point, side_lines):
+
+    x = point[0]
+    y = point[1]
+
+    if side_lines[0][0][0] > side_lines[1][0][0]:
+        side_maxX = side_lines[0][0][0]
+        side_minX = side_lines[1][0][0]
+    else:
+        side_maxX = side_lines[1][0][0]
+        side_minX = side_lines[0][0][0]
+
+    if side_lines[0][0][1] > side_lines[1][0][1]:
+        side_maxY = side_lines[0][0][1]
+        side_minY = side_lines[1][0][1]
+    else:
+        side_maxY = side_lines[1][0][1]
+        side_minY = side_lines[0][0][1]
+
+    check_count = 0
+    if x <= side_maxX and x >= side_minX:
+        check_count = check_count + 1
+    if y <= side_maxY and x >= side_minY:
+        check_count = check_count + 1
+
+    if check_count == 2:
+        return True
+    else:
+        return False
+
 
 def check_point_range_2(point, wall_range):
     """Check whether the pointer is included in the bounding box
@@ -859,7 +904,102 @@ def get_intersection_line(bbox_list, normal_vector, side_line_list):
                     main_points = [main_point_bot, main_point_top]
                     sub_points = [sub_point_bot, sub_point_top]
                     side_line_list[match_i].append(main_points)
-                    side_line_list[sub_index].append(sub_points)
+                    side_line_list[sub_index].append(main_points)
+                    # side_line_list[sub_index].append(sub_points)
+                    # if included_bbox(bbox_list[match_i], bbox_list[sub_index]) == 2:
+                    #     side_line_list[match_i].append(main_points)
+                    #     side_line_list[match_i].append(sub_points)
+                    #     side_line_list[sub_index].append(sub_points)
+                    #
+                    # elif included_bbox(bbox_list[match_i], bbox_list[sub_index]) == -2:
+                    #     side_line_list[sub_index].append(sub_points)
+                    #     side_line_list[sub_index].append(main_points)
+                    #     side_line_list[match_i].append(main_points)
+                    # else:
+                    #     side_line_list[match_i].append(main_points)
+                    #     side_line_list[sub_index].append(sub_points)
+
+    return side_line_list
+
+def get_intersection_line2(bbox_list, normal_vector, side_line_list):
+    """Create intersection points between planes
+
+        Search intersecting lines between planes where each bounding box intersects.
+        Create intersection points using information from the intersection lines and Maximum and Minimum height value for each plane
+
+    Args:
+        bbox_list: Bounding box information of each plane
+        normal_vector: Coefficient data list of each plane
+        side_line_list: Side lines list of each plane
+    Returns:
+        side_line_list: side_line_list with each line intersection line information added
+    """
+    x = Symbol('x')
+    y = Symbol('y')
+    z = 0.0
+
+
+
+    for main_i in range(len(normal_vector) - 1):
+        for target_i in range(1, len(normal_vector)):
+                model_cos = np.dot(
+                    [normal_vector[main_i][0], normal_vector[main_i][1], normal_vector[main_i][2]],
+                    [normal_vector[target_i][0], normal_vector[target_i][1], normal_vector[target_i][2]]) \
+                            / (np.linalg.norm(
+                    [normal_vector[main_i][0], normal_vector[main_i][1], normal_vector[main_i][2]])
+                               * np.linalg.norm(
+                            [normal_vector[target_i][0], normal_vector[target_i][1],
+                             normal_vector[target_i][2]]))
+                if math.fabs(round(model_cos, 1)) != 1.0:
+                    temp_list = np.cross(
+                        [normal_vector[main_i][0], normal_vector[main_i][1], normal_vector[main_i][2]],
+                        [normal_vector[target_i][0], normal_vector[target_i][1], normal_vector[target_i][2]])
+                    e1 = Eq(
+                        normal_vector[main_i][0] * x + normal_vector[main_i][1] * y + normal_vector[main_i][3],
+                        0)
+                    e2 = Eq(
+                        normal_vector[target_i][0] * x + normal_vector[target_i][1] * y +
+                        normal_vector[target_i][3],
+                        0)
+
+                    value_eq = solve([e1, e2], x, y)
+                    temp_list = temp_list.tolist()
+                    temp_list.append(value_eq[x])
+                    temp_list.append(value_eq[y])
+                    temp_list.append(z)
+
+                    temp_point_list = list()
+
+                    main_minZ = bbox_list[main_i][1][2]
+                    main_maxZ = bbox_list[main_i][0][2]
+                    target_minZ = bbox_list[target_i][1][2]
+                    target_maxZ = bbox_list[target_i][0][2]
+
+                    minT = (z - temp_list[5]) / temp_list[2]
+                    minX = (minT * temp_list[0]) + temp_list[3]
+                    minY = (minT * temp_list[1]) + temp_list[4]
+
+                    main_point_bot = [minX, minY, main_minZ]
+                    main_point_top = [minX, minY, main_maxZ]
+                    target_point_bot = [minX, minY, target_minZ]
+                    target_point_top = [minX, minY, target_maxZ]
+                    check_main = True
+                    check_target = True
+                    # if check_point_side(main_point_bot, side_line_list[main_i][0:2]) == False:
+                    #     check_main = False
+                    # if check_point_side(target_point_bot, side_line_list[target_i][0:2]) == False:
+                    #     check_target = False
+                    if check_point_range_2(main_point_bot, bbox_list[main_i]) == False:
+                        check_main = False
+                    if check_point_range_2(target_point_bot, bbox_list[target_i]) == False:
+                        check_target = False
+
+                    if check_main or check_target:
+
+                        main_points = [main_point_bot, main_point_top]
+                        target_points = [target_point_bot, target_point_top]
+                        side_line_list[main_i].append(main_points)
+                        side_line_list[target_i].append(target_points)
                     # if included_bbox(bbox_list[match_i], bbox_list[sub_index]) == 2:
                     #     side_line_list[match_i].append(main_points)
                     #     side_line_list[match_i].append(sub_points)
@@ -1261,7 +1401,11 @@ if __name__ == "__main__":
     # cloud = pcl.load("/home/dprt/Desktop/SC_DEMO/New Folder/SC/20.ply")
     path = "/home/dprt/Desktop/Sigspatial_LBJ/booth1.ply"
     file_name = (path.split('/')[-1]).split('.')[0]
-    cloud = pcl.load("/home/dprt/Desktop/pinsout_gitlab/pinsout/data/Sigspatial_LBJ/booth7.ply")
+    # cloud = pcl.load("/home/dprt/Desktop/pinsout_gitlab/pinsout/data/Sigspatial_LBJ/booth7.ply")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/Area_2/Area_2_All_office_wall_seg.ply")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_wall_2.ply")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_18-cloud_wall_.pcd")
+    cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_wall_01-remove-3.ply")
     # cloud = pcl.load("/home/dprt/Desktop/lbj/merge2.ply")
     # cloud = pcl.load("/home/dprt/Desktop/lbj/npy_data2/dump/merge_subsample_nofloor_wall (copy).ply")
     # cloud = pcl.load("/home/dprt/Desktop/21/Untitled Folder 2/colorizedlast_wall2.ply")
@@ -1270,9 +1414,13 @@ if __name__ == "__main__":
     # cloud = pcl.load("/home/dprt/Desktop/Demo/IOU_test/Untitled Folder/colorized_wall.ply")
     # a = clustering(cloud)
     # print cloud.get_point(0)
+    #
     a = make_wall_info(cloud)
     first_process_runtime = (time.time() - start_vect) / 60
     print("plane RANSAC Process Runtime: %0.2f Minutes" % (first_process_runtime))
+
+
+
     # poly2obj = po.Ply2Obj(a)
     # poly2obj.poly_2_obj('All')
     # # print file_name
@@ -1280,12 +1428,23 @@ if __name__ == "__main__":
     #
     # dae_filename = '/home/dprt/Desktop/pinsout_gitlab/pinsout/data/sc_demo/booth7.dae'
     # poly2obj.output_dae(dae_filename)
+    # 0.05
+    # rooms = [[[[4.69711197662828, 3.10132797859425, 0.01646059937775135], [4.69711197662828, 3.10132797859425, 3.0554399490356445]], [[-4.69822532075788, 3.12000233212000, 0.01646059937775135], [-4.69822532075788, 3.12000233212000, 3.0554399490356445]], [[2.99053100234752, 3.10472001183641, 0.01646059937775135], [2.99053100234752, 3.10472001183641, 3.0554399490356445]], [[2.85592963672819, 3.10498754810542, 0.01646059937775135], [2.85592963672819, 3.10498754810542, 3.0554399490356445]], [[1.03671818059138, 3.10860344786449, 0.01646059937775135], [1.03671818059138, 3.10860344786449, 3.0554399490356445]], [[1.17232344394907, 3.10833391622898, 0.01646059937775135], [1.17232344394907, 3.10833391622898, 3.0554399490356445]]], [[[4.69940499681119, -3.11213494616376, 0.03738019987940788], [4.69940499681119, -3.11213494616376, 3.0621800422668457]], [[-4.69794659232765, -3.11232705634018, 0.03738019987940788], [-4.69794659232765, -3.11232705634018, 3.0621800422668457]], [[-0.0243317252695328, -3.11223151357283, 0.03738019987940788], [-0.0243317252695328, -3.11223151357283, 3.0621800422668457]], [[-0.215555162439024, -3.11223542275595, 0.03738019987940788], [-0.215555162439024, -3.11223542275595, 3.0621800422668457]]], [[[4.69711197662828, 3.10132797859425, 0.01646059937775135], [4.69711197662828, 3.10132797859425, 3.0554399490356445]], [[4.69940499681119, -3.11213494616376, 0.03738019987940788], [4.69940499681119, -3.11213494616376, 3.0621800422668457]]], [[[-4.69822532075788, 3.12000233212000, 0.01646059937775135], [-4.69822532075788, 3.12000233212000, 3.0554399490356445]], [[-4.69794659232765, -3.11232705634018, 0.03738019987940788], [-4.69794659232765, -3.11232705634018, 3.0621800422668457]], [[-4.69805035458894, -0.792217156192569, 0.036078501492738724], [-4.69805035458894, -0.792217156192569, 3.0480549335479736]], [[-4.69804342456960, -0.947171436056617, 0.036078501492738724], [-4.69804342456960, -0.947171436056617, 3.0480549335479736]]], [[[-4.69805035458894, -0.792217156192569, 0.036078501492738724], [-4.69805035458894, -0.792217156192569, 3.0480549335479736]], [[-0.0736667534394775, -0.792109886945326, 0.02443454973399639], [-0.0736667534394775, -0.792109886945326, 3.0496299266815186]]], [[[2.99053100234752, 3.10472001183641, 0.01646059937775135], [2.99053100234752, 3.10472001183641, 3.0554399490356445]], [[2.98952686704443, -0.790252950611448, 0.024747176095843315], [2.98952686704443, -0.790252950611448, 3.038594961166382]], [[2.98956085812258, -0.658403856221184, 0.024747176095843315], [2.98956085812258, -0.658403856221184, 3.038594961166382]]], [[[2.85592963672819, 3.10498754810542, 0.01646059937775135], [2.85592963672819, 3.10498754810542, 3.0554399490356445]], [[2.85417986314639, -0.790574479280031, 0.03525486961007118], [2.85417986314639, -0.790574479280031, 3.0363399982452393]], [[2.85423922802842, -0.658409047928616, 0.03525486961007118], [2.85423922802842, -0.658409047928616, 3.0363399982452393]]], [[[1.03671818059138, 3.10860344786449, 0.01646059937775135], [1.03671818059138, 3.10860344786449, 3.0554399490356445]], [[1.03899695814266, -0.794886605340243, 0.033170800656080246], [1.03899695814266, -0.794886605340243, 3.0378000736236572]], [[1.03891732599760, -0.658478694002224, 0.033170800656080246], [1.03891732599760, -0.658478694002224, 3.0378000736236572]]], [[[2.98952686704443, -0.790252950611448, 0.024747176095843315], [2.98952686704443, -0.790252950611448, 3.038594961166382]], [[2.85417986314639, -0.790574479280031, 0.03525486961007118], [2.85417986314639, -0.790574479280031, 3.0363399982452393]], [[1.03899695814266, -0.794886605340243, 0.033170800656080246], [1.03899695814266, -0.794886605340243, 3.0378000736236572]], [[1.17151383917327, -0.794571799876543, 0.020686199888586998], [1.17151383917327, -0.794571799876543, 3.0344998836517334]]], [[[1.17232344394907, 3.10833391622898, 0.01646059937775135], [1.17232344394907, 3.10833391622898, 3.0554399490356445]], [[1.17151383917327, -0.794571799876543, 0.020686199888586998], [1.17151383917327, -0.794571799876543, 3.0344998836517334]], [[1.17154207089495, -0.658473605762648, 0.03899608179926872], [1.17154207089495, -0.658473605762648, 3.047840118408203]]], [[[2.98956085812258, -0.658403856221184, 0.024747176095843315], [2.98956085812258, -0.658403856221184, 3.038594961166382]], [[2.85423922802842, -0.658409047928616, 0.03525486961007118], [2.85423922802842, -0.658409047928616, 3.0363399982452393]], [[1.03891732599760, -0.658478694002224, 0.033170800656080246], [1.03891732599760, -0.658478694002224, 3.0378000736236572]], [[1.17154207089495, -0.658473605762648, 0.03899608179926872], [1.17154207089495, -0.658473605762648, 3.047840118408203]]], [[[-4.69804342456960, -0.947171436056617, 0.036078501492738724], [-4.69804342456960, -0.947171436056617, 3.0480549335479736]], [[-0.0703359259474093, -0.948751631879418, 0.02952166646718979], [-0.0703359259474093, -0.948751631879418, 3.0423800945281982]], [[-0.215571228170187, -0.948702039242467, 0.02952166646718979], [-0.215571228170187, -0.948702039242467, 3.0423800945281982]]], [[[-0.0243317252695328, -3.11223151357283, 0.03738019987940788], [-0.0243317252695328, -3.11223151357283, 3.0621800422668457]], [[-0.0736667534394775, -0.792109886945326, 0.02443454973399639], [-0.0736667534394775, -0.792109886945326, 3.0496299266815186]], [[-0.0703359259474093, -0.948751631879418, 0.02952166646718979], [-0.0703359259474093, -0.948751631879418, 3.0423800945281982]]], [[[-0.215555162439024, -3.11223542275595, 0.03738019987940788], [-0.215555162439024, -3.11223542275595, 3.0621800422668457]], [[-0.215571228170187, -0.948702039242467, 0.02952166646718979], [-0.215571228170187, -0.948702039242467, 3.0423800945281982]]]]
+    #
+    # print(len(rooms))
+    #
+    # for i in range(len(rooms)):
+    #     list_a = []
+    #     l = []
+    #     for j in range(len(rooms[i])):
+    #
+    #         l.extend(rooms[i][j])
+    #
+    #     testa = pcl.PointCloud()
+    #     testa.from_list(l)
+    #     list_a.append(testa)
+    #
+    #     pcl.save(testa, "/home/dprt/Documents/dprt/pointnet_data/Untitled Folder/test"+str(i)+".ply")
+        # visual_viewer2(cloud, list_a)
 
 # /usr/local/cuda/lib64:$LD_LIBRARY_PATH
-
-
-
-
-
-
-

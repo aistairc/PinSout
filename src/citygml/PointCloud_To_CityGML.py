@@ -2,7 +2,6 @@ import math
 import numpy as np
 import psycopg2
 from decimal import *
-import Point_Sort as ps
 import matplotlib.pyplot as plt
 """  db connect  """
 

@@ -1,0 +1,6 @@
+log6/dump_board2clu/Area_1_WC_1_pred.txt
+log6/dump_board2clu/Area_1_boardroom_1_pred.txt
+log6/dump_board2clu/Area_1_conferenceRoom_1_pred.txt
+log6/dump_board2clu/Area_1_office_25_pred.txt
+log6/dump_board2clu/Area_1_office_26_pred.txt
+log6/dump_board2clu/Area_1_office_27_pred.txt

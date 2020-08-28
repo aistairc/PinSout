@@ -32,13 +32,25 @@ def ply_to_collada(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply')
     if os.path.exists(filepath) is not True:
         os.mkdir(filepath)
     has_color = False
-    for prop in plydata.elements[0].properties:
-        if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
-            has_color = True
+    # for prop in plydata.elements[0].properties:
+    #     if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
+    #         has_color = True
 
     lens = len(plydata.elements[0].data)
 
     data_list = list()
+
+    # for i in range(lens):
+    #     x = plydata.elements[0].data['x'][i]
+    #     y = plydata.elements[0].data['y'][i]
+    #     z = plydata.elements[0].data['z'][i]
+    #
+    #     if math.isnan(x) or math.isnan(y) or math.isnan(z):
+    #         print "there is NaN value!!"
+    #         continue
+    #     data_list.append([x, y, z,0,0,0])
+
+
     for i in range(lens):
         z = plydata.elements[0].data['z'][i]
         if 10.0 > z:
@@ -49,25 +61,25 @@ def ply_to_collada(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply')
                 print "there is NaN value!!"
                 continue
 
-            if has_color:
-                r = plydata.elements[0].data['red'][i]
-                g = plydata.elements[0].data['green'][i]
-                b = plydata.elements[0].data['blue'][i]
-            else:
-                r = 0
-                g = 0
-                b = 0
+            # if has_color:
+            #     r = plydata.elements[0].data['red'][i]
+            #     g = plydata.elements[0].data['green'][i]
+            #     b = plydata.elements[0].data['blue'][i]
+            # else:
+            #     r = 0
+            #     g = 0
+            #     b = 0
             # data_list.append([x, y, z, r, g, b])
             index_num = make_area_num(x, y, default_x, default_y)
             check_area = check_area_exist(data_list, index_num)
 
             if check_area == -1:
                 index_info = []
-                index_info.append([x, y, z, r, g, b])
+                index_info.append([x, y, z, 0, 0, 0])
                 index_info.insert(0, index_num)
                 data_list.append(index_info)
             else:
-                data_list[check_area].append([x, y, z, r, g, b])
+                data_list[check_area].append([x, y, z, 0, 0, 0])
 
     npy_list, min_list = make_point_label(data_list)
     # print npy_list, min_list
@@ -76,7 +88,69 @@ def ply_to_collada(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply')
     print out_filename, min_list
     # data = np.load('/root/pointnet/data/Stanford_5cls/Area_6_office_1.npy')
     # out_filename = "/home/dprt/Desktop/SC_DEMO/New Folder/test/st/npy_data2/office_1"
-    model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
+    # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
+
+    model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
+    print(model_path)
+    # model_path = '/root/pointnet/sem_seg/log_5cls_2/model.ckpt'
+    # model_path = '/root/pointnet/sem_seg/log_5cls/model.ckpt'
+    batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
+
+
+def ply_to_collada2(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'):
+    """Reading the .ply data and divide space
+
+    Dividing the entire PointCloud data into a certain size.
+    Find the minimum value of each segmented data and subtract it to move the data to the origin.
+
+    Args:
+        ply_path: The path where A is located
+
+    Returns:
+        model_path: Path with the trained model needed to do Semantic segmentation.
+        out_filename: The path where the 3D model will be saved
+        npy_list: List of split PointCloud information
+        min_list: Minimum value of each PointCloud data
+    """
+    plydata = PlyData.read(ply_path)
+    dir, ply_file = os.path.split(ply_path)
+
+
+    filepath = os.path.join(dir, 'npy_data2')
+    if os.path.exists(filepath) is not True:
+        os.mkdir(filepath)
+    has_color = False
+    # for prop in plydata.elements[0].properties:
+    #     if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
+    #         has_color = True
+
+    lens = len(plydata.elements[0].data)
+
+    data_list = list()
+
+    for i in range(lens):
+        x = plydata.elements[0].data['x'][i]
+        y = plydata.elements[0].data['y'][i]
+        z = plydata.elements[0].data['z'][i]
+
+        if math.isnan(x) or math.isnan(y) or math.isnan(z):
+            print "there is NaN value!!"
+            continue
+        data_list.append([x, y, z,0,0,0])
+
+
+
+    npy_list, min_list = make_point_label([data_list])
+    # print npy_list, min_list
+    npy_file = ply_file.split('.')[0]
+    out_filename = os.path.join(filepath, npy_file)
+    print out_filename, min_list
+    # data = np.load('/root/pointnet/data/Stanford_5cls/Area_6_office_1.npy')
+    # out_filename = "/home/dprt/Desktop/SC_DEMO/New Folder/test/st/npy_data2/office_1"
+    # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
+
+    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
+    print(model_path)
     # model_path = '/root/pointnet/sem_seg/log_5cls_2/model.ckpt'
     # model_path = '/root/pointnet/sem_seg/log_5cls/model.ckpt'
     batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
@@ -222,4 +296,17 @@ def txt2ply():
 
 if __name__ == '__main__':
 
-    ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/Area_2/Area_2_All_office.ply")
+    # ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/office_1.ply")
+    # ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/Area_1/Area_1_All_office.ply")
+    # ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/Area_2/Area_2_All_office.ply")
+    # for i in range(4, 15):
+    #     path = "/home/dprt/Documents/dprt/pointnet_data/Area_2/office_"+str(i)+" - Cloud.ply"
+    #     print(path)
+    #     ply_to_collada(path)
+    #
+
+    # ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/Area_1/office_1 - Cloud.ply")
+    # ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/Area_1/office_16 - Cloud.ply")
+    # ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model.ply")
+    # ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_18-cloud.ply")
+    ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/Area_1/office_30 - Cloud.ply")

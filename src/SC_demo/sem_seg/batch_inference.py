@@ -98,9 +98,7 @@ def evaluate(model_path, out_filename, booth_data, min_list):
         if len(wall_list) != 0:
             temp_value_3 = np.asarray(wall_list)
             temp_value_3 += min_list[each_i]
-            wall_cloud = pcl.PointCloud()
-            wall_cloud.from_list(temp_value_3.tolist())
-            pcl.save(wall_cloud, os.path.join(DUMP_DIR, os.path.basename(out_filename)) + '_wall' + "_" + str(each_i)+".pcd")
+
             all_wall += temp_value_3.tolist()
         if len(chair_list) != 0:
             temp_value_4 = np.asarray(chair_list)
@@ -118,25 +116,27 @@ def evaluate(model_path, out_filename, booth_data, min_list):
             pcl.save(table_cloud, os.path.join(DUMP_DIR, os.path.basename(out_filename)) + '_table' + "_" + str(each_i)+".pcd")
             all_table += temp_value_5.tolist()
         if len(clutter_list) != 0:
-            temp_value_6 = np.asarray(wall_list)
+            temp_value_6 = np.asarray(clutter_list)
             temp_value_6 += min_list[each_i]
             clutter_cloud = pcl.PointCloud()
             clutter_cloud.from_list(temp_value_6.tolist())
-            all_wall += temp_value_6.tolist()
+            all_clutter += temp_value_6.tolist()
             pcl.save(clutter_cloud,
                      os.path.join(DUMP_DIR, os.path.basename(out_filename)) + "_clutter" + "_" + str(each_i)+".pcd")
 
 
     print "chair : ", len(all_chair)
     ''' Third Process '''
-
-    dae_filename = os.path.join(DUMP_DIR, os.path.basename(out_filename))
-    dae_filename = dae_filename + '.dae'
-
     wall_cloud = pcl.PointCloud()
     wall_cloud.from_list(all_wall)
-    wall_surface_list = make_wall_info(wall_cloud)
-    print wall_surface_list
+    pcl.save(wall_cloud, os.path.join(DUMP_DIR, os.path.basename(out_filename)) + '_wall' + "_" + ".pcd")
+    dae_filename = os.path.join(DUMP_DIR, os.path.basename(out_filename))
+    dae_filename = dae_filename + '.dae'
+    #
+    # wall_cloud = pcl.PointCloud()
+    # wall_cloud.from_list(all_wall)
+    # wall_surface_list = make_wall_info(wall_cloud)
+    # print wall_surface_list
 
     # chair_cloud = pcl.PointCloud()
     # chair_cloud.from_list(all_chair)

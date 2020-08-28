@@ -37,14 +37,14 @@ g_class2label = {cls: i for i, cls in enumerate(g_classes)}
 #                  'bookcase': [10, 200, 100],   # 10
 #                  'board':    [200, 200, 200],  # 11
 #                  'clutter':  [50, 50, 50]}     # 12
-g_class2color = {# 0
-                 'ceiling':	 [0, 255, 0],
-                 'floor':	 [0, 0, 255],      # 1
-                 'wall':	 [0, 255, 255],    # 2
-                 'table':    [170, 120, 200],  # 7
-                 'chair':    [255, 0, 0],
-                 'clutter':  [50, 50, 50]
-                 }
+# g_class2color = {# 0
+#                  'ceiling':	 [0, 255, 0],
+#                  'floor':	 [0, 0, 255],      # 1
+#                  'wall':	 [0, 255, 255],    # 2
+#                  'table':    [170, 120, 200],  # 7
+#                  'chair':    [255, 0, 0],
+#                  'clutter':  [50, 50, 50]
+#                  }
 # g_class2color = {# 0
 #                  'table':    [170, 120, 200],  # 7
 #                  'chair':    [255, 0, 0],
@@ -66,7 +66,7 @@ g_easy_view_labels = [0, 1, 2, 3, 4, 5]
 # g_easy_view_labels = [0, 1, 2, 3, 4, 5, 6]
 
 
-g_label2color = {g_classes.index(cls): g_class2color[cls] for cls in g_classes}
+# g_label2color = {g_classes.index(cls): g_class2color[cls] for cls in g_classes}
 
 
 # -----------------------------------------------------------------------------
@@ -163,7 +163,6 @@ def collect_point_label(anno_path, out_filename, file_format='txt'):
         cls = os.path.basename(f).split('_')[0]  # 입력받은 경로의 base name(기본 이름)을 반환
         if cls not in g_classes:  # note: in some room there is 'staris' class..
             # cls = 'clutter'
-            print cls
             continue
         # points = np.loadtxt(f, delimiter=',') # 좌표들의 구분이 comma로 구분되어 있을 경우 사용 (default= space)
         points = np.loadtxt(f)
@@ -190,30 +189,30 @@ def collect_point_label(anno_path, out_filename, file_format='txt'):
         exit()
 
 
-def point_label_to_obj(input_filename, out_filename, label_color=True, easy_view=False, no_wall=False):
-    """ For visualization of a room from data_label file,
-	input_filename: each line is X Y Z R G B L
-	out_filename: OBJ filename,
-            visualize input file by coloring point with label color
-        easy_view: only visualize furnitures and floor
-    """
-    data_label = np.loadtxt(input_filename)
-    data = data_label[:, 0:6]
-    label = data_label[:, -1].astype(int)
-    fout = open(out_filename, 'w')
-    for i in range(data.shape[0]):
-        color = g_label2color[label[i]]
-        if easy_view and (label[i] not in g_easy_view_labels):
-            continue
-        if no_wall and ((label[i] == 2) or (label[i] == 0)):
-            continue
-        if label_color:
-            fout.write('v %f %f %f %d %d %d\n' % \
-                       (data[i, 0], data[i, 1], data[i, 2], color[0], color[1], color[2]))
-        else:
-            fout.write('v %f %f %f %d %d %d\n' % \
-                       (data[i, 0], data[i, 1], data[i, 2], data[i, 3], data[i, 4], data[i, 5]))
-    fout.close()
+# def point_label_to_obj(input_filename, out_filename, label_color=True, easy_view=False, no_wall=False):
+#     """ For visualization of a room from data_label file,
+# 	input_filename: each line is X Y Z R G B L
+# 	out_filename: OBJ filename,
+#             visualize input file by coloring point with label color
+#         easy_view: only visualize furnitures and floor
+#     """
+#     data_label = np.loadtxt(input_filename)
+#     data = data_label[:, 0:6]
+#     label = data_label[:, -1].astype(int)
+#     fout = open(out_filename, 'w')
+#     for i in range(data.shape[0]):
+#         color = g_label2color[label[i]]
+#         if easy_view and (label[i] not in g_easy_view_labels):
+#             continue
+#         if no_wall and ((label[i] == 2) or (label[i] == 0)):
+#             continue
+#         if label_color:
+#             fout.write('v %f %f %f %d %d %d\n' % \
+#                        (data[i, 0], data[i, 1], data[i, 2], color[0], color[1], color[2]))
+#         else:
+#             fout.write('v %f %f %f %d %d %d\n' % \
+#                        (data[i, 0], data[i, 1], data[i, 2], data[i, 3], data[i, 4], data[i, 5]))
+#     fout.close()
 
 
 # -----------------------------------------------------------------------------
@@ -508,148 +507,148 @@ def collect_bounding_box(anno_path, out_filename):
     fout.close()
 
 
-def bbox_label_to_obj(input_filename, out_filename_prefix, easy_view=False):
-    """ Visualization of bounding boxes.
+# def bbox_label_to_obj(input_filename, out_filename_prefix, easy_view=False):
+#     """ Visualization of bounding boxes.
+#
+#     Args:
+#         input_filename: each line is x1 y1 z1 x2 y2 z2 label
+#         out_filename_prefix: OBJ filename prefix,
+#             visualize object by g_label2color
+#         easy_view: if True, only visualize furniture and floor
+#     Returns:
+#         output a list of OBJ file and MTL files with the same prefix
+#     """
+#     bbox_label = np.loadtxt(input_filename)
+#     bbox = bbox_label[:, 0:6]
+#     label = bbox_label[:, -1].astype(int)
+#     v_cnt = 0  # count vertex
+#     ins_cnt = 0  # count instance
+#     for i in range(bbox.shape[0]):
+#         if easy_view and (label[i] not in g_easy_view_labels):
+#             continue
+#         obj_filename = out_filename_prefix + '_' + g_classes[label[i]] + '_' + str(ins_cnt) + '.obj'
+#         mtl_filename = out_filename_prefix + '_' + g_classes[label[i]] + '_' + str(ins_cnt) + '.mtl'
+#         fout_obj = open(obj_filename, 'w')
+#         fout_mtl = open(mtl_filename, 'w')
+#         fout_obj.write('mtllib %s\n' % (os.path.basename(mtl_filename)))
+#
+#         length = bbox[i, 3:6] - bbox[i, 0:3]
+#         a = length[0]
+#         b = length[1]
+#         c = length[2]
+#         x = bbox[i, 0]
+#         y = bbox[i, 1]
+#         z = bbox[i, 2]
+#         color = np.array(g_label2color[label[i]], dtype=float) / 255.0
+#
+#         material = 'material%d' % (ins_cnt)
+#         fout_obj.write('usemtl %s\n' % (material))
+#         fout_obj.write('v %f %f %f\n' % (x, y, z + c))
+#         fout_obj.write('v %f %f %f\n' % (x, y + b, z + c))
+#         fout_obj.write('v %f %f %f\n' % (x + a, y + b, z + c))
+#         fout_obj.write('v %f %f %f\n' % (x + a, y, z + c))
+#         fout_obj.write('v %f %f %f\n' % (x, y, z))
+#         fout_obj.write('v %f %f %f\n' % (x, y + b, z))
+#         fout_obj.write('v %f %f %f\n' % (x + a, y + b, z))
+#         fout_obj.write('v %f %f %f\n' % (x + a, y, z))
+#         fout_obj.write('g default\n')
+#         v_cnt = 0  # for individual box
+#         fout_obj.write('f %d %d %d %d\n' % (4 + v_cnt, 3 + v_cnt, 2 + v_cnt, 1 + v_cnt))
+#         fout_obj.write('f %d %d %d %d\n' % (1 + v_cnt, 2 + v_cnt, 6 + v_cnt, 5 + v_cnt))
+#         fout_obj.write('f %d %d %d %d\n' % (7 + v_cnt, 6 + v_cnt, 2 + v_cnt, 3 + v_cnt))
+#         fout_obj.write('f %d %d %d %d\n' % (4 + v_cnt, 8 + v_cnt, 7 + v_cnt, 3 + v_cnt))
+#         fout_obj.write('f %d %d %d %d\n' % (5 + v_cnt, 8 + v_cnt, 4 + v_cnt, 1 + v_cnt))
+#         fout_obj.write('f %d %d %d %d\n' % (5 + v_cnt, 6 + v_cnt, 7 + v_cnt, 8 + v_cnt))
+#         fout_obj.write('\n')
+#
+#         fout_mtl.write('newmtl %s\n' % (material))
+#         fout_mtl.write('Kd %f %f %f\n' % (color[0], color[1], color[2]))
+#         fout_mtl.write('\n')
+#         fout_obj.close()
+#         fout_mtl.close()
+#
+#         v_cnt += 8
+#         ins_cnt += 1
 
-    Args:
-        input_filename: each line is x1 y1 z1 x2 y2 z2 label
-        out_filename_prefix: OBJ filename prefix,
-            visualize object by g_label2color
-        easy_view: if True, only visualize furniture and floor
-    Returns:
-        output a list of OBJ file and MTL files with the same prefix
-    """
-    bbox_label = np.loadtxt(input_filename)
-    bbox = bbox_label[:, 0:6]
-    label = bbox_label[:, -1].astype(int)
-    v_cnt = 0  # count vertex
-    ins_cnt = 0  # count instance
-    for i in range(bbox.shape[0]):
-        if easy_view and (label[i] not in g_easy_view_labels):
-            continue
-        obj_filename = out_filename_prefix + '_' + g_classes[label[i]] + '_' + str(ins_cnt) + '.obj'
-        mtl_filename = out_filename_prefix + '_' + g_classes[label[i]] + '_' + str(ins_cnt) + '.mtl'
-        fout_obj = open(obj_filename, 'w')
-        fout_mtl = open(mtl_filename, 'w')
-        fout_obj.write('mtllib %s\n' % (os.path.basename(mtl_filename)))
 
-        length = bbox[i, 3:6] - bbox[i, 0:3]
-        a = length[0]
-        b = length[1]
-        c = length[2]
-        x = bbox[i, 0]
-        y = bbox[i, 1]
-        z = bbox[i, 2]
-        color = np.array(g_label2color[label[i]], dtype=float) / 255.0
-
-        material = 'material%d' % (ins_cnt)
-        fout_obj.write('usemtl %s\n' % (material))
-        fout_obj.write('v %f %f %f\n' % (x, y, z + c))
-        fout_obj.write('v %f %f %f\n' % (x, y + b, z + c))
-        fout_obj.write('v %f %f %f\n' % (x + a, y + b, z + c))
-        fout_obj.write('v %f %f %f\n' % (x + a, y, z + c))
-        fout_obj.write('v %f %f %f\n' % (x, y, z))
-        fout_obj.write('v %f %f %f\n' % (x, y + b, z))
-        fout_obj.write('v %f %f %f\n' % (x + a, y + b, z))
-        fout_obj.write('v %f %f %f\n' % (x + a, y, z))
-        fout_obj.write('g default\n')
-        v_cnt = 0  # for individual box
-        fout_obj.write('f %d %d %d %d\n' % (4 + v_cnt, 3 + v_cnt, 2 + v_cnt, 1 + v_cnt))
-        fout_obj.write('f %d %d %d %d\n' % (1 + v_cnt, 2 + v_cnt, 6 + v_cnt, 5 + v_cnt))
-        fout_obj.write('f %d %d %d %d\n' % (7 + v_cnt, 6 + v_cnt, 2 + v_cnt, 3 + v_cnt))
-        fout_obj.write('f %d %d %d %d\n' % (4 + v_cnt, 8 + v_cnt, 7 + v_cnt, 3 + v_cnt))
-        fout_obj.write('f %d %d %d %d\n' % (5 + v_cnt, 8 + v_cnt, 4 + v_cnt, 1 + v_cnt))
-        fout_obj.write('f %d %d %d %d\n' % (5 + v_cnt, 6 + v_cnt, 7 + v_cnt, 8 + v_cnt))
-        fout_obj.write('\n')
-
-        fout_mtl.write('newmtl %s\n' % (material))
-        fout_mtl.write('Kd %f %f %f\n' % (color[0], color[1], color[2]))
-        fout_mtl.write('\n')
-        fout_obj.close()
-        fout_mtl.close()
-
-        v_cnt += 8
-        ins_cnt += 1
-
-
-def bbox_label_to_obj_room(input_filename, out_filename_prefix, easy_view=False, permute=None, center=False,
-                           exclude_table=False):
-    """ Visualization of bounding boxes.
-
-    Args:
-        input_filename: each line is x1 y1 z1 x2 y2 z2 label
-        out_filename_prefix: OBJ filename prefix,
-            visualize object by g_label2color
-        easy_view: if True, only visualize furniture and floor
-        permute: if not None, permute XYZ for rendering, e.g. [0 2 1]
-        center: if True, move obj to have zero origin
-    Returns:
-        output a list of OBJ file and MTL files with the same prefix
-    """
-    bbox_label = np.loadtxt(input_filename)
-    bbox = bbox_label[:, 0:6]
-    if permute is not None:
-        assert (len(permute) == 3)
-        permute = np.array(permute)
-        bbox[:, 0:3] = bbox[:, permute]
-        bbox[:, 3:6] = bbox[:, permute + 3]
-    if center:
-        xyz_max = np.amax(bbox[:, 3:6], 0)
-        bbox[:, 0:3] -= (xyz_max / 2.0)
-        bbox[:, 3:6] -= (xyz_max / 2.0)
-        bbox /= np.max(xyz_max / 2.0)
-    label = bbox_label[:, -1].astype(int)
-    obj_filename = out_filename_prefix + '.obj'
-    mtl_filename = out_filename_prefix + '.mtl'
-
-    fout_obj = open(obj_filename, 'w')
-    fout_mtl = open(mtl_filename, 'w')
-    fout_obj.write('mtllib %s\n' % (os.path.basename(mtl_filename)))
-    v_cnt = 0  # count vertex
-    ins_cnt = 0  # count instance
-    for i in range(bbox.shape[0]):
-        if easy_view and (label[i] not in g_easy_view_labels):
-            continue
-        if exclude_table and label[i] == g_classes.index('table'):
-            continue
-
-        length = bbox[i, 3:6] - bbox[i, 0:3]
-        a = length[0]
-        b = length[1]
-        c = length[2]
-        x = bbox[i, 0]
-        y = bbox[i, 1]
-        z = bbox[i, 2]
-        color = np.array(g_label2color[label[i]], dtype=float) / 255.0
-
-        material = 'material%d' % (ins_cnt)
-        fout_obj.write('usemtl %s\n' % (material))
-        fout_obj.write('v %f %f %f\n' % (x, y, z + c))
-        fout_obj.write('v %f %f %f\n' % (x, y + b, z + c))
-        fout_obj.write('v %f %f %f\n' % (x + a, y + b, z + c))
-        fout_obj.write('v %f %f %f\n' % (x + a, y, z + c))
-        fout_obj.write('v %f %f %f\n' % (x, y, z))
-        fout_obj.write('v %f %f %f\n' % (x, y + b, z))
-        fout_obj.write('v %f %f %f\n' % (x + a, y + b, z))
-        fout_obj.write('v %f %f %f\n' % (x + a, y, z))
-        fout_obj.write('g default\n')
-        fout_obj.write('f %d %d %d %d\n' % (4 + v_cnt, 3 + v_cnt, 2 + v_cnt, 1 + v_cnt))
-        fout_obj.write('f %d %d %d %d\n' % (1 + v_cnt, 2 + v_cnt, 6 + v_cnt, 5 + v_cnt))
-        fout_obj.write('f %d %d %d %d\n' % (7 + v_cnt, 6 + v_cnt, 2 + v_cnt, 3 + v_cnt))
-        fout_obj.write('f %d %d %d %d\n' % (4 + v_cnt, 8 + v_cnt, 7 + v_cnt, 3 + v_cnt))
-        fout_obj.write('f %d %d %d %d\n' % (5 + v_cnt, 8 + v_cnt, 4 + v_cnt, 1 + v_cnt))
-        fout_obj.write('f %d %d %d %d\n' % (5 + v_cnt, 6 + v_cnt, 7 + v_cnt, 8 + v_cnt))
-        fout_obj.write('\n')
-
-        fout_mtl.write('newmtl %s\n' % (material))
-        fout_mtl.write('Kd %f %f %f\n' % (color[0], color[1], color[2]))
-        fout_mtl.write('\n')
-
-        v_cnt += 8
-        ins_cnt += 1
-
-    fout_obj.close()
-    fout_mtl.close()
+# def bbox_label_to_obj_room(input_filename, out_filename_prefix, easy_view=False, permute=None, center=False,
+#                            exclude_table=False):
+#     """ Visualization of bounding boxes.
+#
+#     Args:
+#         input_filename: each line is x1 y1 z1 x2 y2 z2 label
+#         out_filename_prefix: OBJ filename prefix,
+#             visualize object by g_label2color
+#         easy_view: if True, only visualize furniture and floor
+#         permute: if not None, permute XYZ for rendering, e.g. [0 2 1]
+#         center: if True, move obj to have zero origin
+#     Returns:
+#         output a list of OBJ file and MTL files with the same prefix
+#     """
+#     bbox_label = np.loadtxt(input_filename)
+#     bbox = bbox_label[:, 0:6]
+#     if permute is not None:
+#         assert (len(permute) == 3)
+#         permute = np.array(permute)
+#         bbox[:, 0:3] = bbox[:, permute]
+#         bbox[:, 3:6] = bbox[:, permute + 3]
+#     if center:
+#         xyz_max = np.amax(bbox[:, 3:6], 0)
+#         bbox[:, 0:3] -= (xyz_max / 2.0)
+#         bbox[:, 3:6] -= (xyz_max / 2.0)
+#         bbox /= np.max(xyz_max / 2.0)
+#     label = bbox_label[:, -1].astype(int)
+#     obj_filename = out_filename_prefix + '.obj'
+#     mtl_filename = out_filename_prefix + '.mtl'
+#
+#     fout_obj = open(obj_filename, 'w')
+#     fout_mtl = open(mtl_filename, 'w')
+#     fout_obj.write('mtllib %s\n' % (os.path.basename(mtl_filename)))
+#     v_cnt = 0  # count vertex
+#     ins_cnt = 0  # count instance
+#     for i in range(bbox.shape[0]):
+#         if easy_view and (label[i] not in g_easy_view_labels):
+#             continue
+#         if exclude_table and label[i] == g_classes.index('table'):
+#             continue
+#
+#         length = bbox[i, 3:6] - bbox[i, 0:3]
+#         a = length[0]
+#         b = length[1]
+#         c = length[2]
+#         x = bbox[i, 0]
+#         y = bbox[i, 1]
+#         z = bbox[i, 2]
+#         color = np.array(g_label2color[label[i]], dtype=float) / 255.0
+#
+#         material = 'material%d' % (ins_cnt)
+#         fout_obj.write('usemtl %s\n' % (material))
+#         fout_obj.write('v %f %f %f\n' % (x, y, z + c))
+#         fout_obj.write('v %f %f %f\n' % (x, y + b, z + c))
+#         fout_obj.write('v %f %f %f\n' % (x + a, y + b, z + c))
+#         fout_obj.write('v %f %f %f\n' % (x + a, y, z + c))
+#         fout_obj.write('v %f %f %f\n' % (x, y, z))
+#         fout_obj.write('v %f %f %f\n' % (x, y + b, z))
+#         fout_obj.write('v %f %f %f\n' % (x + a, y + b, z))
+#         fout_obj.write('v %f %f %f\n' % (x + a, y, z))
+#         fout_obj.write('g default\n')
+#         fout_obj.write('f %d %d %d %d\n' % (4 + v_cnt, 3 + v_cnt, 2 + v_cnt, 1 + v_cnt))
+#         fout_obj.write('f %d %d %d %d\n' % (1 + v_cnt, 2 + v_cnt, 6 + v_cnt, 5 + v_cnt))
+#         fout_obj.write('f %d %d %d %d\n' % (7 + v_cnt, 6 + v_cnt, 2 + v_cnt, 3 + v_cnt))
+#         fout_obj.write('f %d %d %d %d\n' % (4 + v_cnt, 8 + v_cnt, 7 + v_cnt, 3 + v_cnt))
+#         fout_obj.write('f %d %d %d %d\n' % (5 + v_cnt, 8 + v_cnt, 4 + v_cnt, 1 + v_cnt))
+#         fout_obj.write('f %d %d %d %d\n' % (5 + v_cnt, 6 + v_cnt, 7 + v_cnt, 8 + v_cnt))
+#         fout_obj.write('\n')
+#
+#         fout_mtl.write('newmtl %s\n' % (material))
+#         fout_mtl.write('Kd %f %f %f\n' % (color[0], color[1], color[2]))
+#         fout_mtl.write('\n')
+#
+#         v_cnt += 8
+#         ins_cnt += 1
+#
+#     fout_obj.close()
+#     fout_mtl.close()
 
 
 def collect_point_bounding_box(anno_path, out_filename, file_format):
