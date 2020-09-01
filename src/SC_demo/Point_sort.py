@@ -64,6 +64,47 @@ class Point_sort:
         self.normal_vector = []
         return new_point_list
 
+    def SortPointsClockwise2D(self, point_list, direction):
+
+        sign = 1.0 if direction else -1.0
+        # center_x = 0
+        # center_y = 0
+        # for i in point_list:
+        #     center_x = center_x + i[0]
+        #     center_y = center_y + i[1]
+        # self.center_point = np.asarray([center_x, center_y])
+        self.center_point = (reduce(lambda x, y: np.array(x) + np.array(y), point_list)) / float(len(point_list))
+        # center_point = [center_point_0[0] / float(len(point_list)), center_point_0[1] / float(len(point_list)), center_point_0[2] / float(len(point_list))]
+
+        self.normal_vector = np.cross(np.array(point_list[0]) - np.array(self.center_point),
+                                      np.array(point_list[1]) - np.array(self.center_point)) * float(sign)
+
+        new_point_list = sorted(point_list, key=self.cmp_to_key(self.GetIsLess))
+        self.center_point = []
+        self.normal_vector = []
+        return new_point_list
+
+    def SortPointsClockwise2DClosed(self, centre_point, point_list, direction):
+
+        sign = 1.0 if direction else -1.0
+        # center_x = 0
+        # center_y = 0
+        # for i in point_list:
+        #     center_x = center_x + i[0]
+        #     center_y = center_y + i[1]
+        # self.center_point = np.asarray([center_x, center_y])
+        self.center_point = centre_point
+        # center_point = [center_point_0[0] / float(len(point_list)), center_point_0[1] / float(len(point_list)), center_point_0[2] / float(len(point_list))]
+
+        self.normal_vector = np.cross(np.array(point_list[0]) - np.array(self.center_point),
+                                      np.array(point_list[1]) - np.array(self.center_point)) * float(sign)
+
+        new_point_list = sorted(point_list, key=self.cmp_to_key(self.GetIsLess))
+        new_point_list.append(new_point_list[0])
+        self.center_point = []
+        self.normal_vector = []
+        return new_point_list
+
     def GetIsLess(self, x, y):
 
         result = np.dot(self.normal_vector, np.cross(np.array(y) - np.array(self.center_point), np.array(x) - np.array(self.center_point)))

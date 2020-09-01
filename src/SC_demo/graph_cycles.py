@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from functools import reduce
 import operator
 import math
-import src.citygml.PointCloud_To_CityGML as gml
+# import src.citygml.PointCloud_To_CityGML as gml
 import numpy as np
 
 class MakingGraph:
@@ -18,6 +18,7 @@ class MakingGraph:
         self.r_s = rs.Point_sort()
         self.atomic_lines = []
         self.atomic_lines2 = []
+
     def make_line_info(self):
 
         for each_room in self.surface_info:
