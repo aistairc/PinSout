@@ -7,7 +7,7 @@ import operator
 import math
 import src.citygml.PointCloud_To_CityGML as gml
 import numpy as np
-
+import pcl
 class MakingGraph:
 
     def __init__(self, surface_list):
@@ -196,6 +196,7 @@ class MakingGraph:
 
         if len(new_cycles) != 0:
             print "make", len(new_cycles)
+            wall_list2 = []
             for cycle_l in new_cycles:
                 if len(cycle_l) > 1:
                     cycle_point_list = []
@@ -269,6 +270,7 @@ class MakingGraph:
                     ceiling_list = []
                     floor_list = []
                     wall_list = []
+
                     floor = []
                     ceiling = []
                     print start_node
@@ -281,7 +283,9 @@ class MakingGraph:
                         wall.append(self.atomic_lines2[next_value][0])
                         wall.append(self.atomic_lines2[now_value][1])
                         wall.append(self.atomic_lines2[next_value][1])
+
                         wall_list.append(rs2.CalculateCentroid(wall))
+                        wall_list2.append(rs2.CalculateCentroid(wall))
 
 
 
@@ -299,7 +303,12 @@ class MakingGraph:
 
 
                     #
-                    self.r_s.visual_graph(ceiling)
+
+                    # print wall_list
+            # testa = pcl.PointCloud()
+            # testa.from_list(wall_list2)
+            # pcl.save(testa, "/home/dprt/Documents/dprt/pointnet_data/Untitled Folder/test" + str(20200828) + ".ply")
+            print wall_list2
                     # ceiling_list.append(rs2.CalculateCentroid(ceiling))
                     # floor_list.append(rs2.CalculateCentroid(floor))
                     # make_gml_file2 = gml.PointCloudToCityGML(ceiling_list, floor_list, wall_list, [], [])
