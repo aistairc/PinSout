@@ -366,4 +366,3 @@ class Point_sort:
 #
 #
 # # https://stackoverflow.com/questions/14370636/sorting-a-list-of-3d-coplanar-points-to-be-clockwise-or-counterclockwise
-
