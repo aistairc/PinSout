@@ -364,9 +364,16 @@ def get_plane_list(clustered_cloud):
 
 
     new_plane_list, new_normal_vector, new_bbox_list = merge_dup_plane(plane_list, normal_vector)
-
-
-    return new_plane_list, new_normal_vector, new_bbox_list
+    new_plane_list2 = []
+    new_bbox_list2 = []
+    for each_wall in new_plane_list:
+        fil = each_wall.make_statistical_outlier_filter()
+        fil.set_mean_k(50)
+        fil.set_std_dev_mul_thresh(1.0)
+        new_plane_list2.append(fil.filter())
+        new_bbox_list2.append(get_range(fil.filter().to_list()))
+    print new_bbox_list2
+    return new_plane_list2, new_normal_vector, new_bbox_list2
 
 
 def make_wall_info(cloud):
@@ -400,10 +407,9 @@ def make_wall_info(cloud):
         # visual_viewer(wall_point_list)
         print len(wall_point_list), len(wall_vector_list), len(wall_bbox_list)
 
-        side_line_count = list()
-        side_line_list = list()
         # print "side_line_info"
-        for wall_index in range(len(wall_point_list)):
+
+        # for wall_index in range(len(wall_point_list)):
 
             # side_line_info = []
             # side_line_info = make_side_line(wall_bbox_list[wall_index], wall_vector_list[wall_index])
@@ -415,29 +421,30 @@ def make_wall_info(cloud):
             # side_line_count.append(len(side_line_info))
 
 
-            wall_point_list[wall_index]._to_ply_file("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/" + str(wall_index) + ".ply")
-            fill = wall_point_list[wall_index].make_statistical_outlier_filter()
+            # wall_point_list[wall_index]._to_ply_file("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/" + str(wall_index) + ".ply")
 
+
+            # pcl.save(fil.filter(), "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/f_" + str(wall_index) + ".pcd")
         # print side_line_list
-        # wall_surface_list = get_intersection_line(wall_bbox_list, wall_vector_list)
-        # surface_point_list = list()
-        #
-        # all_a = []
-        # count = 0
-        # for w_i in wall_surface_list:
-        #
-        #     t_w_i = len(w_i)
-        #     print "original size : ", t_w_i
-        #     if len(w_i) != 0:
-        #
-        #         w_i.pop(0)
-        #         w_i.pop(0)
-        #         all_a.append(w_i)
-        #         test_point = pcl.PointCloud().from_list(w_i)
-        #         test_point._to_ply_file("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/"+str(count)+".ply")
-        #
-        #     else:
-        #         continue
+        wall_surface_list = get_intersection_line(wall_bbox_list, wall_vector_list)
+        surface_point_list = list()
+
+        all_a = []
+        count = 0
+        for w_i in wall_surface_list:
+
+            t_w_i = len(w_i)
+            # print "original size : ", t_w_i
+            # if len(w_i) != 0:
+            #
+            #     w_i.pop(0)
+            #     w_i.pop(0)
+            #     all_a.append(w_i)
+            #     test_point = pcl.PointCloud().from_list(w_i)
+            #     test_point._to_ply_file("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/"+str(count)+".ply")
+            #
+            # else:
+            #     continue
         #
         #     # else:
         #     #     if len(w_i) == 2:
@@ -847,7 +854,12 @@ def check_bbox(main_bbox, other_bbox):
     return (m_minX <= s_maxX and m_maxX >= s_minX) and (m_minY <= s_maxY and m_maxY >= s_minY) and (
                 m_minZ <= s_maxZ and m_maxZ >= s_minZ)
 
+def extend_bbox(bbox, e):
 
+    point_max2 = bbox[0] + np.asarray([e, e, 0.0])
+    point_min2 = bbox[1] - np.asarray([e, e, 0.0])
+
+    return [point_max2, point_min2]
 
 def get_intersection_line(bbox_list, normal_vector):
     """Create intersection points between planes
@@ -867,77 +879,122 @@ def get_intersection_line(bbox_list, normal_vector):
     z = 0.0
 
     check_bbox_index = [[] for i in range(len(normal_vector))]
+    check_wall_info = [[] for i in range(len(normal_vector))]
     each_wall_info = [[] for i in range(len(normal_vector))]
 
-    for point_i in range(len(bbox_list) - 1):
-        temp_bbox = list()
-        for point_j in range(point_i + 1, len(bbox_list)):
-            if check_bbox(bbox_list[point_i], bbox_list[point_j]):
-                temp_bbox.append(point_j)
-        check_bbox_index[point_i].extend(temp_bbox)
 
-    for match_i in range(len(check_bbox_index)):
-        if len(check_bbox_index[match_i]) != 0:
-            for sub_index in check_bbox_index[match_i]:
+    for point_i in range(len(bbox_list)):
+        for point_j in range(len(bbox_list)):
+            if point_i != point_j and point_j not in check_wall_info[point_i]:
                 model_cos = np.dot(
-                    [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]],
-                    [normal_vector[sub_index][0], normal_vector[sub_index][1], normal_vector[sub_index][2]]) \
+                    [normal_vector[point_i][0], normal_vector[point_i][1], normal_vector[point_i][2]],
+                    [normal_vector[point_j][0], normal_vector[point_j][1], normal_vector[point_j][2]]) \
                             / (np.linalg.norm(
-                    [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]])
+                    [normal_vector[point_i][0], normal_vector[point_i][1], normal_vector[point_i][2]])
                                * np.linalg.norm(
-                            [normal_vector[sub_index][0], normal_vector[sub_index][1],
-                             normal_vector[sub_index][2]]))
+                            [normal_vector[point_j][0], normal_vector[point_j][1],
+                             normal_vector[point_j][2]]))
                 if math.fabs(round(model_cos, 1)) != 1.0:
-                    temp_list = np.cross(
-                        [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]],
-                        [normal_vector[sub_index][0], normal_vector[sub_index][1], normal_vector[sub_index][2]])
-                    e1 = Eq(
-                        normal_vector[match_i][0] * x + normal_vector[match_i][1] * y + normal_vector[match_i][3],
-                        0)
-                    e2 = Eq(
-                        normal_vector[sub_index][0] * x + normal_vector[sub_index][1] * y +
-                        normal_vector[sub_index][3],
-                        0)
+                    if point_j not in check_wall_info[point_i]:
+                        check_wall_info[point_i].append(point_j)
+                    if point_i not in check_wall_info[point_j]:
+                        check_wall_info[point_j].append(point_i)
 
-                    value_eq = solve([e1, e2], x, y)
-                    temp_list = temp_list.tolist()
-                    temp_list.append(value_eq[x])
-                    temp_list.append(value_eq[y])
-                    temp_list.append(z)
+                    if check_bbox(bbox_list[point_i], bbox_list[point_j]):
+                        check_bbox_index[point_i].append(point_j)
+                        check_bbox_index[point_j].append(point_i)
 
-                    temp_point_list = list()
+    for check_bbox_i in range(len(check_bbox_index)):
+        default_epslion = 0.002
+        while True:
+            main_bbox = extend_bbox(bbox_list[check_bbox_i], default_epslion)
+            for check_wall in check_wall_info[check_bbox_i]:
 
-                    main_minZ = bbox_list[match_i][1][2]
-                    main_maxZ = bbox_list[match_i][0][2]
-                    # sub_minZ = bbox_list[sub_index][1][2]
-                    # sub_maxZ = bbox_list[sub_index][0][2]
-
-                    minT = (z - temp_list[5]) / temp_list[2]
-                    minX = (minT * temp_list[0]) + temp_list[3]
-                    minY = (minT * temp_list[1]) + temp_list[4]
-
-                    main_point_bot = [minX, minY, main_minZ]
-                    main_point_top = [minX, minY, main_maxZ]
-                    # sub_point_bot = [minX, minY, sub_minZ]
-                    # sub_point_top = [minX, minY, sub_maxZ]
-                    main_points = [main_point_bot, main_point_top]
-                    each_wall_info[match_i].append(main_points)
-                    each_wall_info[sub_index].append(main_points)
+                sub_bbox = extend_bbox(bbox_list[check_bbox_i], default_epslion)
 
 
-                    # side_line_list[sub_index].append(sub_points)
-                    # if included_bbox(bbox_list[match_i], bbox_list[sub_index]) == 2:
-                    #     side_line_list[match_i].append(main_points)
-                    #     side_line_list[match_i].append(sub_points)
-                    #     side_line_list[sub_index].append(sub_points)
-                    #
-                    # elif included_bbox(bbox_list[match_i], bbox_list[sub_index]) == -2:
-                    #     side_line_list[sub_index].append(sub_points)
-                    #     side_line_list[sub_index].append(main_points)
-                    #     side_line_list[match_i].append(main_points)
-                    # else:
-                    #     side_line_list[match_i].append(main_points)
-                    #     side_line_list[sub_index].append(sub_points)
+
+        #
+        # if len(temp_bbox) == 0 or len(temp_bbox) % 2 == 1:
+        #     default_eplison = 0.002
+        #     while True:
+        #
+        #         bbox_list[point_i] = extend_bbox(bbox_list[point_i], default_eplison)
+        #         for point_j2 in range(len(bbox_list)):
+        #             if point_j2 != point_i:
+        #                 bbox_list[point_j2] = extend_bbox(bbox_list[point_j2], default_eplison)
+        #                 if check_bbox(bbox_list[point_i], bbox_list[point_j2]):
+        #                     if point_j2 not in temp_bbox:
+        #                         print point_i, point_j2
+        #                         temp_bbox.append(point_j2)
+        #         if len(temp_bbox) != 0 and len(temp_bbox) % 2 == 0:
+        #             break
+        # check_bbox_index[point_i].extend(temp_bbox)
+    print check_bbox_index
+
+
+    # for match_i in range(len(check_bbox_index)):
+    #     if len(check_bbox_index[match_i]) != 0:
+    #         for sub_index in check_bbox_index[match_i]:
+    #             model_cos = np.dot(
+    #                 [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]],
+    #                 [normal_vector[sub_index][0], normal_vector[sub_index][1], normal_vector[sub_index][2]]) \
+    #                         / (np.linalg.norm(
+    #                 [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]])
+    #                            * np.linalg.norm(
+    #                         [normal_vector[sub_index][0], normal_vector[sub_index][1],
+    #                          normal_vector[sub_index][2]]))
+    #             if math.fabs(round(model_cos, 1)) != 1.0:
+    #                 temp_list = np.cross(
+    #                     [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]],
+    #                     [normal_vector[sub_index][0], normal_vector[sub_index][1], normal_vector[sub_index][2]])
+    #                 e1 = Eq(
+    #                     normal_vector[match_i][0] * x + normal_vector[match_i][1] * y + normal_vector[match_i][3],
+    #                     0)
+    #                 e2 = Eq(
+    #                     normal_vector[sub_index][0] * x + normal_vector[sub_index][1] * y +
+    #                     normal_vector[sub_index][3],
+    #                     0)
+    #
+    #                 value_eq = solve([e1, e2], x, y)
+    #                 temp_list = temp_list.tolist()
+    #                 temp_list.append(value_eq[x])
+    #                 temp_list.append(value_eq[y])
+    #                 temp_list.append(z)
+    #
+    #                 temp_point_list = list()
+    #
+    #                 main_minZ = bbox_list[match_i][1][2]
+    #                 main_maxZ = bbox_list[match_i][0][2]
+    #                 # sub_minZ = bbox_list[sub_index][1][2]
+    #                 # sub_maxZ = bbox_list[sub_index][0][2]
+    #
+    #                 minT = (z - temp_list[5]) / temp_list[2]
+    #                 minX = (minT * temp_list[0]) + temp_list[3]
+    #                 minY = (minT * temp_list[1]) + temp_list[4]
+    #
+    #                 main_point_bot = [minX, minY, main_minZ]
+    #                 main_point_top = [minX, minY, main_maxZ]
+    #                 # sub_point_bot = [minX, minY, sub_minZ]
+    #                 # sub_point_top = [minX, minY, sub_maxZ]
+    #                 main_points = [main_point_bot, main_point_top]
+    #                 each_wall_info[match_i].append(main_points)
+    #                 each_wall_info[sub_index].append(main_points)
+    #
+    #
+    #                 # side_line_list[sub_index].append(sub_points)
+    #                 # if included_bbox(bbox_list[match_i], bbox_list[sub_index]) == 2:
+    #                 #     side_line_list[match_i].append(main_points)
+    #                 #     side_line_list[match_i].append(sub_points)
+    #                 #     side_line_list[sub_index].append(sub_points)
+    #                 #
+    #                 # elif included_bbox(bbox_list[match_i], bbox_list[sub_index]) == -2:
+    #                 #     side_line_list[sub_index].append(sub_points)
+    #                 #     side_line_list[sub_index].append(main_points)
+    #                 #     side_line_list[match_i].append(main_points)
+    #                 # else:
+    #                 #     side_line_list[match_i].append(main_points)
+    #                 #     side_line_list[sub_index].append(sub_points)
 
     return each_wall_info
 
