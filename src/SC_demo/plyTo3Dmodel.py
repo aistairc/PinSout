@@ -149,7 +149,8 @@ def ply_to_collada2(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'
     # out_filename = "/home/dprt/Desktop/SC_DEMO/New Folder/test/st/npy_data2/office_1"
     # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
 
-    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
+    # model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
     print(model_path)
     # model_path = '/root/pointnet/sem_seg/log_5cls_2/model.ckpt'
     # model_path = '/root/pointnet/sem_seg/log_5cls/model.ckpt'
@@ -309,4 +310,9 @@ if __name__ == '__main__':
     # ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/Area_1/office_16 - Cloud.ply")
     # ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model.ply")
     # ply_to_collada("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_18-cloud.ply")
-    ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/Area_1/office_30 - Cloud.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/Area_1/office_30 - Cloud.ply")
+
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/3d-model.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/Untitled Folder/1000_152/sampling_in_d.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/sampling_in_d.ply")
+    ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/test_pointcloud2.ply")

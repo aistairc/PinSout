@@ -107,7 +107,7 @@ def do_plane_ransac(cloud):
     segmenter.set_method_type(pcl.SAC_RANSAC)  # Use RANSAC for the sample consensus algorithm.
     segmenter.set_max_iterations(100000)  # Number of iterations for the RANSAC algorithm.
     segmenter.set_distance_threshold(0.05) # The max distance from the fitted model a point can be for it to be an inlier.
-
+    #0.05 / 100000 / 0.05
     inlier_indices, coefficients = segmenter.segment() # Returns all the points that fit the model, and the parameters of the model.
 
     # Save all the inliers as a point cloud. This forms the table which the mug sits on.
@@ -240,12 +240,12 @@ def merge_dup_plane(plane_list, normal_vector):
     for i in range(len(plane_list) - 1):
         for j in range(i + 1, len(plane_list)):
             if len(prev_bbox[i]) == 0:
-                main_bbox = get_range(plane_list[i], 0.05)
+                main_bbox = get_range(plane_list[i])
                 prev_bbox[i].extend(main_bbox)
             else:
                 main_bbox = prev_bbox[i]
             if len(prev_bbox[j]) == 0:
-                sub_bbox = get_range(plane_list[j], 0.05)
+                sub_bbox = get_range(plane_list[j])
                 prev_bbox[j].extend(sub_bbox)
             else:
                 sub_bbox = prev_bbox[j]
@@ -399,40 +399,56 @@ def make_wall_info(cloud):
         wall_point_list, wall_vector_list, wall_bbox_list = get_plane_list(clustered_cloud)
         # visual_viewer(wall_point_list)
         print len(wall_point_list), len(wall_vector_list), len(wall_bbox_list)
-        # visual_viewer(wall_point_list)
+
         side_line_count = list()
         side_line_list = list()
         # print "side_line_info"
         for wall_index in range(len(wall_point_list)):
-            side_line_info = []
-            side_line_info = make_side_line(wall_bbox_list[wall_index], wall_vector_list[wall_index])
 
-            # for a_i in side_line_info:
-            #     a.extend(a_i)
-            # p_s.visual_graph(a)
-            side_line_list.append(side_line_info)
-            side_line_count.append(len(side_line_info))
-        print len(side_line_list), side_line_count
+            # side_line_info = []
+            # side_line_info = make_side_line(wall_bbox_list[wall_index], wall_vector_list[wall_index])
+            #
+            # # for a_i in side_line_info:
+            # #     a.extend(a_i)
+            # # p_s.visual_graph(a)
+            # side_line_list.append(side_line_info)
+            # side_line_count.append(len(side_line_info))
+
+
+            wall_point_list[wall_index]._to_ply_file("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/" + str(wall_index) + ".ply")
+            fill = wall_point_list[wall_index].make_statistical_outlier_filter()
 
         # print side_line_list
-        wall_surface_list = get_intersection_line(wall_bbox_list, wall_vector_list, side_line_list)
-        surface_point_list = list()
-        # visual_viewer(wall_point_list)
-        all_a = []
-        for w_i in wall_surface_list:
-
-            t_w_i = len(w_i)
-            print "original size : ", t_w_i
-            if len(w_i) >= 4:
-
-                w_i.pop(0)
-                w_i.pop(0)
-                print "remove : ", t_w_i, len(w_i)
-            else:
-                continue
+        # wall_surface_list = get_intersection_line(wall_bbox_list, wall_vector_list)
+        # surface_point_list = list()
+        #
+        # all_a = []
+        # count = 0
+        # for w_i in wall_surface_list:
+        #
+        #     t_w_i = len(w_i)
+        #     print "original size : ", t_w_i
+        #     if len(w_i) != 0:
+        #
+        #         w_i.pop(0)
+        #         w_i.pop(0)
+        #         all_a.append(w_i)
+        #         test_point = pcl.PointCloud().from_list(w_i)
+        #         test_point._to_ply_file("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/"+str(count)+".ply")
+        #
+        #     else:
+        #         continue
+        #
+        #     # else:
+        #     #     if len(w_i) == 2:
+        #     #
+        #
+        #
+        #     count = count + 1
+        #
 
             # a = []
-            all_a.append(w_i)
+
 
             # for w in w_i:
             #     a.extend(w)
@@ -441,10 +457,11 @@ def make_wall_info(cloud):
             # surface_point_list.append(c)
         # print surface_point_list
         # print "surface_point_list count", len(surface_point_list), len(wall_surface_list)
-        all_room.append(all_a)
-    print(all_room)
-    test_graph = MakingGraph(all_room)
-    test_graph.make_first_graph()
+    #     all_room.append(all_a)
+    # print(all_room)
+
+    # test_graph = MakingGraph(all_room)
+    # test_graph.make_first_graph()
     #     #
         # for wall_i in range(len(wall_surface_list)):
         #     if side_line_count[wall_i] == 0:
@@ -503,7 +520,7 @@ def make_wall_info(cloud):
     #
     #
 
-    return surface_point_list
+    # return surface_point_list
 
 def make_chair_info(cloud, save_path):
     """Making the chair information
@@ -832,7 +849,7 @@ def check_bbox(main_bbox, other_bbox):
 
 
 
-def get_intersection_line(bbox_list, normal_vector, side_line_list):
+def get_intersection_line(bbox_list, normal_vector):
     """Create intersection points between planes
 
         Search intersecting lines between planes where each bounding box intersects.
@@ -850,6 +867,100 @@ def get_intersection_line(bbox_list, normal_vector, side_line_list):
     z = 0.0
 
     check_bbox_index = [[] for i in range(len(normal_vector))]
+    each_wall_info = [[] for i in range(len(normal_vector))]
+
+    for point_i in range(len(bbox_list) - 1):
+        temp_bbox = list()
+        for point_j in range(point_i + 1, len(bbox_list)):
+            if check_bbox(bbox_list[point_i], bbox_list[point_j]):
+                temp_bbox.append(point_j)
+        check_bbox_index[point_i].extend(temp_bbox)
+
+    for match_i in range(len(check_bbox_index)):
+        if len(check_bbox_index[match_i]) != 0:
+            for sub_index in check_bbox_index[match_i]:
+                model_cos = np.dot(
+                    [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]],
+                    [normal_vector[sub_index][0], normal_vector[sub_index][1], normal_vector[sub_index][2]]) \
+                            / (np.linalg.norm(
+                    [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]])
+                               * np.linalg.norm(
+                            [normal_vector[sub_index][0], normal_vector[sub_index][1],
+                             normal_vector[sub_index][2]]))
+                if math.fabs(round(model_cos, 1)) != 1.0:
+                    temp_list = np.cross(
+                        [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]],
+                        [normal_vector[sub_index][0], normal_vector[sub_index][1], normal_vector[sub_index][2]])
+                    e1 = Eq(
+                        normal_vector[match_i][0] * x + normal_vector[match_i][1] * y + normal_vector[match_i][3],
+                        0)
+                    e2 = Eq(
+                        normal_vector[sub_index][0] * x + normal_vector[sub_index][1] * y +
+                        normal_vector[sub_index][3],
+                        0)
+
+                    value_eq = solve([e1, e2], x, y)
+                    temp_list = temp_list.tolist()
+                    temp_list.append(value_eq[x])
+                    temp_list.append(value_eq[y])
+                    temp_list.append(z)
+
+                    temp_point_list = list()
+
+                    main_minZ = bbox_list[match_i][1][2]
+                    main_maxZ = bbox_list[match_i][0][2]
+                    # sub_minZ = bbox_list[sub_index][1][2]
+                    # sub_maxZ = bbox_list[sub_index][0][2]
+
+                    minT = (z - temp_list[5]) / temp_list[2]
+                    minX = (minT * temp_list[0]) + temp_list[3]
+                    minY = (minT * temp_list[1]) + temp_list[4]
+
+                    main_point_bot = [minX, minY, main_minZ]
+                    main_point_top = [minX, minY, main_maxZ]
+                    # sub_point_bot = [minX, minY, sub_minZ]
+                    # sub_point_top = [minX, minY, sub_maxZ]
+                    main_points = [main_point_bot, main_point_top]
+                    each_wall_info[match_i].append(main_points)
+                    each_wall_info[sub_index].append(main_points)
+
+
+                    # side_line_list[sub_index].append(sub_points)
+                    # if included_bbox(bbox_list[match_i], bbox_list[sub_index]) == 2:
+                    #     side_line_list[match_i].append(main_points)
+                    #     side_line_list[match_i].append(sub_points)
+                    #     side_line_list[sub_index].append(sub_points)
+                    #
+                    # elif included_bbox(bbox_list[match_i], bbox_list[sub_index]) == -2:
+                    #     side_line_list[sub_index].append(sub_points)
+                    #     side_line_list[sub_index].append(main_points)
+                    #     side_line_list[match_i].append(main_points)
+                    # else:
+                    #     side_line_list[match_i].append(main_points)
+                    #     side_line_list[sub_index].append(sub_points)
+
+    return each_wall_info
+
+
+def get_intersection_line2(bbox_list, normal_vector, side_line_list):
+    """Create intersection points between planes
+
+        Search intersecting lines between planes where each bounding box intersects.
+        Create intersection points using information from the intersection lines and Maximum and Minimum height value for each plane
+
+    Args:
+        bbox_list: Bounding box information of each plane
+        normal_vector: Coefficient data list of each plane
+        side_line_list: Side lines list of each plane
+    Returns:
+        side_line_list: side_line_list with each line intersection line information added
+    """
+    x = Symbol('x')
+    y = Symbol('y')
+    z = 0.0
+
+    check_bbox_index = [[] for i in range(len(normal_vector))]
+
     for point_i in range(len(bbox_list) - 1):
         temp_bbox = list()
         for point_j in range(point_i + 1, len(bbox_list)):
@@ -920,6 +1031,7 @@ def get_intersection_line(bbox_list, normal_vector, side_line_list):
                     #     side_line_list[sub_index].append(sub_points)
 
     return side_line_list
+
 
 def get_intersection_line2(bbox_list, normal_vector, side_line_list):
     """Create intersection points between planes
@@ -1405,7 +1517,13 @@ if __name__ == "__main__":
     # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/Area_2/Area_2_All_office_wall_seg.ply")
     # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_wall_2.ply")
     # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_18-cloud_wall_.pcd")
-    cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_wall_01-remove-3.ply")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_wall_01-remove-3.ply")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/npy_data2/dump/sampling_in_d_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/sampling_in_d_wall_.ply")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/sampling_in_d_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/npy_data2/dump/test_pointcloud2_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_wall_01-remove-3.ply")
+    cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/sampling_in_d_wall_.pcd")
     # cloud = pcl.load("/home/dprt/Desktop/lbj/merge2.ply")
     # cloud = pcl.load("/home/dprt/Desktop/lbj/npy_data2/dump/merge_subsample_nofloor_wall (copy).ply")
     # cloud = pcl.load("/home/dprt/Desktop/21/Untitled Folder 2/colorizedlast_wall2.ply")

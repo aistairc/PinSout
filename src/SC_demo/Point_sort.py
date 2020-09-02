@@ -200,6 +200,19 @@ class Point_sort:
         plt.legend()
         plt.show()
 
+    def visual_graph3(self, point_list):
+
+        print point_list
+        for index in point_list:
+            x = []
+            y = []
+            for each_v in index:
+                x.append(each_v[0])
+                y.append(each_v[1])
+
+            plt.plot(x, y)
+        plt.legend()
+        plt.show()
 
 # from functools import reduce
 # import matplotlib.pyplot as plt

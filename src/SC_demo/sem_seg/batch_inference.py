@@ -129,6 +129,7 @@ def evaluate(model_path, out_filename, booth_data, min_list):
     ''' Third Process '''
     wall_cloud = pcl.PointCloud()
     wall_cloud.from_list(all_wall)
+    wall_surface_list = make_wall_info(wall_cloud)
     pcl.save(wall_cloud, os.path.join(DUMP_DIR, os.path.basename(out_filename)) + '_wall' + "_" + ".pcd")
     dae_filename = os.path.join(DUMP_DIR, os.path.basename(out_filename))
     dae_filename = dae_filename + '.dae'
