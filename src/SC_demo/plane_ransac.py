@@ -7,6 +7,9 @@ from sympy import Symbol, solve, Eq
 import matplotlib.pyplot as plt
 import Point_sort as ps
 import time
+from shapely.geometry import Polygon
+from shapely.geometry import box
+
 from graph_cycles import MakingGraph
 import ply2obj as po
 
@@ -118,6 +121,41 @@ def do_plane_ransac(cloud):
 
     return inliers, outliers, coefficients
 
+def do_plane_ransac2(cloud):
+    """Finding the plane from point cloud data
+
+        Calculate the surface normals for each point by fitting a plane to the nearest.
+
+    Args:
+        cloud: Clustered point cloud data
+
+    Returns:
+        inliers: Pointcloud data extracted by plane
+        outliers: Pointcloud data that is not extracted by plane
+        coefficients: Coefficient data of plane equation(a, b, c, d)
+    """
+
+
+    # Calculate the surface normals for each point by fitting a plane to the nearest
+    # 50 neighbours to the candidate point.
+
+    segmenter = cloud.make_segmenter_normals(ksearch=50)
+    segmenter.set_model_type(pcl.SACMODEL_NORMAL_PLANE) # Fit a plane to the points.
+    segmenter.set_optimize_coefficients(True)  # Do a little bit more optimisation once the plane has been fitted.
+    segmenter.set_normal_distance_weight(0.05)
+    segmenter.set_method_type(pcl.SAC_RANSAC)  # Use RANSAC for the sample consensus algorithm.
+    segmenter.set_max_iterations(100000)  # Number of iterations for the RANSAC algorithm.
+    segmenter.set_distance_threshold(0.05) # The max distance from the fitted model a point can be for it to be an inlier.
+    #0.05 / 100000 / 0.05
+    inlier_indices, coefficients = segmenter.segment() # Returns all the points that fit the model, and the parameters of the model.
+
+    # Save all the inliers as a point cloud. This forms the table which the mug sits on.
+    inliers = cloud.extract(inlier_indices, negative=False)
+
+    # Save all the outliers as a point cloud.
+    outliers = cloud.extract(inlier_indices, negative=True)
+
+    return inliers, outliers, coefficients
 
 
 def check_distance_plane(point_cloud, coeff):
@@ -366,14 +404,19 @@ def get_plane_list(clustered_cloud):
     new_plane_list, new_normal_vector, new_bbox_list = merge_dup_plane(plane_list, normal_vector)
     new_plane_list2 = []
     new_bbox_list2 = []
+    new_normal_vector2 = []
     for each_wall in new_plane_list:
         fil = each_wall.make_statistical_outlier_filter()
         fil.set_mean_k(50)
         fil.set_std_dev_mul_thresh(1.0)
-        new_plane_list2.append(fil.filter())
-        new_bbox_list2.append(get_range(fil.filter().to_list()))
-    print new_bbox_list2
-    return new_plane_list2, new_normal_vector, new_bbox_list2
+        new_cloud = fil.filter()
+        new_plane_list2.append(new_cloud)
+        inliers_p, outliers_p, coeff_p = do_plane_ransac2(new_cloud)
+        print new_cloud.size, inliers_p.size, outliers_p.size
+        new_normal_vector2.append(coeff_p)
+        new_bbox_list2.append(get_range(new_cloud))
+
+    return new_plane_list2, new_normal_vector2, new_bbox_list2
 
 
 def make_wall_info(cloud):
@@ -408,32 +451,44 @@ def make_wall_info(cloud):
         print len(wall_point_list), len(wall_vector_list), len(wall_bbox_list)
 
         # print "side_line_info"
+        side_line_info = []
+        for wall_index in range(len(wall_point_list)):
 
-        # for wall_index in range(len(wall_point_list)):
-
-            # side_line_info = []
-            # side_line_info = make_side_line(wall_bbox_list[wall_index], wall_vector_list[wall_index])
             #
+            # print wall_index
+            side_line_info.append(make_side_line(wall_bbox_list[wall_index], wall_vector_list[wall_index]))
+            # # print side_line_info
             # # for a_i in side_line_info:
             # #     a.extend(a_i)
             # # p_s.visual_graph(a)
-            # side_line_list.append(side_line_info)
-            # side_line_count.append(len(side_line_info))
+            # # side_line_list.append(side_line_info)
+            # # side_line_count.append(len(side_line_info))
+            #
+            # print "side line_length : ", len(side_line_info[wall_index]), side_line_info[wall_index]
 
+            print wall_bbox_list[wall_index]
+            # t = []
+            # t.append(wall_bbox_list[wall_index][0].tolist())
+            # t.append(wall_bbox_list[wall_index][1].tolist())
+            # a = pcl.PointCloud()
+            # a.from_list(t)
+            # pcl.save(a, "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/b_" + str(wall_index) + ".pcd")
+            # pcl.save(wall_point_list[wall_index], "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/f2_" + str(wall_index) + ".pcd")
+        print side_line_info
 
             # wall_point_list[wall_index]._to_ply_file("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/" + str(wall_index) + ".ply")
 
 
             # pcl.save(fil.filter(), "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/f_" + str(wall_index) + ".pcd")
         # print side_line_list
-        wall_surface_list = get_intersection_line(wall_bbox_list, wall_vector_list)
-        surface_point_list = list()
+        # wall_surface_list = get_intersection_line(wall_bbox_list, wall_vector_list, side_line_info)
+        # surface_point_list = list()
+        #
+        # all_a = []
+        # count = 0
+        # for w_i in wall_surface_list:
 
-        all_a = []
-        count = 0
-        for w_i in wall_surface_list:
-
-            t_w_i = len(w_i)
+            # t_w_i = len(w_i)
             # print "original size : ", t_w_i
             # if len(w_i) != 0:
             #
@@ -642,33 +697,32 @@ def make_side_line(bbox_info, normal_vector):
     Returns:
         line_points_list: A list of the maximum and minimum points that can be made with straight lines at both ends
     """
-    boundary_info = bbox_info
 
-    side_line_points = find_side_point(normal_vector, boundary_info)
-
-    if len(side_line_points) != 0:
-        sorted_line_list = sorted(side_line_points, key=cmp_to_key(z_point_sorting))
-
-        match_i = list()
-        for sorted_i in range(2):
-            sorted_distance = list()
-
-            for sorted_j in range(2, len(sorted_line_list)):
-                distance_point = distance_to_point(sorted_line_list[sorted_i], sorted_line_list[sorted_j])
-                sorted_distance.append(distance_point)
-
-            min_i = sorted_distance.index(min(sorted_distance))
-            match_i.append(min_i + 2)
-
-        point_1 = [sorted_line_list[0], sorted_line_list[match_i[0]]]
-        point_2 = [sorted_line_list[1], sorted_line_list[match_i[1]]]
-        line_points_list = list()
-        line_points_list.append(point_1)
-        line_points_list.append(point_2)
-
-        return line_points_list
-    else:
-        return []
+    side_line_points = find_side_point(normal_vector, bbox_info)
+    return side_line_points
+    # if len(side_line_points) != 0:
+    #     sorted_line_list = sorted(side_line_points, key=cmp_to_key(z_point_sorting))
+    #
+    #     match_i = list()
+    #     for sorted_i in range(2):
+    #         sorted_distance = list()
+    #
+    #         for sorted_j in range(2, len(sorted_line_list)):
+    #             distance_point = distance_to_point(sorted_line_list[sorted_i], sorted_line_list[sorted_j])
+    #             sorted_distance.append(distance_point)
+    #
+    #         min_i = sorted_distance.index(min(sorted_distance))
+    #         match_i.append(min_i + 2)
+    #
+    #     point_1 = [sorted_line_list[0], sorted_line_list[match_i[0]]]
+    #     point_2 = [sorted_line_list[1], sorted_line_list[match_i[1]]]
+    #     line_points_list = list()
+    #     line_points_list.append(point_1)
+    #     line_points_list.append(point_2)
+    #
+    #     return line_points_list
+    # else:
+    #     return []
 
 def make_straight(normal_vector, boundary_point, point_1, point_2):
     """Making the straight information and finding the intersect point
@@ -696,16 +750,16 @@ def make_straight(normal_vector, boundary_point, point_1, point_2):
     point_y = point_1[1] + (u[1] * value)
     point_z = point_1[2] + (u[2] * value)
 
-    intersect_point = [float(point_x), float(point_y), float(point_z)]
+    intersect_point = [point_x, point_y, point_z]
 
     # check_result = check_point_range_2(point_list, boundary_point, 0.075)
-    check_result = check_point_range_2(intersect_point, boundary_point)
+    # check_result = check_point_range_e(intersect_point, boundary_point, 0.0005)
     # print check
-
-    if check_result:
-        return intersect_point
-    else:
-        return []
+    return intersect_point
+    # if check_result:
+    #     return intersect_point
+    # else:
+    #     return []
 
 def find_side_point(plane_vector, boundary_info):
     """Create the intersection of the bounding box and the plane
@@ -724,10 +778,13 @@ def find_side_point(plane_vector, boundary_info):
     min_point_top = [float(boundary_info[1][0]), float(boundary_info[1][1]), float(boundary_info[0][2])]
     min_point_left = [float(boundary_info[1][0]), float(boundary_info[0][1]), float(boundary_info[1][2])]
     min_point_right = [float(boundary_info[0][0]), float(boundary_info[1][1]), float(boundary_info[1][2])]
+
+
     max_point_top = [float(boundary_info[0][0]), float(boundary_info[0][1]), float(boundary_info[0][2])]
     max_point_low = [float(boundary_info[0][0]), float(boundary_info[0][1]), float(boundary_info[1][2])]
     max_point_right = [float(boundary_info[1][0]), float(boundary_info[0][1]), float(boundary_info[0][2])]
     max_point_left = [float(boundary_info[0][0]), float(boundary_info[1][1]), float(boundary_info[0][2])]
+
     min_line_1 = make_straight(plane_vector, boundary_info, min_point_low, min_point_right)
     min_line_2 = make_straight(plane_vector, boundary_info, min_point_low, min_point_left)
     min_line_3 = make_straight(plane_vector, boundary_info, max_point_low, min_point_right)
@@ -740,19 +797,58 @@ def find_side_point(plane_vector, boundary_info):
 
     min_value = [min_line_1, min_line_2, min_line_3, min_line_4]
     max_value = [max_line_1, max_line_2, max_line_3, max_line_4]
+    for i in range(len(min_value)):
+        math.fabs(min_value[i][0] - min_value[i+1][0]) + math.fabs(min_value[i][1] - min_value[i+1][1])
+    distance = math.fabs((boundary_info[0][0] - boundary_info[1][0]) + (boundary_info[0][1] - boundary_info[1][1]))
 
+    check_min = 0
+    check_max = 0
     point_list = list()
-    for max_index in max_value:
-        if len(max_index) != 0:
-            point_list.append(max_index)
-    for min_index in min_value:
-        if len(min_index) != 0:
-            point_list.append(min_index)
-    print len(point_list), point_list
-    if len(point_list) == 4:
-        return point_list
-    else:
-        return []
+    used_min_index = []
+    used_max_index = []
+    print "min_value : ", min_value
+    print "max_value : ", max_value
+    print "boundary_info : ", boundary_info
+    e = 0.0
+    while check_min != 2:
+
+        for min_i in range(len(min_value)):
+            if min_i not in used_min_index:
+                if check_point_range_e(min_value[min_i], boundary_info, e):
+                    if min_i not in used_min_index:
+                        point_list.append(min_value[min_i])
+                        used_min_index.append(min_i)
+                        check_min = check_min + 1
+        e = e + 0.00001
+
+    e = 0.0
+    while check_max != 2:
+
+        for max_i in range(len(max_value)):
+            if max_i not in used_max_index:
+                if check_point_range_e(max_value[max_i], boundary_info, e):
+                    if max_i not in used_max_index:
+                        point_list.append(max_value[max_i])
+                        used_max_index.append(max_i)
+                        check_max = check_max + 1
+        e = e + 0.00001
+
+    # print "result : ", point_list
+    # print "min_value", min_value
+    # print "max_value", max_value
+    # point_list = list()
+    # for max_index in max_value:
+    #     if len(max_index) != 0:
+    #         point_list.append(max_index)
+    # for min_index in min_value:
+    #     if len(min_index) != 0:
+    #         point_list.append(min_index)
+    #
+    # if len(point_list) == 4:
+    #     return point_list
+    # else:
+    #     return []
+    return point_list
 
 
 def check_point_side(point, side_lines):
@@ -824,6 +920,53 @@ def check_point_range_2(point, wall_range):
     else:
         return False
 
+def check_point_range_e(point, wall_range, e=0.0):
+    """Check whether the pointer is included in the bounding box
+
+        Check the pointer's X, Y and Z values are included in the bounding box
+
+    Args:
+        point: Pointer to check
+        wall_range: Information for bounding box
+
+    Returns:
+        True: The pointer is included in the bounding box
+        False: The pointer is not included in the bounding box
+    """
+    m_maxX = wall_range[0][0]
+    m_maxY = wall_range[0][1]
+    m_minX = wall_range[1][0]
+    m_minY = wall_range[1][1]
+
+
+
+
+
+
+    # wall_range_max = wall_range[0]
+    # wall_range_min = wall_range[1]
+    #
+    # x = point[0]
+    # y = point[1]
+    # z = point[2]
+    # check_X = 0
+    # check_Z = 0
+    # check_Y = 0
+    #
+    # if x <= wall_range_max[0] + e:
+    #     if x >= wall_range_min[0] - e:
+    #         check_X = check_X + 1
+    # if y <= wall_range_max[1] + e:
+    #     if y >= wall_range_min[1] - e:
+    #         check_Y = check_Y + 1
+    # # if z <= wall_range_max[2] + e:
+    # #     if z >= wall_range_min[2] - e:
+    # #         check_Z += 1
+    # # print check_X, check_Y
+    # if (check_X + check_Y) == 2:
+    #     return True
+    # else:
+    #     return False
 def check_bbox(main_bbox, other_bbox):
     """Check if the bounding box intersects
 
@@ -854,14 +997,66 @@ def check_bbox(main_bbox, other_bbox):
     return (m_minX <= s_maxX and m_maxX >= s_minX) and (m_minY <= s_maxY and m_maxY >= s_minY) and (
                 m_minZ <= s_maxZ and m_maxZ >= s_minZ)
 
-def extend_bbox(bbox, e):
+def check_bbox2(main_bbox, other_bbox):
+    """Check if the bounding box intersects
 
-    point_max2 = bbox[0] + np.asarray([e, e, 0.0])
-    point_min2 = bbox[1] - np.asarray([e, e, 0.0])
+        Check if the bounding box intersects using the min and max points of the bounding box.
 
-    return [point_max2, point_min2]
+    Args:
+        main_bbox: Information of main bounding box
+        other_bbox: Information of other bounding box
 
-def get_intersection_line(bbox_list, normal_vector):
+    Returns:
+        True: Bounding boxes intersect
+        False: Bounding boxes are not intersect
+    """
+    m_minX = main_bbox[1][0]
+    m_minY = main_bbox[1][1]
+    m_maxX = main_bbox[0][0]
+    m_maxY = main_bbox[0][1]
+
+
+    s_minX = other_bbox[1][0]
+    s_minY = other_bbox[1][1]
+    s_maxX = other_bbox[0][0]
+    s_maxY = other_bbox[0][1]
+
+    m_box = box(m_minX, m_minY, m_maxX, m_maxY)
+    s_box = box(s_minX, s_minY, s_maxX, s_maxY)
+
+    # print m_box.exterior.coords
+    # print s_box.exterior.coords
+    # print m_box.intersects(s_box)
+
+    return m_box.intersects(s_box)
+    # check_value = 0
+    # if (m_minX <= s_maxX and m_maxX >= s_minX) and (m_minY <= s_maxY and m_maxY >= s_minY):
+    #     check_value = check_value + 1
+    # if (s_minX <= m_maxX and s_maxX >= m_minX) and (s_minY <= m_maxY and s_maxY >= m_minY):
+    #     check_value = check_value + 1
+    #
+    # if check_value >= 1:
+    #     return True
+    # else:
+    #     return False
+
+def extend_bbox(side_points, e):
+
+    points = []
+    max_points = side_points[2:]
+    min_points = side_points[:2]
+    for max_point in max_points:
+        points.append([max_point[0]+e, max_point[1] + e, max_point[2]])
+    for min_point in min_points:
+        points.append([min_point[0]-e, min_point[1] - e, min_point[2]])
+    new_range = get_range(points)
+
+    return new_range
+
+
+
+
+def get_intersection_line(bbox_list, normal_vector, side_line_info):
     """Create intersection points between planes
 
         Search intersecting lines between planes where each bounding box intersects.
@@ -883,8 +1078,9 @@ def get_intersection_line(bbox_list, normal_vector):
     each_wall_info = [[] for i in range(len(normal_vector))]
 
 
-    for point_i in range(len(bbox_list)):
-        for point_j in range(len(bbox_list)):
+
+    for point_i in range(len(normal_vector)):
+        for point_j in range(len(normal_vector)):
             if point_i != point_j and point_j not in check_wall_info[point_i]:
                 model_cos = np.dot(
                     [normal_vector[point_i][0], normal_vector[point_i][1], normal_vector[point_i][2]],
@@ -900,19 +1096,43 @@ def get_intersection_line(bbox_list, normal_vector):
                     if point_i not in check_wall_info[point_j]:
                         check_wall_info[point_j].append(point_i)
 
-                    if check_bbox(bbox_list[point_i], bbox_list[point_j]):
-                        check_bbox_index[point_i].append(point_j)
-                        check_bbox_index[point_j].append(point_i)
+                    if check_bbox2(bbox_list[point_i], bbox_list[point_j]):
+                        if point_j not in each_wall_info[point_i]:
+                            each_wall_info[point_i].append(point_j)
+                        if point_i not in each_wall_info[point_j]:
+                            each_wall_info[point_j].append(point_i)
+
+    print check_wall_info
+    print each_wall_info
+    for check_wall_i in range(len(check_wall_info)):
+        main_epsilon = 0.001
+        sub_epsilon = 0.001
+        while True:
+            main_bbox = extend_bbox(side_line_info[check_wall_i], main_epsilon)
+            for check_wall in check_wall_info[check_wall_i]:
+
+                sub_bbox = extend_bbox(side_line_info[check_wall], sub_epsilon)
+                # sub_bbox = bbox_list[check_wall]
+
+                if check_bbox2(main_bbox, sub_bbox):
+                    if check_wall not in each_wall_info[check_wall_i]:
+                        each_wall_info[check_wall_i].append(check_wall)
+
+            # if len(each_wall_info[check_wall_i]) != 0:
+            #     if len(each_wall_info[check_wall_i]) % 2 == 0:
+            #         print main_epsilon, sub_epsilon
+            #         break
+            if main_epsilon > 0.2:
+                break
+            # if main_epslion > 0.3:
+            #     print check_bbox_i, main_epslion
+            #     break
+
+            main_epsilon = main_epsilon + 0.005
+            sub_epsilon = sub_epsilon + 0.005
 
     for check_bbox_i in range(len(check_bbox_index)):
-        default_epslion = 0.002
-        while True:
-            main_bbox = extend_bbox(bbox_list[check_bbox_i], default_epslion)
-            for check_wall in check_wall_info[check_bbox_i]:
-
-                sub_bbox = extend_bbox(bbox_list[check_bbox_i], default_epslion)
-
-
+        print check_bbox_i, each_wall_info[check_bbox_i]
 
         #
         # if len(temp_bbox) == 0 or len(temp_bbox) % 2 == 1:
@@ -930,7 +1150,7 @@ def get_intersection_line(bbox_list, normal_vector):
         #         if len(temp_bbox) != 0 and len(temp_bbox) % 2 == 0:
         #             break
         # check_bbox_index[point_i].extend(temp_bbox)
-    print check_bbox_index
+    # print check_bbox_index
 
 
     # for match_i in range(len(check_bbox_index)):
@@ -1595,6 +1815,10 @@ if __name__ == "__main__":
     print("plane RANSAC Process Runtime: %0.2f Minutes" % (first_process_runtime))
 
 
+    # print(p.intersects(q))  # True
+    # print(p.intersection(q).area)  # 1.0
+    # x = p.intersection(q)
+    # print(x)
 
     # poly2obj = po.Ply2Obj(a)
     # poly2obj.poly_2_obj('All')
