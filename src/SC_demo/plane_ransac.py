@@ -15,6 +15,7 @@ from graph_cycles import MakingGraph
 from graph_test import MakingGraph2
 import ply2obj as po
 
+count_index = 0
 
 
 def clustering(cloud, vg_size=0.1, tolerance=0.5, min_cluster_size=1000):
@@ -1293,11 +1294,22 @@ def get_intersection_line(bbox_list, normal_vector, side_line_info, wall_point_l
 def check_point(checked_list, wall_point_list, normal_vector):
     delete_value = []
     print "hi"
+    count = 0
     for i in checked_list:
         pointcloud_rate = get_poiontRate(wall_point_list[i[0]], normal_vector[i[0]], get_range(i[2]+i[3]))
+        a = get_range(i[2] + i[3])
+        check_a = []
+        check_a.append(a[0])
+        check_a.append(a[1])
+        b = pcl.PointCloud()
+        b.from_list(check_a)
+
+        # pcl.save(b, "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/bbox2_" + str(count) + ".pcd")
+        count = count + 1
+
         # result_rate = pointcloud_rate*i[1] *100 <= 20
-        result_rate = pointcloud_rate/i[1] *100 <=20
-        print pointcloud_rate, i[1]
+        result_rate = pointcloud_rate*i[1] *100 <=0.01
+        print pointcloud_rate == 0.0, pointcloud_rate, i[1], i[4]
         if pointcloud_rate == 0.0 or result_rate:
 
             delete_value.append(i[4])
@@ -1309,7 +1321,7 @@ def get_poiontRate(pointcloud, normal_vector, bbox):
 
     points = pointcloud.to_list()
     pointcloud_size = pointcloud.size
-    a, b = check_distance_plane(points, normal_vector)
+    a, b = check_distance_plane(points, normal_vector, 0.05)
     count = 0
     temp_list = []
     for point in points:
@@ -1317,7 +1329,7 @@ def get_poiontRate(pointcloud, normal_vector, bbox):
         if check_point_range_e(point, bbox):
             temp_list.append(point)
             count = count + 1
-    a, c = check_distance_plane(temp_list, normal_vector)
+    a, c = check_distance_plane(temp_list, normal_vector,0.05)
     # print "checked_count : ", float(count), float(pointcloud_size)
     # print b, c, float(c) / float(b)
     if c == 0:

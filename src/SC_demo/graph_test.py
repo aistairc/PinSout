@@ -276,7 +276,14 @@ class MakingGraph2:
 
         cycles_list = nx.minimum_cycle_basis(G)
         print "minimum_cycle_basis"
-
+        # max_len = 0
+        # max_i = -1
+        # for i in range(len(cycles_list)):
+        #     print cycles_list[i]
+        #     if len(cycles_list[i]) > max_len:
+        #         max_len = cycles_list[i]
+        #         max_i = i
+        # cycles_list.pop(max_i)
         if len(cycles_list) > 1:
             delete_edges = []
             temp_delete = []
@@ -322,6 +329,13 @@ class MakingGraph2:
             #     print ii
             return checked_list, G
     def get_newGraph(self, G, delete_value):
+
+        for i_i in self.first_edges:
+            print i_i
+        for d_i in delete_value:
+
+            print d_i
+
         G.remove_edges_from(delete_value)
         new_cycles = nx.minimum_cycle_basis(G)
         nx.draw(G)
