@@ -1321,7 +1321,7 @@ def get_poiontRate(pointcloud, normal_vector, bbox):
 
     points = pointcloud.to_list()
     pointcloud_size = pointcloud.size
-    a, b = check_distance_plane(points, normal_vector, 0.05)
+    a, b = check_distance_plane(points, normal_vector, 0.1)
     count = 0
     temp_list = []
     for point in points:
@@ -1329,7 +1329,7 @@ def get_poiontRate(pointcloud, normal_vector, bbox):
         if check_point_range_e(point, bbox):
             temp_list.append(point)
             count = count + 1
-    a, c = check_distance_plane(temp_list, normal_vector,0.05)
+    a, c = check_distance_plane(temp_list, normal_vector,0.1)
     # print "checked_count : ", float(count), float(pointcloud_size)
     # print b, c, float(c) / float(b)
     if c == 0:
@@ -1931,8 +1931,10 @@ if __name__ == "__main__":
     # print cloud.get_point(0)
     #
     #
-    cloud = pcl.load(
-        "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/sampling_in_d_wall_.pcd")
+    # cloud = pcl.load(
+    #     "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/sampling_in_d_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_286/npy_data2/dump/sampling_in_d_wall_.pcd")
+    cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_429/npy_data2/dump/sampling_in_d_wall_.pcd")
     a = make_wall_info(cloud)
     first_process_runtime = (time.time() - start_vect) / 60
     print("plane RANSAC Process Runtime: %0.2f Minutes" % (first_process_runtime))

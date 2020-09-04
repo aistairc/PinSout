@@ -275,6 +275,9 @@ class MakingGraph2:
         G.add_edges_from(wall_graph)
 
         cycles_list = nx.minimum_cycle_basis(G)
+        cycles_list2 = nx.cycle_basis(G)
+        for cl_2 in cycles_list2:
+            print cl_2
         print "minimum_cycle_basis"
         # max_len = 0
         # max_i = -1
