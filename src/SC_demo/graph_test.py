@@ -327,7 +327,7 @@ class MakingGraph2:
         nx.draw(G)
         plt.show()
         print G.edges
-
+        a = rs.Point_sort()
         print "make", len(new_cycles)
         wall_list2 = []
         wall_list3 = []
@@ -421,8 +421,9 @@ class MakingGraph2:
                         floor.append(self.atomic_lines2[next_value][0])
 
                 ceiling_list2.append(ceiling)
+                a.visual_graph(ceiling)
 
-        a = rs.Point_sort()
+
         a.visual_graph3(ceiling_list2)
 
     def get_lengthRate(self, p_index, delete_value):

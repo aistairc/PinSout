@@ -160,7 +160,7 @@ def do_plane_ransac2(cloud):
     return inliers, outliers, coefficients
 
 
-def check_distance_plane(point_cloud, coeff):
+def check_distance_plane(point_cloud, coeff, e=0.01):
     """Checking the distance between point and plane
 
     Find the number of points where the distance between the planes is 0.05 or less
@@ -177,7 +177,7 @@ def check_distance_plane(point_cloud, coeff):
     b = coeff[1]
     c = coeff[2]
     d = coeff[3]
-    t = point_cloud.to_list()
+    t = point_cloud
     count = 0
     for index in t:
         x = index[0]
@@ -187,14 +187,14 @@ def check_distance_plane(point_cloud, coeff):
         point_distance = float(
             math.fabs(a * x + b * y + c * z + d) / math.sqrt(math.pow(a, 2) + math.pow(b, 2) + math.pow(c, 2)))
 
-        if point_distance <= 0.1:
+        if point_distance <= e:
             count += 1
 
     if count == 0:
         distance_rate = 0.0
     else:
         distance_rate = round(float(count) / float(len(t)), 3)
-    return distance_rate
+    return distance_rate * 100, count
 
 def plane_cluster(cloud_data):
     """Clustering the exported plane data
@@ -304,7 +304,7 @@ def merge_dup_plane(plane_list, normal_vector):
                     main_point = plane_list[i].to_list()[0]
                     distance_bw_planes = math.fabs(normal_vector[j][0] * main_point[0] + normal_vector[j][1] * main_point[1] + normal_vector[j][2] * main_point[2] + normal_vector[j][3]) / \
                                         math.sqrt(math.pow(normal_vector[j][0],2) + math.pow(normal_vector[j][1],2) + math.pow(normal_vector[j][2],2))
-                    print model_cos, distance_bw_planes, i, j, check_distance_plane(plane_list[i], normal_vector[i]), check_distance_plane(plane_list[j], normal_vector[j])
+                    # print model_cos, distance_bw_planes, i, j, check_distance_plane(plane_list[i], normal_vector[i]), check_distance_plane(plane_list[j], normal_vector[j])
                     if distance_bw_planes <= 0.05:
                         if len(dup_plane_index) == 0:
                             dup_plane_index.append([i, j])
@@ -412,8 +412,9 @@ def get_plane_list(clustered_cloud):
         fil.set_mean_k(50)
         fil.set_std_dev_mul_thresh(1.0)
         new_cloud = fil.filter()
-        new_plane_list2.append(new_cloud)
+
         inliers_p, outliers_p, coeff_p = do_plane_ransac2(new_cloud)
+        new_plane_list2.append(inliers_p)
 
         new_normal_vector2.append(coeff_p)
         new_bbox_list2.append(get_range(new_cloud))
@@ -1283,42 +1284,47 @@ def get_intersection_line(bbox_list, normal_vector, side_line_info, wall_point_l
     test_graph = MakingGraph2([each_wall_info])
     checked_list, G = test_graph.make_graph2()
 
-    delete_value = check_point(checked_list, wall_point_list)
+    delete_value = check_point(checked_list, wall_point_list, normal_vector)
 
     test_graph.get_newGraph(G, delete_value)
 
     return each_wall_info
 
-def check_point(checked_list, wall_point_list):
+def check_point(checked_list, wall_point_list, normal_vector):
     delete_value = []
     print "hi"
     for i in checked_list:
-        pointcloud_rate = get_poiontRate(wall_point_list[i[0]], get_range(i[2]+i[3]))
-        result_rate = pointcloud_rate * 100 / i[1] * 100 *100
-        print result_rate, pointcloud_rate * 100 / i[1] * 100
-        if pointcloud_rate == 0.0:
+        pointcloud_rate = get_poiontRate(wall_point_list[i[0]], normal_vector[i[0]], get_range(i[2]+i[3]))
+        # result_rate = pointcloud_rate*i[1] *100 <= 20
+        result_rate = pointcloud_rate/i[1] *100 <=20
+        print pointcloud_rate, i[1]
+        if pointcloud_rate == 0.0 or result_rate:
 
             delete_value.append(i[4])
 
 
     return delete_value
 
-def get_poiontRate(pointcloud, bbox):
+def get_poiontRate(pointcloud, normal_vector, bbox):
 
     points = pointcloud.to_list()
     pointcloud_size = pointcloud.size
+    a, b = check_distance_plane(points, normal_vector)
     count = 0
+    temp_list = []
     for point in points:
 
         if check_point_range_e(point, bbox):
+            temp_list.append(point)
             count = count + 1
-
+    a, c = check_distance_plane(temp_list, normal_vector)
     # print "checked_count : ", float(count), float(pointcloud_size)
-    if count == 0:
+    # print b, c, float(c) / float(b)
+    if c == 0:
         return 0.0
     else:
 
-        return float(count) / float(pointcloud_size)
+        return float(c) / float(b)
 
 
 def get_intersection_line2(bbox_list, normal_vector, side_line_list):
