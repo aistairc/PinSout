@@ -209,9 +209,9 @@ class Point_sort:
             for each_v in index:
                 x.append(each_v[0])
                 y.append(each_v[1])
-
             plt.plot(x, y)
-        plt.legend()
+
+            plt.legend()
         plt.show()
 
 # from functools import reduce

@@ -6,11 +6,13 @@ import math
 from sympy import Symbol, solve, Eq
 import matplotlib.pyplot as plt
 import Point_sort as ps
+import Point_sort2 as ps2
 import time
 from shapely.geometry import Polygon
 from shapely.geometry import box
 
 from graph_cycles import MakingGraph
+from graph_test import MakingGraph2
 import ply2obj as po
 
 
@@ -140,12 +142,12 @@ def do_plane_ransac2(cloud):
     # 50 neighbours to the candidate point.
 
     segmenter = cloud.make_segmenter_normals(ksearch=50)
-    segmenter.set_model_type(pcl.SACMODEL_NORMAL_PLANE) # Fit a plane to the points.
+    segmenter.set_model_type(pcl.SACMODEL_PLANE) # Fit a plane to the points.
     segmenter.set_optimize_coefficients(True)  # Do a little bit more optimisation once the plane has been fitted.
-    segmenter.set_normal_distance_weight(0.05)
+    segmenter.set_normal_distance_weight(0.1)
     segmenter.set_method_type(pcl.SAC_RANSAC)  # Use RANSAC for the sample consensus algorithm.
-    segmenter.set_max_iterations(100000)  # Number of iterations for the RANSAC algorithm.
-    segmenter.set_distance_threshold(0.05) # The max distance from the fitted model a point can be for it to be an inlier.
+    segmenter.set_max_iterations(1000)  # Number of iterations for the RANSAC algorithm.
+    segmenter.set_distance_threshold(0.1) # The max distance from the fitted model a point can be for it to be an inlier.
     #0.05 / 100000 / 0.05
     inlier_indices, coefficients = segmenter.segment() # Returns all the points that fit the model, and the parameters of the model.
 
@@ -412,7 +414,7 @@ def get_plane_list(clustered_cloud):
         new_cloud = fil.filter()
         new_plane_list2.append(new_cloud)
         inliers_p, outliers_p, coeff_p = do_plane_ransac2(new_cloud)
-        print new_cloud.size, inliers_p.size, outliers_p.size
+
         new_normal_vector2.append(coeff_p)
         new_bbox_list2.append(get_range(new_cloud))
 
@@ -455,8 +457,11 @@ def make_wall_info(cloud):
         for wall_index in range(len(wall_point_list)):
 
             #
-            # print wall_index
+            print wall_index
+            # a, b = make_side_line(wall_bbox_list[wall_index], wall_vector_list[wall_index])
             side_line_info.append(make_side_line(wall_bbox_list[wall_index], wall_vector_list[wall_index]))
+
+
             # # print side_line_info
             # # for a_i in side_line_info:
             # #     a.extend(a_i)
@@ -466,23 +471,30 @@ def make_wall_info(cloud):
             #
             # print "side line_length : ", len(side_line_info[wall_index]), side_line_info[wall_index]
 
-            print wall_bbox_list[wall_index]
-            # t = []
-            # t.append(wall_bbox_list[wall_index][0].tolist())
-            # t.append(wall_bbox_list[wall_index][1].tolist())
+            # print wall_bbox_list[wall_index]
+            # box_info = box(wall_bbox_list[wall_index][1][0], wall_bbox_list[wall_index][1][1], wall_bbox_list[wall_index][0][0], wall_bbox_list[wall_index][0][1])
+            # box_coords = box_info.exterior.coords
+            #
+            # test_box = []
+            # for b_i in box_coords:
+            #
+            #     test_box.append([b_i[0], b_i[1], wall_bbox_list[wall_index][0][2]])
+            #     test_box.append([b_i[0], b_i[1], wall_bbox_list[wall_index][1][2]])
+            # print test_box
+            # print b
             # a = pcl.PointCloud()
-            # a.from_list(t)
-            # pcl.save(a, "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/b_" + str(wall_index) + ".pcd")
-            # pcl.save(wall_point_list[wall_index], "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/f2_" + str(wall_index) + ".pcd")
-        print side_line_info
+            # a.from_list(test_box)
+            # pcl.save(a, "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/bbox_" + str(wall_index) + ".pcd")
+        #     pcl.save(a, "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/s2_" + str(wall_index) + ".pcd")
+        # print side_line_info
 
             # wall_point_list[wall_index]._to_ply_file("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/" + str(wall_index) + ".ply")
 
 
             # pcl.save(fil.filter(), "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/f_" + str(wall_index) + ".pcd")
         # print side_line_list
-        # wall_surface_list = get_intersection_line(wall_bbox_list, wall_vector_list, side_line_info)
-        # surface_point_list = list()
+        wall_surface_list = get_intersection_line(wall_bbox_list, wall_vector_list, side_line_info, wall_point_list)
+
         #
         # all_a = []
         # count = 0
@@ -699,6 +711,7 @@ def make_side_line(bbox_info, normal_vector):
     """
 
     side_line_points = find_side_point(normal_vector, bbox_info)
+    print "side_line_points : ", side_line_points
     return side_line_points
     # if len(side_line_points) != 0:
     #     sorted_line_list = sorted(side_line_points, key=cmp_to_key(z_point_sorting))
@@ -724,7 +737,7 @@ def make_side_line(bbox_info, normal_vector):
     # else:
     #     return []
 
-def make_straight(normal_vector, boundary_point, point_1, point_2):
+def make_straight(normal_vector, point_1, point_2):
     """Making the straight information and finding the intersect point
 
         Generate straight line data using point_1 and point_2.
@@ -761,6 +774,46 @@ def make_straight(normal_vector, boundary_point, point_1, point_2):
     # else:
     #     return []
 
+def make_straight2(normal_vector, point_1, point_2, min_z, max_z):
+    """Making the straight information and finding the intersect point
+
+        Generate straight line data using point_1 and point_2.
+        Finding the intersection point using normal_vector and straight line.
+
+    Args:
+        normal_vector: Coefficient data of plane
+        boundary_point: Bounding box data of PointCloud
+        point_1: A point that generates a straight line
+        point_2: A point that generates a straight line
+    Returns:
+        intersect_point: The intersection of a plane and a straight line
+    """
+    t = Symbol('t')
+    u = np.array(point_2) - np.array(point_1)
+
+    equation = Eq(normal_vector[0] * (point_1[0] + u[0] * t) +
+                  normal_vector[1] * (point_1[1] + u[1] * t) +
+                  normal_vector[2] * min_z +
+                  normal_vector[3], 0)
+    value = solve(equation, t)[0]
+    min_point_x = point_1[0] + (u[0] * value)
+    min_point_y = point_1[1] + (u[1] * value)
+    min_point_z = min_z
+    min_intersect_point = [min_point_x, min_point_y, min_point_z]
+
+
+    equation = Eq(normal_vector[0] * (point_1[0] + u[0] * t) +
+                  normal_vector[1] * (point_1[1] + u[1] * t) +
+                  normal_vector[2] * max_z +
+                  normal_vector[3], 0)
+    value = solve(equation, t)[0]
+    max_point_x = point_1[0] + (u[0] * value)
+    max_point_y = point_1[1] + (u[1] * value)
+    max_point_z = max_z
+    max_intersect_point = [max_point_x, max_point_y, max_point_z]
+
+    return min_intersect_point, max_intersect_point
+
 def find_side_point(plane_vector, boundary_info):
     """Create the intersection of the bounding box and the plane
 
@@ -773,65 +826,83 @@ def find_side_point(plane_vector, boundary_info):
     Returns:
         point_list: List of points on both ends of a straight line
     """
-    # need to revising about that count of points is more than 4
-    min_point_low = [float(boundary_info[1][0]), float(boundary_info[1][1]), float(boundary_info[1][2])]
-    min_point_top = [float(boundary_info[1][0]), float(boundary_info[1][1]), float(boundary_info[0][2])]
-    min_point_left = [float(boundary_info[1][0]), float(boundary_info[0][1]), float(boundary_info[1][2])]
-    min_point_right = [float(boundary_info[0][0]), float(boundary_info[1][1]), float(boundary_info[1][2])]
 
 
-    max_point_top = [float(boundary_info[0][0]), float(boundary_info[0][1]), float(boundary_info[0][2])]
-    max_point_low = [float(boundary_info[0][0]), float(boundary_info[0][1]), float(boundary_info[1][2])]
-    max_point_right = [float(boundary_info[1][0]), float(boundary_info[0][1]), float(boundary_info[0][2])]
-    max_point_left = [float(boundary_info[0][0]), float(boundary_info[1][1]), float(boundary_info[0][2])]
+    box_info = box(boundary_info[1][0], boundary_info[1][1], boundary_info[0][0], boundary_info[0][1])
+    box_coords = box_info.exterior.coords
+    min_z = boundary_info[1][2]
+    max_z = boundary_info[0][2]
+    min_value = []
+    max_value = []
+    min_h_distance = []
+    min_l_distance = []
+    max_h_distance = []
+    max_l_distance = []
 
-    min_line_1 = make_straight(plane_vector, boundary_info, min_point_low, min_point_right)
-    min_line_2 = make_straight(plane_vector, boundary_info, min_point_low, min_point_left)
-    min_line_3 = make_straight(plane_vector, boundary_info, max_point_low, min_point_right)
-    min_line_4 = make_straight(plane_vector, boundary_info, max_point_low, min_point_left)
+    for box_i in range(len(box_coords) - 1):
+        min_result, max_result = make_straight2(plane_vector, box_coords[box_i], box_coords[box_i+1], min_z, max_z)
+        # print box_i
+        # b.append(min_result)
+        # b.append(max_result)
+        min_l_distance.append(math.fabs(boundary_info[1][0] - min_result[0]) + math.fabs(boundary_info[1][1] - min_result[1]))
+        min_h_distance.append(math.fabs(boundary_info[1][0] - max_result[0]) + math.fabs(boundary_info[1][1] - max_result[1]))
+        max_l_distance.append(math.fabs(boundary_info[0][0] - min_result[0]) + math.fabs(boundary_info[0][1] - min_result[1]))
+        max_h_distance.append(math.fabs(boundary_info[0][0] - max_result[0]) + math.fabs(boundary_info[0][1] - max_result[1]))
+        min_value.append(min_result)
+        max_value.append(max_result)
 
-    max_line_1 = make_straight(plane_vector, boundary_info, max_point_top, max_point_right)
-    max_line_2 = make_straight(plane_vector, boundary_info, max_point_top, max_point_left)
-    max_line_3 = make_straight(plane_vector, boundary_info, min_point_top, max_point_right)
-    max_line_4 = make_straight(plane_vector, boundary_info, min_point_top, max_point_left)
-
-    min_value = [min_line_1, min_line_2, min_line_3, min_line_4]
-    max_value = [max_line_1, max_line_2, max_line_3, max_line_4]
-    for i in range(len(min_value)):
-        math.fabs(min_value[i][0] - min_value[i+1][0]) + math.fabs(min_value[i][1] - min_value[i+1][1])
-    distance = math.fabs((boundary_info[0][0] - boundary_info[1][0]) + (boundary_info[0][1] - boundary_info[1][1]))
-
-    check_min = 0
-    check_max = 0
+    min_li = min_l_distance.index(min(min_l_distance))
+    min_hi = min_h_distance.index(min(min_h_distance))
+    max_li = max_l_distance.index(min(max_l_distance))
+    max_hi = max_h_distance.index(min(max_h_distance))
     point_list = list()
-    used_min_index = []
-    used_max_index = []
-    print "min_value : ", min_value
-    print "max_value : ", max_value
-    print "boundary_info : ", boundary_info
-    e = 0.0
-    while check_min != 2:
+    min_l = min_value[min_li]
+    min_h = max_value[min_hi]
+    max_l = min_value[max_li]
+    max_h = max_value[max_hi]
+    point_list.append(min_l)
+    point_list.append(min_h)
+    point_list.append(max_l)
+    point_list.append(max_h)
 
-        for min_i in range(len(min_value)):
-            if min_i not in used_min_index:
-                if check_point_range_e(min_value[min_i], boundary_info, e):
-                    if min_i not in used_min_index:
-                        point_list.append(min_value[min_i])
-                        used_min_index.append(min_i)
-                        check_min = check_min + 1
-        e = e + 0.00001
 
-    e = 0.0
-    while check_max != 2:
+    # min_value = [min_line_1, min_line_2, min_line_3, min_line_4]
+    # max_value = [max_line_1, max_line_2, max_line_3, max_line_4]
+    # for i in range(len(min_value)):
+    #     math.fabs(min_value[i][0] - min_value[i+1][0]) + math.fabs(min_value[i][1] - min_value[i+1][1])
+    # distance = math.fabs((boundary_info[0][0] - boundary_info[1][0]) + (boundary_info[0][1] - boundary_info[1][1]))
 
-        for max_i in range(len(max_value)):
-            if max_i not in used_max_index:
-                if check_point_range_e(max_value[max_i], boundary_info, e):
-                    if max_i not in used_max_index:
-                        point_list.append(max_value[max_i])
-                        used_max_index.append(max_i)
-                        check_max = check_max + 1
-        e = e + 0.00001
+    # check_min = 0
+    # check_max = 0
+    # point_list = list()
+    # used_min_index = []
+    # used_max_index = []
+    # print "min_value : ", min_value
+    # print "max_value : ", max_value
+    # print "boundary_info : ", boundary_info
+    # e = 0.0
+    # while check_min != 2:
+    #
+    #     for min_i in range(len(min_value)):
+    #         if min_i not in used_min_index:
+    #             if check_point_range_e(min_value[min_i], boundary_info, e):
+    #                 if min_i not in used_min_index:
+    #                     point_list.append(min_value[min_i])
+    #                     used_min_index.append(min_i)
+    #                     check_min = check_min + 1
+    #     e = e + 0.00001
+    #
+    # e = 0.0
+    # while check_max != 2:
+    #
+    #     for max_i in range(len(max_value)):
+    #         if max_i not in used_max_index:
+    #             if check_point_range_e(max_value[max_i], boundary_info, e):
+    #                 if max_i not in used_max_index:
+    #                     point_list.append(max_value[max_i])
+    #                     used_max_index.append(max_i)
+    #                     check_max = check_max + 1
+    #     e = e + 0.00001
 
     # print "result : ", point_list
     # print "min_value", min_value
@@ -848,6 +919,7 @@ def find_side_point(plane_vector, boundary_info):
     #     return point_list
     # else:
     #     return []
+
     return point_list
 
 
@@ -933,40 +1005,36 @@ def check_point_range_e(point, wall_range, e=0.0):
         True: The pointer is included in the bounding box
         False: The pointer is not included in the bounding box
     """
-    m_maxX = wall_range[0][0]
-    m_maxY = wall_range[0][1]
-    m_minX = wall_range[1][0]
-    m_minY = wall_range[1][1]
+    # m_maxX = wall_range[0][0]
+    # m_maxY = wall_range[0][1]
+    # m_minX = wall_range[1][0]
+    # m_minY = wall_range[1][1]
 
 
+    wall_range_max = wall_range[0]
+    wall_range_min = wall_range[1]
 
+    x = point[0]
+    y = point[1]
+    z = point[2]
+    check_X = 0
+    check_Z = 0
+    check_Y = 0
 
-
-
-    # wall_range_max = wall_range[0]
-    # wall_range_min = wall_range[1]
-    #
-    # x = point[0]
-    # y = point[1]
-    # z = point[2]
-    # check_X = 0
-    # check_Z = 0
-    # check_Y = 0
-    #
-    # if x <= wall_range_max[0] + e:
-    #     if x >= wall_range_min[0] - e:
-    #         check_X = check_X + 1
-    # if y <= wall_range_max[1] + e:
-    #     if y >= wall_range_min[1] - e:
-    #         check_Y = check_Y + 1
-    # # if z <= wall_range_max[2] + e:
-    # #     if z >= wall_range_min[2] - e:
-    # #         check_Z += 1
-    # # print check_X, check_Y
-    # if (check_X + check_Y) == 2:
-    #     return True
-    # else:
-    #     return False
+    if x <= wall_range_max[0] + e:
+        if x >= wall_range_min[0] - e:
+            check_X = check_X + 1
+    if y <= wall_range_max[1] + e:
+        if y >= wall_range_min[1] - e:
+            check_Y = check_Y + 1
+    # if z <= wall_range_max[2] + e:
+    #     if z >= wall_range_min[2] - e:
+    #         check_Z += 1
+    # print check_X, check_Y
+    if (check_X + check_Y) == 2:
+        return True
+    else:
+        return False
 def check_bbox(main_bbox, other_bbox):
     """Check if the bounding box intersects
 
@@ -1056,7 +1124,7 @@ def extend_bbox(side_points, e):
 
 
 
-def get_intersection_line(bbox_list, normal_vector, side_line_info):
+def get_intersection_line(bbox_list, normal_vector, side_line_info, wall_point_list):
     """Create intersection points between planes
 
         Search intersecting lines between planes where each bounding box intersects.
@@ -1069,11 +1137,10 @@ def get_intersection_line(bbox_list, normal_vector, side_line_info):
     Returns:
         side_line_list: side_line_list with each line intersection line information added
     """
-    x = Symbol('x')
-    y = Symbol('y')
-    z = 0.0
+
 
     check_bbox_index = [[] for i in range(len(normal_vector))]
+
     check_wall_info = [[] for i in range(len(normal_vector))]
     each_wall_info = [[] for i in range(len(normal_vector))]
 
@@ -1105,24 +1172,25 @@ def get_intersection_line(bbox_list, normal_vector, side_line_info):
     print check_wall_info
     print each_wall_info
     for check_wall_i in range(len(check_wall_info)):
-        main_epsilon = 0.001
-        sub_epsilon = 0.001
+        main_epsilon = 0.5
+        sub_epsilon = 0.5
         while True:
             main_bbox = extend_bbox(side_line_info[check_wall_i], main_epsilon)
             for check_wall in check_wall_info[check_wall_i]:
 
                 sub_bbox = extend_bbox(side_line_info[check_wall], sub_epsilon)
                 # sub_bbox = bbox_list[check_wall]
+                if check_wall not in check_bbox_index[check_wall_i]:
+                    if check_bbox2(main_bbox, sub_bbox):
+                        check_bbox_index[check_wall_i].append(check_wall)
+                        check_bbox_index[check_wall].append(check_wall_i)
 
-                if check_bbox2(main_bbox, sub_bbox):
-                    if check_wall not in each_wall_info[check_wall_i]:
-                        each_wall_info[check_wall_i].append(check_wall)
 
             # if len(each_wall_info[check_wall_i]) != 0:
             #     if len(each_wall_info[check_wall_i]) % 2 == 0:
             #         print main_epsilon, sub_epsilon
             #         break
-            if main_epsilon > 0.2:
+            if main_epsilon > 0.5:
                 break
             # if main_epslion > 0.3:
             #     print check_bbox_i, main_epslion
@@ -1131,92 +1199,126 @@ def get_intersection_line(bbox_list, normal_vector, side_line_info):
             main_epsilon = main_epsilon + 0.005
             sub_epsilon = sub_epsilon + 0.005
 
-    for check_bbox_i in range(len(check_bbox_index)):
-        print check_bbox_i, each_wall_info[check_bbox_i]
-
-        #
-        # if len(temp_bbox) == 0 or len(temp_bbox) % 2 == 1:
-        #     default_eplison = 0.002
-        #     while True:
-        #
-        #         bbox_list[point_i] = extend_bbox(bbox_list[point_i], default_eplison)
-        #         for point_j2 in range(len(bbox_list)):
-        #             if point_j2 != point_i:
-        #                 bbox_list[point_j2] = extend_bbox(bbox_list[point_j2], default_eplison)
-        #                 if check_bbox(bbox_list[point_i], bbox_list[point_j2]):
-        #                     if point_j2 not in temp_bbox:
-        #                         print point_i, point_j2
-        #                         temp_bbox.append(point_j2)
-        #         if len(temp_bbox) != 0 and len(temp_bbox) % 2 == 0:
-        #             break
-        # check_bbox_index[point_i].extend(temp_bbox)
-    # print check_bbox_index
+    delete_node = []
 
 
-    # for match_i in range(len(check_bbox_index)):
-    #     if len(check_bbox_index[match_i]) != 0:
-    #         for sub_index in check_bbox_index[match_i]:
-    #             model_cos = np.dot(
-    #                 [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]],
-    #                 [normal_vector[sub_index][0], normal_vector[sub_index][1], normal_vector[sub_index][2]]) \
-    #                         / (np.linalg.norm(
-    #                 [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]])
-    #                            * np.linalg.norm(
-    #                         [normal_vector[sub_index][0], normal_vector[sub_index][1],
-    #                          normal_vector[sub_index][2]]))
-    #             if math.fabs(round(model_cos, 1)) != 1.0:
-    #                 temp_list = np.cross(
-    #                     [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]],
-    #                     [normal_vector[sub_index][0], normal_vector[sub_index][1], normal_vector[sub_index][2]])
-    #                 e1 = Eq(
-    #                     normal_vector[match_i][0] * x + normal_vector[match_i][1] * y + normal_vector[match_i][3],
-    #                     0)
-    #                 e2 = Eq(
-    #                     normal_vector[sub_index][0] * x + normal_vector[sub_index][1] * y +
-    #                     normal_vector[sub_index][3],
-    #                     0)
-    #
-    #                 value_eq = solve([e1, e2], x, y)
-    #                 temp_list = temp_list.tolist()
-    #                 temp_list.append(value_eq[x])
-    #                 temp_list.append(value_eq[y])
-    #                 temp_list.append(z)
-    #
-    #                 temp_point_list = list()
-    #
-    #                 main_minZ = bbox_list[match_i][1][2]
-    #                 main_maxZ = bbox_list[match_i][0][2]
-    #                 # sub_minZ = bbox_list[sub_index][1][2]
-    #                 # sub_maxZ = bbox_list[sub_index][0][2]
-    #
-    #                 minT = (z - temp_list[5]) / temp_list[2]
-    #                 minX = (minT * temp_list[0]) + temp_list[3]
-    #                 minY = (minT * temp_list[1]) + temp_list[4]
-    #
-    #                 main_point_bot = [minX, minY, main_minZ]
-    #                 main_point_top = [minX, minY, main_maxZ]
-    #                 # sub_point_bot = [minX, minY, sub_minZ]
-    #                 # sub_point_top = [minX, minY, sub_maxZ]
-    #                 main_points = [main_point_bot, main_point_top]
-    #                 each_wall_info[match_i].append(main_points)
-    #                 each_wall_info[sub_index].append(main_points)
-    #
-    #
-    #                 # side_line_list[sub_index].append(sub_points)
-    #                 # if included_bbox(bbox_list[match_i], bbox_list[sub_index]) == 2:
-    #                 #     side_line_list[match_i].append(main_points)
-    #                 #     side_line_list[match_i].append(sub_points)
-    #                 #     side_line_list[sub_index].append(sub_points)
-    #                 #
-    #                 # elif included_bbox(bbox_list[match_i], bbox_list[sub_index]) == -2:
-    #                 #     side_line_list[sub_index].append(sub_points)
-    #                 #     side_line_list[sub_index].append(main_points)
-    #                 #     side_line_list[match_i].append(main_points)
-    #                 # else:
-    #                 #     side_line_list[match_i].append(main_points)
-    #                 #     side_line_list[sub_index].append(sub_points)
+
+    for each_i in range(len(check_bbox_index)):
+        if len(check_bbox_index[each_i]) == 1:
+            delete_node.append([each_i, check_bbox_index[each_i][0]])
+    print delete_node
+    if len(delete_node) != 0:
+        for delete_v in delete_node:
+            temp_i = check_bbox_index[delete_v[1]].index(delete_v[0])
+
+            check_bbox_index[delete_v[1]].pop(temp_i)
+
+
+    x = Symbol('x')
+    y = Symbol('y')
+    z = 0.0
+    graph_list = []
+    for check_value in check_bbox_index:
+        graph_list.append(check_value)
+
+    for main_i in range(len(check_bbox_index)):
+        for match_i in check_bbox_index[main_i]:
+
+            if len(check_bbox_index[match_i]) > 1 and len(check_bbox_index[main_i]) > 1:
+                if main_i < match_i:
+                    temp_list = np.cross(
+                        [normal_vector[main_i][0], normal_vector[main_i][1], normal_vector[main_i][2]],
+                        [normal_vector[match_i][0], normal_vector[match_i][1], normal_vector[match_i][2]])
+                    e1 = Eq(
+                        normal_vector[main_i][0] * x + normal_vector[main_i][1] * y + normal_vector[main_i][3],
+                        0)
+                    e2 = Eq(
+                        normal_vector[match_i][0] * x + normal_vector[match_i][1] * y +
+                        normal_vector[match_i][3],
+                        0)
+
+                    value_eq = solve([e1, e2], x, y)
+                    temp_list = temp_list.tolist()
+                    temp_list.append(value_eq[x])
+                    temp_list.append(value_eq[y])
+                    temp_list.append(z)
+
+
+                    main_minZ = bbox_list[match_i][1][2]
+                    main_maxZ = bbox_list[match_i][0][2]
+
+                    minT = (main_minZ - temp_list[5]) / temp_list[2]
+                    minX = (minT * temp_list[0]) + temp_list[3]
+                    minY = (minT * temp_list[1]) + temp_list[4]
+
+                    maxT = (main_maxZ - temp_list[5]) / temp_list[2]
+                    maxX = (maxT * temp_list[0]) + temp_list[3]
+                    maxY = (maxT * temp_list[1]) + temp_list[4]
+
+                    main_point_bot = [minX, minY, main_minZ]
+                    main_point_top = [maxX, maxY, main_maxZ]
+                    main_points = [main_point_bot, main_point_top]
+                    each_wall_info[main_i].append(main_points)
+                    each_wall_info[match_i].append(main_points)
+
+
+
+    print each_wall_info
+    remove_index_list = []
+    for i in range(len(each_wall_info)):
+        if len(each_wall_info[i]) == 0:
+            remove_index_list.append(i)
+
+    if len(remove_index_list) != 0:
+        remove_count = 0
+        for i in remove_index_list:
+            r_i = i - remove_count
+            each_wall_info.pop(r_i)
+            bbox_list.pop(r_i)
+            normal_vector.pop(r_i)
+            wall_point_list.pop(r_i)
+            remove_count = remove_count + 1
+
+
+    test_graph = MakingGraph2([each_wall_info])
+    checked_list, G = test_graph.make_graph2()
+
+    delete_value = check_point(checked_list, wall_point_list)
+
+    test_graph.get_newGraph(G, delete_value)
 
     return each_wall_info
+
+def check_point(checked_list, wall_point_list):
+    delete_value = []
+    print "hi"
+    for i in checked_list:
+        pointcloud_rate = get_poiontRate(wall_point_list[i[0]], get_range(i[2]+i[3]))
+        result_rate = pointcloud_rate * 100 / i[1] * 100 *100
+        print result_rate, pointcloud_rate * 100 / i[1] * 100
+        if pointcloud_rate == 0.0:
+
+            delete_value.append(i[4])
+
+
+    return delete_value
+
+def get_poiontRate(pointcloud, bbox):
+
+    points = pointcloud.to_list()
+    pointcloud_size = pointcloud.size
+    count = 0
+    for point in points:
+
+        if check_point_range_e(point, bbox):
+            count = count + 1
+
+    # print "checked_count : ", float(count), float(pointcloud_size)
+    if count == 0:
+        return 0.0
+    else:
+
+        return float(count) / float(pointcloud_size)
 
 
 def get_intersection_line2(bbox_list, normal_vector, side_line_list):
@@ -1800,7 +1902,7 @@ if __name__ == "__main__":
     # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/sampling_in_d_wall_.pcd")
     # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/npy_data2/dump/test_pointcloud2_wall_.pcd")
     # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/3d-model_wall_01-remove-3.ply")
-    cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/sampling_in_d_wall_.pcd")
+
     # cloud = pcl.load("/home/dprt/Desktop/lbj/merge2.ply")
     # cloud = pcl.load("/home/dprt/Desktop/lbj/npy_data2/dump/merge_subsample_nofloor_wall (copy).ply")
     # cloud = pcl.load("/home/dprt/Desktop/21/Untitled Folder 2/colorizedlast_wall2.ply")
@@ -1810,12 +1912,60 @@ if __name__ == "__main__":
     # a = clustering(cloud)
     # print cloud.get_point(0)
     #
+    #
+    cloud = pcl.load(
+        "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/sampling_in_d_wall_.pcd")
     a = make_wall_info(cloud)
     first_process_runtime = (time.time() - start_vect) / 60
     print("plane RANSAC Process Runtime: %0.2f Minutes" % (first_process_runtime))
 
+    # [array([-0.21555801, -1.13197005, 2.95484996]), array([-0.21555804, -3.01844001, 0.0867425])]
 
-    # print(p.intersects(q))  # True
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/f2_13.pcd")
+    # print cloud.make_cropbox()
+    # a = [[-0.2155580073595047, -3.018440008163452, 2.9548499584198],
+    #  [-0.2155580073595047, -3.018440008163452, 0.08674249798059464],
+    #
+    #  [-0.2155580073595047, -1.1319700479507446, 2.9548499584198],
+    #  [-0.2155580073595047, -1.1319700479507446, 0.08674249798059464],
+    #
+    #  [-0.2155580371618271, -1.1319700479507446, 2.9548499584198],
+    #  [-0.2155580371618271, -1.1319700479507446, 0.08674249798059464],
+    #
+    #  [-0.2155580371618271, -3.018440008163452, 2.9548499584198],
+    #  [-0.2155580371618271, -3.018440008163452, 0.08674249798059464],
+    #
+    #  [-0.2155580073595047, -3.018440008163452, 2.9548499584198],
+    #  [-0.2155580073595047, -3.018440008163452, 0.08674249798059464]]
+    #
+    # b = [[-0.215558007359505, -2.59912530755782, 0.08674249798059464],
+    #      [-0.215558007359505, -1.78219608420728, 2.9548499584198],
+    #
+    #      [-0.215567739378466, -1.13197004795074, 0.08674249798059464],
+    #      [-0.215562320476383, -1.13197004795074, 2.9548499584198],
+    #
+    #      [-0.215558037161827, -2.59463244392920, 0.08674249798059464],
+    #      [-0.215558037161827, -1.77770322057866, 2.9548499584198],
+    #
+    #      [-0.215555225937027, -3.01844000816345, 0.08674249798059464],
+    #      [-0.215549807034945, -3.01844000816345, 2.9548499584198]]
+    # bb = [[-0.21555801, -1.13197005, 2.95484996],[-0.21555804, -3.01844001, 0.0867425]]
+    # for b_i in b:
+    #     print check_point_range_e(b_i, bb, 0.000001)
+    # n_b = ps2.CalculateCentroid(b)
+    # c = []
+    # c.append(a)
+    # c.append(n_b)
+    #
+    #
+    # d = ps.Point_sort()
+    # d.visual_graph3(c)
+
+    # test_bbox = [[-0.0232066, -0.92826444, 2.98539662], [-0.0610235, -2.97115016, 0.11777067]]
+    # m_box = box(test_bbox[1][0], test_bbox[1][1], test_bbox[0][0], test_bbox[0][1])
+    # print m_box.exterior.coords[0][0]
+
+        # print(p.intersects(q))  # True
     # print(p.intersection(q).area)  # 1.0
     # x = p.intersection(q)
     # print(x)
@@ -1847,3 +1997,70 @@ if __name__ == "__main__":
         # visual_viewer2(cloud, list_a)
 
 # /usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
+
+
+# 0
+# side_line_points :  [[-4.55186843872070, 3.10371001810592, 0.030340079218149185], [-4.55186843872070, 3.11225950992093, 3.0321598052978516], [4.45410442352295, 3.10127483346018, 0.030340079218149185], [4.45410442352295, 3.10982432527518, 3.0321598052978516]]
+# [[4.454104423522949, 3.0548300743103027, 3.0321598052978516], [4.454104423522949, 3.0548300743103027, 0.030340079218149185], [4.454104423522949, 3.113368511199951, 3.0321598052978516], [4.454104423522949, 3.113368511199951, 0.030340079218149185], [-4.551868438720703, 3.113368511199951, 3.0321598052978516], [-4.551868438720703, 3.113368511199951, 0.030340079218149185], [-4.551868438720703, 3.0548300743103027, 3.0321598052978516], [-4.551868438720703, 3.0548300743103027, 0.030340079218149185], [4.454104423522949, 3.0548300743103027, 3.0321598052978516], [4.454104423522949, 3.0548300743103027, 0.030340079218149185]]
+# [[4.45410442352295, 3.10127483346018, 0.030340079218149185], [4.45410442352295, 3.10982432527518, 3.0321598052978516], [-40.2715937774248, 3.11336851119995, 0.030340079218149185], [-8.65325575673064, 3.11336851119995, 3.0321598052978516], [-4.55186843872070, 3.10371001810592, 0.030340079218149185], [-4.55186843872070, 3.11225950992093, 3.0321598052978516], [176.219412334848, 3.05483007431030, 0.030340079218149185], [207.837750355542, 3.05483007431030, 3.0321598052978516]]
+# 1
+# side_line_points :  [[-4.56954145431519, -3.11231038443798, 0.0582517646253109], [-4.56954145431519, -3.11224168972453, 3.029421091079712], [4.58844995498657, -3.11214909809773, 0.0582517646253109], [4.58844995498657, -3.11208040338429, 3.029421091079712]]
+# [[4.588449954986572, -3.1218299865722656, 3.029421091079712], [4.588449954986572, -3.1218299865722656, 0.0582517646253109], [4.588449954986572, -3.066685438156128, 3.029421091079712], [4.588449954986572, -3.066685438156128, 0.0582517646253109], [-4.5695414543151855, -3.066685438156128, 3.029421091079712], [-4.5695414543151855, -3.066685438156128, 0.0582517646253109], [-4.5695414543151855, -3.1218299865722656, 3.029421091079712], [-4.5695414543151855, -3.1218299865722656, 0.0582517646253109], [4.588449954986572, -3.1218299865722656, 3.029421091079712], [4.588449954986572, -3.1218299865722656, 0.0582517646253109]]
+# [[4.58844995498657, -3.11214909809773, 0.0582517646253109], [4.58844995498657, -3.11208040338429, 3.029421091079712], [2586.05819220303, -3.06668543815613, 0.0582517646253109], [2582.15764120381, -3.06668543815613, 3.029421091079712], [-4.56954145431519, -3.11231038443798, 0.0582517646253109], [-4.56954145431519, -3.11224168972453, 3.029421091079712], [-545.101581757990, -3.12182998657227, 0.0582517646253109], [-549.002132757210, -3.12182998657227, 3.029421091079712]]
+# 2
+# side_line_points :  [[4.69853812361037, -2.96558308601379, 0.1383921056985855], [4.69897316616935, -2.96558308601379, 2.9708728790283203], [4.69854666254270, 2.96572995185852, 0.1383921056985855], [4.69898170510169, 2.96572995185852, 2.9708728790283203]]
+# [[4.698821544647217, -2.965583086013794, 2.9708728790283203], [4.698821544647217, -2.965583086013794, 0.1383921056985855], [4.698821544647217, 2.9657299518585205, 2.9708728790283203], [4.698821544647217, 2.9657299518585205, 0.1383921056985855], [4.698819637298584, 2.9657299518585205, 2.9708728790283203], [4.698819637298584, 2.9657299518585205, 0.1383921056985855], [4.698819637298584, -2.965583086013794, 2.9708728790283203], [4.698819637298584, -2.965583086013794, 0.1383921056985855], [4.698821544647217, -2.965583086013794, 2.9708728790283203], [4.698821544647217, -2.965583086013794, 0.1383921056985855]]
+# [[4.69882154464722, 193.904332896191, 0.1383921056985855], [4.69882154464722, -108.284922312841, 2.9708728790283203], [4.69854666254270, 2.96572995185852, 0.1383921056985855], [4.69898170510169, 2.96572995185852, 2.9708728790283203], [4.69881963729858, 192.579450419939, 0.1383921056985855], [4.69881963729858, -109.609804789093, 2.9708728790283203], [4.69853812361037, -2.96558308601379, 0.1383921056985855], [4.69897316616935, -2.96558308601379, 2.9708728790283203]]
+# 3
+# side_line_points :  [[-4.69444554124203, -3.06785631179810, 0.1118827760219574], [-4.70041241561247, -3.06785631179810, 2.9761099815368652], [-4.69465201290213, 2.96834897994995, 0.1118827760219574], [-4.70061888727258, 2.96834897994995, 2.9761099815368652]]
+# [[-4.649772644042969, -3.0678563117980957, 2.9761099815368652], [-4.649772644042969, -3.0678563117980957, 0.1118827760219574], [-4.649772644042969, 2.968348979949951, 2.9761099815368652], [-4.649772644042969, 2.968348979949951, 0.1118827760219574], [-4.698821544647217, 2.968348979949951, 2.9761099815368652], [-4.698821544647217, 2.968348979949951, 0.1118827760219574], [-4.698821544647217, -3.0678563117980957, 2.9761099815368652], [-4.698821544647217, -3.0678563117980957, 0.1118827760219574], [-4.649772644042969, -3.0678563117980957, 2.9761099815368652], [-4.649772644042969, -3.0678563117980957, 0.1118827760219574]]
+# [[-4.64977264404297, -1309.08137084437, 0.1118827760219574], [-4.64977264404297, -1483.52312537373, 2.9761099815368652], [-4.69465201290213, 2.96834897994995, 0.1118827760219574], [-4.70061888727258, 2.96834897994995, 2.9761099815368652], [-4.69882154464722, 124.864736941660, 0.1118827760219574], [-4.69882154464722, -49.5770175877045, 2.9761099815368652], [-4.69444554124203, -3.06785631179810, 0.1118827760219574], [-4.70041241561247, -3.06785631179810, 2.9761099815368652]]
+# 4
+# side_line_points :  [[-4.56674480438232, -0.793317828750477, 0.0681283250451088], [-4.56674480438232, -0.793304224477492, 3.0405960083007812], [-0.0710121989250183, -0.793330632196779, 0.0681283250451088], [-0.0710121989250183, -0.793317027923794, 3.0405960083007812]]
+# [[-0.07101219892501831, -0.8165006041526794, 3.0405960083007812], [-0.07101219892501831, -0.8165006041526794, 0.0681283250451088], [-0.07101219892501831, -0.785601794719696, 3.0405960083007812], [-0.07101219892501831, -0.785601794719696, 0.0681283250451088], [-4.566744804382324, -0.785601794719696, 3.0405960083007812], [-4.566744804382324, -0.785601794719696, 0.0681283250451088], [-4.566744804382324, -0.8165006041526794, 3.0405960083007812], [-4.566744804382324, -0.8165006041526794, 0.0681283250451088], [-0.07101219892501831, -0.8165006041526794, 3.0405960083007812], [-0.07101219892501831, -0.8165006041526794, 0.0681283250451088]]
+# [[-0.0710121989250183, -0.793330632196779, 0.0681283250451088], [-0.0710121989250183, -0.793317027923794, 3.0405960083007812], [-2713.93303254046, -0.785601794719696, 0.0681283250451088], [-2709.15610200239, -0.785601794719696, 3.0405960083007812], [-4.56674480438232, -0.793317828750477, 0.0681283250451088], [-4.56674480438232, -0.793304224477492, 3.0405960083007812], [8135.70711613530, -0.816500604152679, 0.0681283250451088], [8140.48404667338, -0.816500604152679, 3.0405960083007812]]
+# 5
+# side_line_points :  [[2.99020722922247, -0.558140397071838, 0.12413974851369858], [2.99015895552621, -0.558140397071838, 2.967020034790039], [2.99017418939464, 2.96020555496216, 0.12413974851369858], [2.99012591569838, 2.96020555496216, 2.967020034790039]]
+# [[2.9901602268218994, -0.5581403970718384, 2.967020034790039], [2.9901602268218994, -0.5581403970718384, 0.12413974851369858], [2.9901602268218994, 2.960205554962158, 2.967020034790039], [2.9901602268218994, 2.960205554962158, 0.12413974851369858], [2.990159511566162, 2.960205554962158, 2.967020034790039], [2.990159511566162, 2.960205554962158, 0.12413974851369858], [2.990159511566162, -0.5581403970718384, 2.967020034790039], [2.990159511566162, -0.5581403970718384, 0.12413974851369858], [2.9901602268218994, -0.5581403970718384, 2.967020034790039], [2.9901602268218994, -0.5581403970718384, 0.12413974851369858]]
+# [[2.99016022682190, 4.44705232477931, 0.12413974851369858], [2.99016022682190, -0.693518161463317, 2.967020034790039], [2.99017418939464, 2.96020555496216, 0.12413974851369858], [2.99012591569838, 2.96020555496216, 2.967020034790039], [2.99015951156616, 4.52321849430619, 0.12413974851369858], [2.99015951156616, -0.617351991936430, 2.967020034790039], [2.99020722922247, -0.558140397071838, 0.12413974851369858], [2.99015895552621, -0.558140397071838, 2.967020034790039]]
+# 6
+# side_line_points :  [[2.85547109877646, -0.568999826908112, 0.12187949568033218], [2.85534718128652, -0.568999826908112, 2.9727442264556885], [2.85541008827689, 2.97615242004395, 0.12187949568033218], [2.85528617078695, 2.97615242004395, 2.9727442264556885]]
+# [[2.855360746383667, -0.5689998269081116, 2.9727442264556885], [2.855360746383667, -0.5689998269081116, 0.12187949568033218], [2.855360746383667, 2.9761524200439453, 2.9727442264556885], [2.855360746383667, 2.9761524200439453, 0.12187949568033218], [2.8553600311279297, 2.9761524200439453, 2.9727442264556885], [2.8553600311279297, 2.9761524200439453, 0.12187949568033218], [2.8553600311279297, -0.5689998269081116, 2.9727442264556885], [2.8553600311279297, -0.5689998269081116, 0.12187949568033218], [2.855360746383667, -0.5689998269081116, 2.9727442264556885], [2.855360746383667, -0.5689998269081116, 0.12187949568033218]]
+# [[2.85536074638367, 5.84327406092986, 0.12187949568033218], [2.85536074638367, -1.35723029470416, 2.9727442264556885], [2.85541008827689, 2.97615242004395, 0.12187949568033218], [2.85528617078695, 2.97615242004395, 2.9727442264556885], [2.85536003112793, 5.88483560364540, 0.12187949568033218], [2.85536003112793, -1.31566875198861, 2.9727442264556885], [2.85547109877646, -0.568999826908112, 0.12187949568033218], [2.85534718128652, -0.568999826908112, 2.9727442264556885]]
+# 7
+# side_line_points :  [[1.14024305343628, -0.793370035418793, 0.0672641471028328], [1.14024305343628, -0.794112878026645, 3.02361798286438], [2.96065473556519, -0.792087753350331, 0.0672641471028328], [2.96065473556519, -0.792830595958183, 3.02361798286438]]
+# [[2.9606547355651855, -0.7933061122894287, 3.02361798286438], [2.9606547355651855, -0.7933061122894287, 0.0672641471028328], [2.9606547355651855, -0.7641681432723999, 3.02361798286438], [2.9606547355651855, -0.7641681432723999, 0.0672641471028328], [1.1402430534362793, -0.7641681432723999, 3.02361798286438], [1.1402430534362793, -0.7641681432723999, 0.0672641471028328], [1.1402430534362793, -0.7933061122894287, 3.02361798286438], [1.1402430534362793, -0.7933061122894287, 0.0672641471028328], [2.9606547355651855, -0.7933061122894287, 3.02361798286438], [2.9606547355651855, -0.7933061122894287, 0.0672641471028328]]
+# [[2.96065473556519, -0.792087753350331, 0.0672641471028328], [2.96065473556519, -0.792830595958183, 3.02361798286438], [42.5971634230069, -0.764168143272400, 0.0672641471028328], [43.6517514848513, -0.764168143272400, 3.02361798286438], [1.14024305343628, -0.793370035418793, 0.0672641471028328], [1.14024305343628, -0.794112878026645, 3.02361798286438], [1.23099251824980, -0.793306112289429, 0.0672641471028328], [2.28558058009413, -0.793306112289429, 3.02361798286438]]
+# 8
+# side_line_points :  [[1.17214285470574, -0.351843476295471, 0.08374449610710144], [1.17218525859554, -0.351843476295471, 2.9593400955200195], [1.17219414244284, 2.98012161254883, 0.08374449610710144], [1.17223654633264, 2.98012161254883, 2.9593400955200195]]
+# [[1.172200083732605, -0.3518434762954712, 2.9593400955200195], [1.172200083732605, -0.3518434762954712, 0.08374449610710144], [1.172200083732605, 2.980121612548828, 2.9593400955200195], [1.172200083732605, 2.980121612548828, 0.08374449610710144], [1.1721998453140259, 2.980121612548828, 2.9593400955200195], [1.1721998453140259, 2.980121612548828, 0.08374449610710144], [1.1721998453140259, -0.3518434762954712, 2.9593400955200195], [1.1721998453140259, -0.3518434762954712, 0.08374449610710144], [1.172200083732605, -0.3518434762954712, 2.9593400955200195], [1.172200083732605, -0.3518434762954712, 0.08374449610710144]]
+# [[1.17220008373260, 3.36610413408401, 0.08374449610710144], [1.17220008373260, 0.611288101350367, 2.9593400955200195], [1.17219414244284, 2.98012161254883, 0.08374449610710144], [1.17223654633264, 2.98012161254883, 2.9593400955200195], [1.17219984531403, 3.35061500495868, 0.08374449610710144], [1.17219984531403, 0.595798972225040, 2.9593400955200195], [1.17214285470574, -0.351843476295471, 0.08374449610710144], [1.17218525859554, -0.351843476295471, 2.9593400955200195]]
+# 9
+# side_line_points :  [[1.03750890423369, -0.463309198617935, 0.07293400168418884], [1.03742335218583, -0.463309198617935, 2.9615142345428467], [1.03741465103389, 2.97259354591370, 0.07293400168418884], [1.03732909898602, 2.97259354591370, 2.9615142345428467]]
+# [[1.0374001264572144, -0.4633091986179352, 2.9615142345428467], [1.0374001264572144, -0.4633091986179352, 0.07293400168418884], [1.0374001264572144, 2.9725935459136963, 2.9615142345428467], [1.0374001264572144, 2.9725935459136963, 0.07293400168418884], [1.0374000072479248, 2.9725935459136963, 2.9615142345428467], [1.0374000072479248, 2.9725935459136963, 0.07293400168418884], [1.0374000072479248, -0.4633091986179352, 2.9615142345428467], [1.0374000072479248, -0.4633091986179352, 0.07293400168418884], [1.0374001264572144, -0.4633091986179352, 2.9615142345428467], [1.0374001264572144, -0.4633091986179352, 0.07293400168418884]]
+# [[1.03740012645721, 3.50207193973399, 0.07293400168418884], [1.03740012645721, 0.383360674180033, 2.9615142345428467], [1.03741465103389, 2.97259354591370, 0.07293400168418884], [1.03732909898602, 2.97259354591370, 2.9615142345428467], [1.03740000724792, 3.50641759087265, 0.07293400168418884], [1.03740000724792, 0.387706325318682, 2.9615142345428467], [1.03750890423369, -0.463309198617935, 0.07293400168418884], [1.03742335218583, -0.463309198617935, 2.9615142345428467]]
+# 10
+# side_line_points :  [[1.18335831165314, -0.658466502295604, 0.11546099931001663], [1.18335831165314, -0.658483422335079, 3.029949903488159], [2.79306006431580, -0.658523459749002, 0.11546099931001663], [2.79306006431580, -0.658540379788477, 3.029949903488159]]
+# [[2.793060064315796, -0.6585110425949097, 3.029949903488159], [2.793060064315796, -0.6585110425949097, 0.11546099931001663], [2.793060064315796, -0.6571527719497681, 3.029949903488159], [2.793060064315796, -0.6571527719497681, 0.11546099931001663], [1.1833583116531372, -0.6571527719497681, 3.029949903488159], [1.1833583116531372, -0.6571527719497681, 0.11546099931001663], [1.1833583116531372, -0.6585110425949097, 3.029949903488159], [1.1833583116531372, -0.6585110425949097, 0.11546099931001663], [2.793060064315796, -0.6585110425949097, 3.029949903488159], [2.793060064315796, -0.6585110425949097, 0.11546099931001663]]
+# [[2.79306006431580, -0.658523459749002, 0.11546099931001663], [2.79306006431580, -0.658540379788477, 3.029949903488159], [-35.9446014911255, -0.657152771949768, 0.11546099931001663], [-36.4227867956602, -0.657152771949768, 3.029949903488159], [1.18335831165314, -0.658466502295604, 0.11546099931001663], [1.18335831165314, -0.658483422335079, 3.029949903488159], [2.44213295096219, -0.658511042594910, 0.11546099931001663], [1.96394764642755, -0.658511042594910, 3.029949903488159]]
+# 11
+# side_line_points :  [[-4.57194995880127, -0.947819885006191, 0.13765360414981842], [-4.57194995880127, -0.947606948039557, 3.0333468914031982], [-0.242313340306282, -0.948083894248523, 0.13765360414981842], [-0.242313340306282, -0.947870957281889, 3.0333468914031982]]
+# [[-0.24231334030628204, -0.9554921984672546, 3.0333468914031982], [-0.24231334030628204, -0.9554921984672546, 0.13765360414981842], [-0.24231334030628204, -0.9221389889717102, 3.0333468914031982], [-0.24231334030628204, -0.9221389889717102, 0.13765360414981842], [-4.5719499588012695, -0.9221389889717102, 3.0333468914031982], [-4.5719499588012695, -0.9221389889717102, 0.13765360414981842], [-4.5719499588012695, -0.9554921984672546, 3.0333468914031982], [-4.5719499588012695, -0.9554921984672546, 0.13765360414981842], [-0.24231334030628204, -0.9554921984672546, 3.0333468914031982], [-0.24231334030628204, -0.9554921984672546, 0.13765360414981842]]
+# [[-0.242313340306282, -0.948083894248523, 0.13765360414981842], [-0.242313340306282, -0.947870957281889, 3.0333468914031982], [-425.727462866096, -0.922138988971710, 0.13765360414981842], [-422.235389331001, -0.922138988971710, 3.0333468914031982], [-4.57194995880127, -0.947819885006191, 0.13765360414981842], [-4.57194995880127, -0.947606948039557, 3.0333468914031982], [121.250650099296, -0.955492198467255, 0.13765360414981842], [124.742723634391, -0.955492198467255, 3.0333468914031982]]
+# 12
+# side_line_points :  [[-0.0270605486204793, -2.97115015983582, 0.11777067184448242], [-0.0262917258551813, -2.97115015983582, 2.98539662361145], [-0.0737659791723643, -0.928264439105988, 0.11777067184448242], [-0.0729971564070663, -0.928264439105988, 2.98539662361145]]
+# [[-0.023206600919365883, -2.9711501598358154, 2.98539662361145], [-0.023206600919365883, -2.9711501598358154, 0.11777067184448242], [-0.023206600919365883, -0.9282644391059875, 2.98539662361145], [-0.023206600919365883, -0.9282644391059875, 0.11777067184448242], [-0.06102349981665611, -0.9282644391059875, 2.98539662361145], [-0.06102349981665611, -0.9282644391059875, 0.11777067184448242], [-0.06102349981665611, -2.9711501598358154, 2.98539662361145], [-0.06102349981665611, -2.9711501598358154, 0.11777067184448242], [-0.023206600919365883, -2.9711501598358154, 2.98539662361145], [-0.023206600919365883, -2.9711501598358154, 0.11777067184448242]]
+# [[-0.0232066009193659, -3.13972102266723, 0.11777067184448242], [-0.0232066009193659, -3.10609287642299, 2.98539662361145], [-0.0737659791723643, -0.928264439105988, 0.11777067184448242], [-0.0729971564070663, -0.928264439105988, 2.98539662361145], [-0.0610234998166561, -1.48561780925751, 0.11777067184448242], [-0.0610234998166561, -1.45198966301326, 2.98539662361145], [-0.0270605486204793, -2.97115015983582, 0.11777067184448242], [-0.0262917258551813, -2.97115015983582, 2.98539662361145]]
+# 13
+# side_line_points :  [[-0.215555225937027, -3.01844000816345, 0.08674249798059464], [-0.215549807034945, -3.01844000816345, 2.9548499584198], [-0.215567739378466, -1.13197004795074, 0.08674249798059464], [-0.215562320476383, -1.13197004795074, 2.9548499584198]]
+# [[-0.2155580073595047, -3.018440008163452, 2.9548499584198], [-0.2155580073595047, -3.018440008163452, 0.08674249798059464], [-0.2155580073595047, -1.1319700479507446, 2.9548499584198], [-0.2155580073595047, -1.1319700479507446, 0.08674249798059464], [-0.2155580371618271, -1.1319700479507446, 2.9548499584198], [-0.2155580371618271, -1.1319700479507446, 0.08674249798059464], [-0.2155580371618271, -3.018440008163452, 2.9548499584198], [-0.2155580371618271, -3.018440008163452, 0.08674249798059464], [-0.2155580073595047, -3.018440008163452, 2.9548499584198], [-0.2155580073595047, -3.018440008163452, 0.08674249798059464]]
+# [[-0.215558007359505, -2.59912530755782, 0.08674249798059464], [-0.215558007359505, -1.78219608420728, 2.9548499584198], [-0.215567739378466, -1.13197004795074, 0.08674249798059464], [-0.215562320476383, -1.13197004795074, 2.9548499584198], [-0.215558037161827, -2.59463244392920, 0.08674249798059464], [-0.215558037161827, -1.77770322057866, 2.9548499584198], [-0.215555225937027, -3.01844000816345, 0.08674249798059464], [-0.215549807034945, -3.01844000816345, 2.9548499584198]]
+# 14
+# side_line_points :  [[3.08986993482890, -3.06476092338562, 0.1359969973564148], [3.06411148382826, -3.06476092338562, 3.0182700157165527], [3.08772427854637, -2.37992000579834, 0.1359969973564148], [3.06196582754573, -2.37992000579834, 3.0182700157165527]]
+# [[3.0890004634857178, -3.06476092338562, 3.0182700157165527], [3.0890004634857178, -3.06476092338562, 0.1359969973564148], [3.0890004634857178, -2.37992000579834, 3.0182700157165527], [3.0890004634857178, -2.37992000579834, 0.1359969973564148], [3.0468053817749023, -2.37992000579834, 3.0182700157165527], [3.0468053817749023, -2.37992000579834, 0.1359969973564148], [3.0468053817749023, -3.06476092338562, 3.0182700157165527], [3.0468053817749023, -3.06476092338562, 0.1359969973564148], [3.0890004634857178, -3.06476092338562, 3.0182700157165527], [3.0890004634857178, -3.06476092338562, 0.1359969973564148]]
+# [[3.08900046348572, -2.78724697237374, 0.1359969973564148], [3.08900046348572, -11.0087134591174, 3.0182700157165527], [3.08772427854637, -2.37992000579834, 0.1359969973564148], [3.06196582754573, -2.37992000579834, 3.0182700157165527], [3.04680538177490, 10.6803893455964, 0.1359969973564148], [3.04680538177490, 2.45892285885275, 3.0182700157165527], [3.08986993482890, -3.06476092338562, 0.1359969973564148], [3.06411148382826, -3.06476092338562, 3.0182700157165527]]
+# 15
+# side_line_points :  [[1.55005116219798, -3.05101633071899, 0.14438675343990326], [1.57209742164506, -3.05101633071899, 3.0426712036132812], [1.55143437606523, -2.37992000579834, 0.14438675343990326], [1.57348063551231, -2.37992000579834, 3.0426712036132812]]
+# [[1.586609959602356, -3.051016330718994, 3.0426712036132812], [1.586609959602356, -3.051016330718994, 0.14438675343990326], [1.586609959602356, -2.37992000579834, 3.0426712036132812], [1.586609959602356, -2.37992000579834, 0.14438675343990326], [1.5487998723983765, -2.37992000579834, 3.0426712036132812], [1.5487998723983765, -2.37992000579834, 0.14438675343990326], [1.5487998723983765, -3.051016330718994, 3.0426712036132812], [1.5487998723983765, -3.051016330718994, 0.14438675343990326], [1.586609959602356, -3.051016330718994, 3.0426712036132812], [1.586609959602356, -3.051016330718994, 0.14438675343990326]]
+# [[1.58660995960236, 14.6862802381398, 0.14438675343990326], [1.58660995960236, 3.99005744608262, 3.0426712036132812], [1.55143437606523, -2.37992000579834, 0.14438675343990326], [1.57348063551231, -2.37992000579834, 3.0426712036132812], [1.54879987239838, -3.65810682178884, 0.14438675343990326], [1.54879987239838, -14.3543296138460, 3.0426712036132812], [1.55005116219798, -3.05101633071899, 0.14438675343990326], [1.57209742164506, -3.05101633071899, 3.0426712036132812]]
