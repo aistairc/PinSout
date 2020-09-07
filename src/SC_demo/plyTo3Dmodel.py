@@ -58,7 +58,7 @@ def ply_to_collada(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply')
             y = plydata.elements[0].data['y'][i]
 
             if math.isnan(x) or math.isnan(y) or math.isnan(z):
-                print "there is NaN value!!"
+                print ("there is NaN value!!")
                 continue
 
             # if has_color:
@@ -85,12 +85,13 @@ def ply_to_collada(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply')
     # print npy_list, min_list
     npy_file = ply_file.split('.')[0]
     out_filename = os.path.join(filepath, npy_file)
-    print out_filename, min_list
+    print (out_filename, min_list)
     # data = np.load('/root/pointnet/data/Stanford_5cls/Area_6_office_1.npy')
     # out_filename = "/home/dprt/Desktop/SC_DEMO/New Folder/test/st/npy_data2/office_1"
     # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
 
-    model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
+    # model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
     print(model_path)
     # model_path = '/root/pointnet/sem_seg/log_5cls_2/model.ckpt'
     # model_path = '/root/pointnet/sem_seg/log_5cls/model.ckpt'
@@ -134,7 +135,7 @@ def ply_to_collada2(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'
         z = plydata.elements[0].data['z'][i]
 
         if math.isnan(x) or math.isnan(y) or math.isnan(z):
-            print "there is NaN value!!"
+            print ("there is NaN value!!")
             continue
         data_list.append([x, y, z,0,0,0])
 
@@ -144,7 +145,7 @@ def ply_to_collada2(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'
     # print npy_list, min_list
     npy_file = ply_file.split('.')[0]
     out_filename = os.path.join(filepath, npy_file)
-    print out_filename, min_list
+    print (out_filename, min_list)
     # data = np.load('/root/pointnet/data/Stanford_5cls/Area_6_office_1.npy')
     # out_filename = "/home/dprt/Desktop/SC_DEMO/New Folder/test/st/npy_data2/office_1"
     # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
@@ -292,7 +293,7 @@ def check_area_exist(data_list, index_area):
         return -1
 
 def txt2ply():
-    print "hi"
+    print ("hi")
 
 
 if __name__ == '__main__':
@@ -319,4 +320,10 @@ if __name__ == '__main__':
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_286/sampling_in_d.ply")
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_429/sampling_in_d.ply")
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_572/sampling_in_d.ply")
-    ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_715/sampling_in_d.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_143/sampling_in_d.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_286/sampling_in_d.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_429/sampling_in_d.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_572/sampling_in_d.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_715/sampling_in_d.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_715/sampling_in_d.ply")
+    ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/conferenceRoom_1 - Cloud.ply")

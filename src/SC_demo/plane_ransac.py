@@ -109,7 +109,7 @@ def do_plane_ransac(cloud):
     segmenter = cloud.make_segmenter_normals(ksearch=50)
     segmenter.set_model_type(pcl.SACMODEL_NORMAL_PLANE) # Fit a plane to the points.
     segmenter.set_optimize_coefficients(True)  # Do a little bit more optimisation once the plane has been fitted.
-    segmenter.set_normal_distance_weight(0.05)
+    segmenter.set_normal_distance_weight(0.01)
     segmenter.set_method_type(pcl.SAC_RANSAC)  # Use RANSAC for the sample consensus algorithm.
     segmenter.set_max_iterations(100000)  # Number of iterations for the RANSAC algorithm.
     segmenter.set_distance_threshold(0.05) # The max distance from the fitted model a point can be for it to be an inlier.
@@ -411,7 +411,7 @@ def get_plane_list(clustered_cloud):
     for each_wall in new_plane_list:
         fil = each_wall.make_statistical_outlier_filter()
         fil.set_mean_k(50)
-        fil.set_std_dev_mul_thresh(1.0)
+        fil.set_std_dev_mul_thresh(0.5)
         new_cloud = fil.filter()
 
         inliers_p, outliers_p, coeff_p = do_plane_ransac2(new_cloud)
@@ -451,7 +451,7 @@ def make_wall_info(cloud):
     for clustered_cloud in cluster_list:
         # Exporting the plane data from each clustered cloud data
         wall_point_list, wall_vector_list, wall_bbox_list = get_plane_list(clustered_cloud)
-        # visual_viewer(wall_point_list)
+        visual_viewer(wall_point_list)
         print len(wall_point_list), len(wall_vector_list), len(wall_bbox_list)
 
         # print "side_line_info"
@@ -488,7 +488,9 @@ def make_wall_info(cloud):
             # a.from_list(test_box)
             # pcl.save(a, "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/bbox_" + str(wall_index) + ".pcd")
         #     pcl.save(a, "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/s2_" + str(wall_index) + ".pcd")
-        # print side_line_info
+
+            pcl.save(wall_point_list[wall_index], "/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_715/f_" + str(wall_index) + ".pcd")
+        # print side_line_info"/home/dprt/Documents/dprt/pinsoutData/Untitled Folder234234/Untitled Folder/Untitled Folder/1000_715/npy_data2/dump/sampling_in_d_wall_.pcd
 
             # wall_point_list[wall_index]._to_ply_file("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/" + str(wall_index) + ".ply")
 
@@ -1166,16 +1168,20 @@ def get_intersection_line(bbox_list, normal_vector, side_line_info, wall_point_l
                         check_wall_info[point_j].append(point_i)
 
                     if check_bbox2(bbox_list[point_i], bbox_list[point_j]):
-                        if point_j not in each_wall_info[point_i]:
-                            each_wall_info[point_i].append(point_j)
-                        if point_i not in each_wall_info[point_j]:
-                            each_wall_info[point_j].append(point_i)
+                        # if point_j not in each_wall_info[point_i]:
+                        #     each_wall_info[point_i].append(point_j)
+                        # if point_i not in each_wall_info[point_j]:
+                        #     each_wall_info[point_j].append(point_i)
+                        if point_j not in check_bbox_index[point_i]:
+                            check_bbox_index[point_i].append(point_j)
+                        if point_i not in check_bbox_index[point_j]:
+                            check_bbox_index[point_j].append(point_i)
 
     print check_wall_info
     print each_wall_info
     for check_wall_i in range(len(check_wall_info)):
-        main_epsilon = 0.5
-        sub_epsilon = 0.5
+        main_epsilon = 0.1
+        sub_epsilon = 0.1
         while True:
             main_bbox = extend_bbox(side_line_info[check_wall_i], main_epsilon)
             for check_wall in check_wall_info[check_wall_i]:
@@ -1187,11 +1193,9 @@ def get_intersection_line(bbox_list, normal_vector, side_line_info, wall_point_l
                         check_bbox_index[check_wall_i].append(check_wall)
                         check_bbox_index[check_wall].append(check_wall_i)
 
+            # if len(each_wall_info[check_wall_i]) >= 2:
+            #     break
 
-            # if len(each_wall_info[check_wall_i]) != 0:
-            #     if len(each_wall_info[check_wall_i]) % 2 == 0:
-            #         print main_epsilon, sub_epsilon
-            #         break
             if main_epsilon > 0.5:
                 break
             # if main_epslion > 0.3:
@@ -1202,9 +1206,10 @@ def get_intersection_line(bbox_list, normal_vector, side_line_info, wall_point_l
             sub_epsilon = sub_epsilon + 0.005
 
     delete_node = []
-
-
-
+    print "here"
+    print check_bbox_index
+    print each_wall_info
+    print "here"
     for each_i in range(len(check_bbox_index)):
         if len(check_bbox_index[each_i]) == 1:
             delete_node.append([each_i, check_bbox_index[each_i][0]])
@@ -1263,14 +1268,12 @@ def get_intersection_line(bbox_list, normal_vector, side_line_info, wall_point_l
                     each_wall_info[main_i].append(main_points)
                     each_wall_info[match_i].append(main_points)
 
-
-
-    print each_wall_info
     remove_index_list = []
     for i in range(len(each_wall_info)):
         if len(each_wall_info[i]) == 0:
             remove_index_list.append(i)
 
+    print "print : ", remove_index_list
     if len(remove_index_list) != 0:
         remove_count = 0
         for i in remove_index_list:
@@ -1280,7 +1283,6 @@ def get_intersection_line(bbox_list, normal_vector, side_line_info, wall_point_l
             normal_vector.pop(r_i)
             wall_point_list.pop(r_i)
             remove_count = remove_count + 1
-
 
     test_graph = MakingGraph2([each_wall_info])
     checked_list, G = test_graph.make_graph2()
@@ -1308,7 +1310,8 @@ def check_point(checked_list, wall_point_list, normal_vector):
         count = count + 1
 
         # result_rate = pointcloud_rate*i[1] *100 <= 20
-        result_rate = pointcloud_rate*i[1] *100 <=0.01
+        # result_rate = pointcloud_rate*i[1] *100 <=0.01
+        result_rate = pointcloud_rate * 100 <= 0.1
         print pointcloud_rate == 0.0, pointcloud_rate, i[1], i[4]
         if pointcloud_rate == 0.0 or result_rate:
 
@@ -1321,7 +1324,8 @@ def get_poiontRate(pointcloud, normal_vector, bbox):
 
     points = pointcloud.to_list()
     pointcloud_size = pointcloud.size
-    a, b = check_distance_plane(points, normal_vector, 0.1)
+    e = 1.0
+    a, b = check_distance_plane(points, normal_vector, e)
     count = 0
     temp_list = []
     for point in points:
@@ -1329,13 +1333,12 @@ def get_poiontRate(pointcloud, normal_vector, bbox):
         if check_point_range_e(point, bbox):
             temp_list.append(point)
             count = count + 1
-    a, c = check_distance_plane(temp_list, normal_vector,0.1)
+    a, c = check_distance_plane(temp_list, normal_vector,e)
     # print "checked_count : ", float(count), float(pointcloud_size)
     # print b, c, float(c) / float(b)
-    if c == 0:
+    if c <= 10:
         return 0.0
     else:
-
         return float(c) / float(b)
 
 
@@ -1934,7 +1937,11 @@ if __name__ == "__main__":
     # cloud = pcl.load(
     #     "/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_143/npy_data2/dump/sampling_in_d_wall_.pcd")
     # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_286/npy_data2/dump/sampling_in_d_wall_.pcd")
-    cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/3dModelPLY/test/1000_429/npy_data2/dump/sampling_in_d_wall_.pcd")
+    #cloud = pcl.load("/home/dprt/Documents/dprt/pinsoutData/Untitled Folder234234/Untitled Folder/Untitled Folder/1000_429/npy_data2/dump/sampling_in_d_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pinsoutData/Untitled Folder234234/Untitled Folder/Untitled Folder/1000_286/npy_data2/dump/sampling_in_d_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pinsoutData/Untitled Folder234234/Untitled Folder/Untitled Folder/1000_572/npy_data2/dump/sampling_in_d_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_715/npy_data2/dump/sampling_in_d_wall_.pcd")
+    cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/npy_data2/dump/original_data_wall_.pcd")
     a = make_wall_info(cloud)
     first_process_runtime = (time.time() - start_vect) / 60
     print("plane RANSAC Process Runtime: %0.2f Minutes" % (first_process_runtime))

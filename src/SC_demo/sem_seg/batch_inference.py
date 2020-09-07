@@ -125,7 +125,7 @@ def evaluate(model_path, out_filename, booth_data, min_list):
                      os.path.join(DUMP_DIR, os.path.basename(out_filename)) + "_clutter" + "_" + str(each_i)+".pcd")
 
 
-    print "chair : ", len(all_chair)
+    #print "chair : ", len(all_chair)
     ''' Third Process '''
     wall_cloud = pcl.PointCloud()
     wall_cloud.from_list(all_wall)
@@ -145,7 +145,7 @@ def evaluate(model_path, out_filename, booth_data, min_list):
 
 
 
-    print dae_filename
+    #print dae_filename
     #
     # new_wall_data = np.asarray(all_wall, dtype=np.float32)
     # new_wall_data[:, 0:3] += xyz_min
@@ -214,9 +214,9 @@ def eval_one_epoch(sess, ops, each_data):
 
     current_data, current_label = indoor3d_util2.room2blocks_wrapper_normalized(each_data, NUM_POINT)
     current_data = current_data[:, 0:NUM_POINT, :]
-    print "-----------------------------------------------------------------"
-    print current_data.shape, current_data.shape[0], current_data.shape[1]
-    print current_label.shape, current_label.shape[0], current_label.shape[1]
+    print ("-----------------------------------------------------------------")
+    print (current_data.shape, current_data.shape[0], current_data.shape[1])
+    print (current_label.shape, current_label.shape[0], current_label.shape[1])
     # if current_label.shape[0] != current_data.shape[0]:
     #     current_label = np.squeeze(current_label)
     # current_label = np.squeeze(current_label)
@@ -229,9 +229,9 @@ def eval_one_epoch(sess, ops, each_data):
     max_room_z = max(data[:, 2])
     file_size = current_data.shape[0]
     num_batches = file_size // BATCH_SIZE
-    print file_size
+
     if file_size >= 1:
-        print "hi"
+
         for batch_idx in range(num_batches):
             start_idx = batch_idx * BATCH_SIZE
             end_idx = (batch_idx + 1) * BATCH_SIZE
@@ -262,7 +262,7 @@ def eval_one_epoch(sess, ops, each_data):
                         chair_list.append([pts[i, 6], pts[i, 7], pts[i, 8]])
                     if pred[i] == 5:
                         clutter_list.append([pts[i, 6], pts[i, 7], pts[i, 8]])
-        print len(ceiling_list), len(floor_list), len(wall_list), len(chair_list), len(table_list), len(clutter_list)
+        print (len(ceiling_list), len(floor_list), len(wall_list), len(chair_list), len(table_list), len(clutter_list))
         return ceiling_list, floor_list, wall_list, chair_list, table_list, clutter_list
     else:
         return [], [], [], [], [], []

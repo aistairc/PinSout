@@ -13,7 +13,8 @@ sys.path.append(BASE_DIR)
 # DATA_PATH = os.path.join(ROOT_DIR, 'data', 'Stanford3dDataset_v1.2')
 # DATA_PATH = os.path.join('/home/dprt/Desktop')
 
-DATA_PATH = os.path.join("/root/pointnet/sem_seg")
+# DATA_PATH = os.path.join("/root/pointnet/sem_seg")
+print(BASE_DIR)
 g_classes = [x.rstrip() for x in open(os.path.join(BASE_DIR, 'meta/log6class.txt'))]
 g_class2label = {cls: i for i,cls in enumerate(g_classes)}
 # g_class2color = {'ceiling':	[0,255,0],
