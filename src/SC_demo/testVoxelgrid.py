@@ -16,7 +16,7 @@ pcd = o3d.io.read_point_cloud("/home/dprt/Documents/dprt/pointnet_data/2020_09_0
 
 voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd,voxel_size=0.1)
 
-print(voxel_grid)
+print(voxel_grid.voxels)
 o3d.visualization.draw_geometries([voxel_grid])
 # queries = np.asarray(pcd.points)
 # output = voxel_grid.check_if_included(o3d.utility.Vector3dVector(queries))

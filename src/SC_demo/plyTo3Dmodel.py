@@ -326,4 +326,12 @@ if __name__ == '__main__':
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_572/sampling_in_d.ply")
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_715/sampling_in_d.ply")
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_715/sampling_in_d.ply")
-    ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/conferenceRoom_1 - Cloud.ply")
+
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_154/sampling_in_d2.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_308/sampling_in_d2.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_462/sampling_in_d2.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_616/sampling_in_d2.ply")
+    ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_771/sampling_in_d2.ply")
+
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_925/sampling_in_d2.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_1079/sampling_in_d2.ply")

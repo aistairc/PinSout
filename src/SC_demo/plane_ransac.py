@@ -112,7 +112,7 @@ def do_plane_ransac(cloud):
     segmenter.set_normal_distance_weight(0.01)
     segmenter.set_method_type(pcl.SAC_RANSAC)  # Use RANSAC for the sample consensus algorithm.
     segmenter.set_max_iterations(100000)  # Number of iterations for the RANSAC algorithm.
-    segmenter.set_distance_threshold(0.05) # The max distance from the fitted model a point can be for it to be an inlier.
+    segmenter.set_distance_threshold(0.065) # The max distance from the fitted model a point can be for it to be an inlier.
     #0.05 / 100000 / 0.05
     inlier_indices, coefficients = segmenter.segment() # Returns all the points that fit the model, and the parameters of the model.
 
@@ -1310,9 +1310,9 @@ def check_point(checked_list, wall_point_list, normal_vector):
         count = count + 1
 
         # result_rate = pointcloud_rate*i[1] *100 <= 20
-        # result_rate = pointcloud_rate*i[1] *100 <=0.01
-        result_rate = pointcloud_rate * 100 <= 0.1
-        print pointcloud_rate == 0.0, pointcloud_rate, i[1], i[4]
+        result_rate = pointcloud_rate*i[1] *100 <=0.01
+        # result_rate = pointcloud_rate * 100 < 7
+        print result_rate, pointcloud_rate, i[1], i[4]
         if pointcloud_rate == 0.0 or result_rate:
 
             delete_value.append(i[4])
@@ -1324,7 +1324,7 @@ def get_poiontRate(pointcloud, normal_vector, bbox):
 
     points = pointcloud.to_list()
     pointcloud_size = pointcloud.size
-    e = 1.0
+    e = 0.05
     a, b = check_distance_plane(points, normal_vector, e)
     count = 0
     temp_list = []
@@ -1336,7 +1336,8 @@ def get_poiontRate(pointcloud, normal_vector, bbox):
     a, c = check_distance_plane(temp_list, normal_vector,e)
     # print "checked_count : ", float(count), float(pointcloud_size)
     # print b, c, float(c) / float(b)
-    if c <= 10:
+    print "point count : ",c, "========================================================= "
+    if c == 0:
         return 0.0
     else:
         return float(c) / float(b)
@@ -1941,7 +1942,14 @@ if __name__ == "__main__":
     # cloud = pcl.load("/home/dprt/Documents/dprt/pinsoutData/Untitled Folder234234/Untitled Folder/Untitled Folder/1000_286/npy_data2/dump/sampling_in_d_wall_.pcd")
     # cloud = pcl.load("/home/dprt/Documents/dprt/pinsoutData/Untitled Folder234234/Untitled Folder/Untitled Folder/1000_572/npy_data2/dump/sampling_in_d_wall_.pcd")
     # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_715/npy_data2/dump/sampling_in_d_wall_.pcd")
-    cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/npy_data2/dump/original_data_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/npy_data2/dump/original_data_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_154/npy_data2/dump/sampling_in_d2_wall_.pcd")
+
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_308/npy_data2/dump/sampling_in_d2_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_462/npy_data2/dump/sampling_in_d2_wall_.pcd")
+    # cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_616/npy_data2/dump/sampling_in_d2_wall_.pcd")
+    cloud = pcl.load("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_771/npy_data2/dump/sampling_in_d2_wall_.pcd")
+
     a = make_wall_info(cloud)
     first_process_runtime = (time.time() - start_vect) / 60
     print("plane RANSAC Process Runtime: %0.2f Minutes" % (first_process_runtime))
