@@ -14,14 +14,15 @@ import open3d as o3d
 print('voxelization')
 pcd = o3d.io.read_point_cloud("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_143/npy_data2/dump/sampling_in_d_wall_.pcd")
 
-voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd,voxel_size=0.1)
+voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd,voxel_size=0.5)
 
-print(voxel_grid.voxels)
+print(voxel_grid.get_voxel)
 o3d.visualization.draw_geometries([voxel_grid])
-# queries = np.asarray(pcd.points)
-# output = voxel_grid.check_if_included(o3d.utility.Vector3dVector(queries))
-# print(output[:10])
-
+queries = np.asarray(pcd.points)
+print(queries)
+output = voxel_grid.check_if_included(o3d.utility.Vector3dVector(queries))
+print(output)
+print(len(output), len(queries))
 #
 #
 # pcd = o3d.io.read_point_cloud("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_143/sampling_in_d.pcd")

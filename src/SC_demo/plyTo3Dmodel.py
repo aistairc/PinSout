@@ -151,7 +151,8 @@ def ply_to_collada2(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'
     # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
 
     # model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
-    model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
+    # model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log6/model.ckpt'
     print(model_path)
     # model_path = '/root/pointnet/sem_seg/log_5cls_2/model.ckpt'
     # model_path = '/root/pointnet/sem_seg/log_5cls/model.ckpt'
@@ -327,11 +328,12 @@ if __name__ == '__main__':
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_715/sampling_in_d.ply")
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/1000_715/sampling_in_d.ply")
 
+    ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/original_data.ply")
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_154/sampling_in_d2.ply")
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_308/sampling_in_d2.ply")
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_462/sampling_in_d2.ply")
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_616/sampling_in_d2.ply")
-    ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_771/sampling_in_d2.ply")
+    # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_771/sampling_in_d2.ply")
 
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_925/sampling_in_d2.ply")
     # ply_to_collada2("/home/dprt/Documents/dprt/pointnet_data/2020_09_07/Untitled Folder/1000_1079/sampling_in_d2.ply")

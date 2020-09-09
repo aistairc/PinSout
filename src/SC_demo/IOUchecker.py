@@ -241,14 +241,20 @@ def get_IOU(original_points, new_points):
 
     intersection_area = get_intersection(original_points, new_points)
     if intersection_area != -1:
-        original_area = get_PolygonArea(original_points)
-        new_area = get_PolygonArea(new_points)
 
-        union_area = original_area + new_area - intersection_area
+        # original_area = get_PolygonArea(original_points)
+        # new_area = get_PolygonArea(new_points)
+        # union_area = original_area + new_area - intersection_area
+        # rect = intersection_area / union_area
 
-        rect = intersection_area / union_area
 
-        return original_area, new_area, intersection_area, rect
+        original_area2 = Polygon(original_points)
+        new_area2 = Polygon(new_points)
+        intersection_area2 = original_area2.intersection(new_area2)
+        union_area2 = original_area2.area + new_area2.area - intersection_area2.area
+        rect2 = intersection_area2.area / union_area2
+
+        return original_area2.area, new_area2.area, intersection_area2.area, rect2
     else:
         return -1
 
