@@ -1,0 +1,3 @@
+Booth_0/Annotations
+Booth_1/Annotations
+Booth_2/Annotations

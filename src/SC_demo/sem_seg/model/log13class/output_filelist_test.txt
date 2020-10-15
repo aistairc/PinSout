@@ -1,3 +1,0 @@
-log13class/dump_test/Area_1_apartment_1_pred.txt
-log13class/dump_test/Area_1_boardroom_1_pred.txt
-log13class/dump_test/Area_1_office_1_pred.txt

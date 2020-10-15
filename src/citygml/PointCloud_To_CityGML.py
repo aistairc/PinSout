@@ -3,6 +3,13 @@ import numpy as np
 import psycopg2
 from decimal import *
 import matplotlib.pyplot as plt
+import sys
+import logging
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(logging.Formatter('%(asctime)s %(funcName)s [%(levelname)s]: %(message)s'))
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
 """  db connect  """
 
 user = 'postgres'
@@ -51,6 +58,8 @@ RootSurfaceRoom = 0
 buildingCounter = 0
 buildingMaxArray = []
 buildingMinArray = []
+check_first_time = True
+roomCount = 0
 ''' END '''
 class PointCloudToCityGML:
 
@@ -63,7 +72,13 @@ class PointCloudToCityGML:
         self.ceiling_list = ceiling_point
         self.floor_list = floor_point
         self.wall_list = wall_point
-        self.door_list = [] if len(door_point) - 1 != 0 else door_point
+
+        if len(door_point) != 0:
+            self.door_list = door_point
+        else:
+            self.door_list = []
+        # self.door_list = [] if len(door_point) - 1 != 0 else door_point
+
         self.window_list = [] if len(window_point) - 1 != 0 else window_point
 
     def makePolygonz (self, sideinfo):
@@ -618,6 +633,7 @@ class PointCloudToCityGML:
                 InteriorWallSurfaceGmlid = self.getSurfaceGmlID() + "_InteriorWallSurface_" + str(self.getSurfaceGeometryID() + 1)
                 InteriorWallSurfaceInfo = ""
                 for each_point in wall_index:
+
                     InteriorWallSurfaceInfo += str(each_point[0]) + " " + str(each_point[1]) + " " + str(each_point[2]) + ","
                 surface = self.makePolygonz(InteriorWallSurfaceInfo)
                 cursor.execute(
@@ -632,8 +648,10 @@ class PointCloudToCityGML:
                 product.commit()
                 self.updateEnvelop(InteriorWallSurfaceInfo, int(self.getCityObjectID()))
                 for index in self.door_list:
+
                     i = index[len(index) - 1]
                     if i == count:
+
                         door_temp_list = index[:len(index) - 1]
                         door_temp_list_2 = index[:len(index) - 1]
                         door_temp_list_2.reverse()
@@ -790,12 +808,17 @@ class PointCloudToCityGML:
         #             "wall": 31,
         #             "floor": 32
         #             }
-        self.makeCityObject(26)
+        global check_first_time
+        global roomCount
+        if check_first_time:
+            self.makeCityObject(26)
+            check_first_time = False
         # self.makeBuildingSurfaceGeometry()
         # self.updateBuildingEnvelop()
         self.makeRoomObject(41)
         self.makeSurfaceGeometry()
-
+        roomCount += 1
+        logger.info("Finish to make Room Object : " + str(roomCount))
 
 
     def visual_graph(self, point_list):

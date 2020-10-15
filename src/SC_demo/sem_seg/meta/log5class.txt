@@ -1,5 +1,0 @@
-ceiling
-floor
-wall
-window
-door

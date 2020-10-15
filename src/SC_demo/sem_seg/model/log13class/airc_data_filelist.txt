@@ -1,8 +1,0 @@
-log13class/airc_data/Area_1_dataset_1_pred.txt
-log13class/airc_data/Area_1_dataset_2_pred.txt
-log13class/airc_data/Area_1_dataset_3_pred.txt
-log13class/airc_data/Area_1_dataset_4_pred.txt
-log13class/airc_data/Area_1_dataset_5_pred.txt
-log13class/airc_data/Area_1_dataset_6_pred.txt
-log13class/airc_data/Area_1_dataset_7_pred.txt
-log13class/airc_data/Area_1_dataset_8_pred.txt

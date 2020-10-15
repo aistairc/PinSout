@@ -1,2 +1,0 @@
-log6class/dump_test/Area_1_office_1_pred.txt
-log6class/dump_test/Area_1_office_3_pred.txt
