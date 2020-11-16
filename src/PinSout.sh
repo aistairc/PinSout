@@ -1,6 +1,5 @@
 #!/bin/sh
 
-export PYTHONUNBUFFERED=1
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 export PATH="/root/anaconda3/envs/envname/bin:$PATH"
 

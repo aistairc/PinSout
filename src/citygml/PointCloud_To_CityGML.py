@@ -17,7 +17,7 @@ password = 'dprt'
 host_product = 'localhost'
 dbname = 'CityModelX'
 port = '5432'
-
+srid = 'SRID=4326;'
 product_connection_string = "dbname={dbname} user={user} host={host} password={password} port={port}" \
     .format(dbname=dbname,
             user=user,
@@ -83,7 +83,8 @@ class PointCloudToCityGML:
 
     def makePolygonz (self, sideinfo):
         # srid = "SRID=25833;"
-        srid = "SRID=4326;"
+        global srid
+        # srid = "SRID=4326;"
         polygonSet = "POLYGONZ(())"
         side = self.deleteString(sideinfo, len(sideinfo)-1)
         polygonz = (srid+self.insertString(polygonSet, 10, side))
@@ -135,12 +136,13 @@ class PointCloudToCityGML:
 
             return lastSurfaceID
     def getSurfaceGeometry (self, surface_id, surface):
+        global srid
         # cursor.execute("SELECT geometry from citydb.surface_geometry where id = '%s'" % surface_id)
         cursor.execute("SELECT ST_AsText(geometry) from citydb.surface_geometry where id = '%s'" % surface_id)
         update_geomerty = cursor.fetchone()[0]
         polygonz = self.insertString(update_geomerty, len(update_geomerty)-1, surface)
         # print polygonz
-        srid = "SRID=4326;"
+        # srid = "SRID=4326;"
         update_geomerty2 = srid + polygonz
         return update_geomerty2
 

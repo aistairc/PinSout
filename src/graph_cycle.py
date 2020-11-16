@@ -1,10 +1,6 @@
 import networkx as nx
-import matplotlib.pyplot as plt
 import math
 import Point_sort as rs
-import Point_sort2 as rs2
-import citygml.PointCloud_To_CityGML2 as gml
-
 import sys
 import logging
 import time
@@ -24,7 +20,17 @@ class MakingGraph2:
         self.atomic_lines2 = []
         self.first_edges = []
     def make_line_info(self):
+        """Making the line information from each wall surface
 
+            Align the intersections of each face and use the floor points to organize the data.
+
+            Args:
+                self.surface_info: Intersection point list on each side
+
+            Returns:
+                self.new_line_info: List of aligned floor points
+                self.new_line_info2: List of aligned intersections points
+        """
         for each_room in self.surface_info:
 
             for each_wall in each_room:
@@ -52,6 +58,17 @@ class MakingGraph2:
                         self.new_line_info2.append(temp_merge2)
 
     def sorted2Dpoints(self, point_list):
+        """Function to align intersection point
+
+            Since coordinates are created in one plane, align using the distance between points
+
+            Args:
+                point_list: Intersection point list on each side
+
+            Returns:
+                sorted_list: List of aligned points
+                sorted_index: The current position list of indices moved from the existing array.
+       """
         max = -1.0
         index = []
         sorted_list = []
@@ -111,41 +128,19 @@ class MakingGraph2:
 
         return sorted_list, sorted_index
 
+
     def make_edge_info(self):
+        """Generate edge information to create a graph
 
-        all_lines = reduce(lambda x, y: x+y,self.new_line_info)
-        all_lines2 = reduce(lambda x, y: x+y,self.new_line_info2)
+            Using the intersection of each face, create edge information that makes up the face
 
-        for each_l in range(len(all_lines)):
-            if all_lines[each_l] not in self.atomic_lines:
-                self.atomic_lines.append(all_lines[each_l])
-                self.atomic_lines2.append(all_lines2[each_l])
-
-        used_l = []
-        wall_graph = []
-        for atomic_i in range(len(self.atomic_lines)):
-            atomic_v = [self.atomic_lines[atomic_i][0], self.atomic_lines[atomic_i][1]]
-
-            for l in range(len(self.new_line_info)):
-                if l not in used_l:
-                    if atomic_v in self.new_line_info[l]:
-                        index = self.new_line_info[l].index(atomic_v)
-
-                        if index == 0:
-                            v_i = self.atomic_lines.index(self.new_line_info[l][1])
-
-                            wall_graph.append([atomic_i, v_i])
-                        else:
-                            v_i = self.atomic_lines.index(self.new_line_info[l][0])
-
-                            wall_graph.append([v_i, atomic_i])
-
-                        used_l.append(l)
-
-        return used_l, wall_graph
-
-    def make_edge_info2(self):
-
+            Args:
+                self.new_line_info: List of aligned floor points
+                self.new_line_info2: List of aligned intersections points
+            Returns:
+                new_edges: List of edge information
+                pointcloud_i: Index information of PointCloud including each surface
+        """
         new_list = [[] for i in range(len(self.new_line_info))]
         all_lines = reduce(lambda x, y: x + y, self.new_line_info)
         all_lines2 = reduce(lambda x, y: x + y, self.new_line_info2)
@@ -174,18 +169,28 @@ class MakingGraph2:
 
 
         new_edges = []
-        new_edges2 = []
+        pointcloud_i = []
         for i in new_list:
             for j in range(len(i) - 1):
                 new_edges.append([i[j][0], i[j+1][0]])
-            new_edges2.append(reduce(lambda x, y: x + y, i))
-        self.first_edges = new_edges2
-        return new_edges, new_edges2
+            pointcloud_i.append(reduce(lambda x, y: x + y, i))
+        self.first_edges = pointcloud_i
+        return new_edges, pointcloud_i
 
-    def make_graph2(self):
+    def make_graph(self):
+        """Generate edge information to create a graph
 
+             Using the intersection of each face, create edge information that makes up the face
+
+             Args:
+                 self.new_line_info: List of aligned floor points
+                 self.new_line_info2: List of aligned intersections points
+             Returns:
+                 new_edges: List of edge information
+                 pointcloud_i: Index information of PointCloud including each surface
+         """
         self.make_line_info()
-        wall_graph, pointcloud_i = self.make_edge_info2()
+        wall_graph, pointcloud_i = self.make_edge_info()
         G = nx.Graph()
         G.add_edges_from(wall_graph)
         cycles_list = nx.minimum_cycle_basis(G)
@@ -246,8 +251,8 @@ class MakingGraph2:
 
         wall_list2 = []
         wall_list3 = []
-        ceiling_list2 = []
-        floor_list2 = []
+        result_ceiling = []
+        result_floor = []
         result_wall = []
         roomCount = 0
         print len(new_cycles), new_cycles
@@ -356,13 +361,9 @@ class MakingGraph2:
                         ceiling.append(self.atomic_lines2[now_value_r][1])
                         floor.append(self.atomic_lines2[now_value_r][0])
 
-                ceiling_list2.append(ceiling)
-                floor_list2.append(floor)
+                result_ceiling.append(ceiling)
+                result_floor.append(floor)
                 result_wall.append(wall_list)
-
-
-
-
 
                 # make_gml_file2 = gml.PointCloudToCityGML([ceiling], [floor], wall_list,
                 #                                          [], [])
@@ -372,99 +373,8 @@ class MakingGraph2:
 
 
         # logger.info("Making the ROOM information from the Cluster data: "+str(len(result_wall)))
-        a.visual_graph3(ceiling_list2)
-
-
-
-
-        # return ceiling_list2, floor_list2, wall_list2
-
-    def merge_line(self, start_node):
-
-
-        root_list = self.first_edges
-        result = [[] for i in range(len(self.first_edges))]
-        result2 = [[] for i in range(len(self.first_edges))]
-        # result2 = [ f_i for f_i in self.first_edges]
-        count = 0
-
-        index = -1
-        for each_i in range(len(start_node) - 1):
-
-            for i in range(len(root_list)):
-                if start_node[each_i] in root_list[i]:
-                    if start_node[each_i+1] in root_list[i]:
-
-                        a = root_list[i].index(start_node[each_i])
-                        b = root_list[i].index(start_node[each_i+1])
-
-                        if math.fabs(a-b) == 1:
-
-                            if start_node[each_i + 1] not in result[i]:
-                                result[i].append(start_node[each_i + 1])
-                            if start_node[each_i] not in result[i]:
-                                result[i].append(start_node[each_i])
-                            result2[i].append(i)
-
-
-        result_edge = []
-        for r_i in range(len(self.first_edges)):
-            temp_list = []
-            for r in self.first_edges[r_i]:
-                if len(result) != 0:
-                    if r in result[r_i]:
-                        temp_list.append(r)
-                    else:
-                        temp_list.append(-1)
-            if temp_list.count(-1) != len(temp_list):
-                temp_list2 = []
-                for i in temp_list:
-                    if i != -1:
-                        temp_list2.append(i)
-                    else:
-                        if len(temp_list2) > 1:
-                            result_edge.append([temp_list2[0], temp_list2[-1]])
-                            temp_list2 = []
-                if len(temp_list2) >1:
-                    result_edge.append([temp_list2[0], temp_list2[-1]])
-
-
-        first_node = result_edge[0]
-
-
-        check_list = []
-        while True:
-            if first_node[0] == first_node[-1]:
-                break
-            for i in range(1, len(result_edge)):
-                if i not in check_list:
-                    if first_node[-1] in result_edge[i]:
-                        check_list.append(i)
-                        index_i = result_edge[i].index(first_node[-1])
-                        if index_i == 0:
-                            first_node.append(result_edge[i][-1])
-                        else:
-                            first_node.append(result_edge[i][0])
-
-        return first_node
-
-        # for each_i in range(len(start_node) - 1):
-        #
-        #     for i in range(len(root_list)):
-        #         if start_node[each_i] in root_list[i]:
-        #             if start_node[each_i + 1] in root_list[i]:
-
-        #                 a = root_list[i].index(start_node[each_i])
-        #                 b = root_list[i].index(start_node[each_i + 1])
-
-        #                 if math.fabs(a - b) == 1:
-        #
-        #                     if start_node[each_i + 1] not in result[i]:
-        #                         result[i].append(start_node[each_i + 1])
-        #                     if start_node[each_i] not in result[i]:
-        #                         result[i].append(start_node[each_i])
-
-
+        a.visual_graph3(result_ceiling)
+        return result_ceiling, result_floor, result_wall
 
 
 

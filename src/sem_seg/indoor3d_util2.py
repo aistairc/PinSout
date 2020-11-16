@@ -15,36 +15,22 @@ sys.path.append(BASE_DIR)
 # DATA_PATH = os.path.join(ROOT_DIR, 'data', 'Stanford3dDataset_v1.2_Aligned_Version(5class)')
 # DATA_PATH = os.path.join(ROOT_DIR, 'data', 'NEW')
 # class의 이름 저장 (ceiling, floor, wall, window, door)
-g_classes = [x.rstrip() for x in open(os.path.join(BASE_DIR, 'meta/log6class.txt'))]
+g_classes = [x.rstrip() for x in open(os.path.join(BASE_DIR, 'meta/log6class2.txt'))]
 g_class2label = {cls: i for i, cls in enumerate(g_classes)}
 
-"""g_class2color = {'ceiling':	 [0, 255, 0],  # 0
-                 'floor':	 [0, 0, 255],      # 1
-                 'wall':	 [0, 255, 255],    # 2
-                 'beam':     [255, 255, 0],    # 3
-                 'column':   [255, 0, 255],    # 4
-                 'window':   [100, 100, 255],  # 5
-                 'door':     [200, 200, 100],  # 6
-                 'table':    [170, 120, 200],  # 7
-                 'chair':    [255, 0, 0],      # 8
-                 'sofa':     [200, 100, 100],  # 9
-                 'bookcase': [10, 200, 100],   # 10
-                 'board':    [200, 200, 200],  # 11
-                 'clutter':  [50, 50, 50]}     # 12"""
-
-"""g_class2color = {'ceiling':	 [0, 255, 0],
-                 'floor':	 [0, 0, 255],
-                 'wall':	 [0, 255, 255],
-                 'window':   [100, 100, 255],
-                 'door':     [200, 200, 100],
-                 'clutter':  [50, 50, 50]}"""
 
 # 클래스의 색상
+# g_class2color = {'ceiling': [0, 255, 0],  # 0
+#                  'floor': [0, 0, 255],  # 1
+#                  'wall': [0, 255, 255],  # 2
+#                  'window': [100, 100, 255],  # 3
+#                  'door': [200, 200, 100],
+#                  'clutter':  [50, 50, 50]}  # 4
 g_class2color = {'ceiling': [0, 255, 0],  # 0
                  'floor': [0, 0, 255],  # 1
                  'wall': [0, 255, 255],  # 2
-                 'window': [100, 100, 255],  # 3
-                 'door': [200, 200, 100],
+                 'chair': [100, 100, 255],  # 3
+                 'table': [200, 200, 100],
                  'clutter':  [50, 50, 50]}  # 4
 
 """g_class2color = {'boardroom_Cloud:  [0, 255, 0]'}"""

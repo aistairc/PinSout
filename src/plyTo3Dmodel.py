@@ -12,7 +12,6 @@ from sem_seg import batch_inference3
 # from plane_ransac import GeneratePointCloud
 import sys
 import logging
-import pcl.pcl_visualization
 import pcl
 
 handler = logging.StreamHandler(sys.stdout)
@@ -20,28 +19,42 @@ handler.setFormatter(logging.Formatter('%(asctime)s %(funcName)s [%(levelname)s]
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
-def ply_to_gml(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'):
+def ply_to_CityGML_Grid(args):
     """Reading the .ply data and divide space
 
     Dividing the entire PointCloud data into a certain size.
     Find the minimum value of each segmented data and subtract it to move the data to the origin.
 
     Args:
-        ply_path: The path where A is located
-
+        args: Parameter list that user inputs
+        args[1] : File path of PointCloud data
+        args[2] : Distance threshold
+        args[3] : Epsilon Value
     Returns:
         model_path: Path with the trained model needed to do Semantic segmentation.
         out_filename: The path where the 3D model will be saved
         npy_list: List of split PointCloud information
         min_list: Minimum value of each PointCloud data
     """
+    distance_threshold = 0.05
+    epsilon_value = 0.5
+
+    if len(args) == 1:
+        logger.info("There is no path for reading the PointCloud")
+        return
+    if len(args) == 4:
+        distance_threshold = float(args[2])
+        epsilon_value = float(args[3])
+    elif len(args) == 3:
+        distance_threshold = float(args[2])
+    ply_path = args[1]
     plydata = PlyData.read(ply_path)
     dir, ply_file = os.path.split(ply_path)
 
     default_x = 10.0
     default_y = 10.0
 
-    filepath = os.path.join(dir, 'npy_data2')
+    filepath = os.path.join(dir, 'pointNetResult')
     if os.path.exists(filepath) is not True:
         os.mkdir(filepath)
     has_color = False
@@ -53,37 +66,25 @@ def ply_to_gml(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'):
 
     data_list = list()
 
-    # for i in range(lens):
-    #     x = plydata.elements[0].data['x'][i]
-    #     y = plydata.elements[0].data['y'][i]
-    #     z = plydata.elements[0].data['z'][i]
-    #
-    #     if math.isnan(x) or math.isnan(y) or math.isnan(z):
-    #         print "there is NaN value!!"
-    #         continue
-    #     data_list.append([x, y, z,0,0,0])
-
-
     for i in range(lens):
         z = plydata.elements[0].data['z'][i]
-        if 10.0 > z:
-            x = plydata.elements[0].data['x'][i]
-            y = plydata.elements[0].data['y'][i]
+        x = plydata.elements[0].data['x'][i]
+        y = plydata.elements[0].data['y'][i]
 
-            if math.isnan(x) or math.isnan(y) or math.isnan(z):
-                print ("there is NaN value!!")
-                continue
+        if math.isnan(x) or math.isnan(y) or math.isnan(z):
+            print ("there is NaN value!!")
+            continue
 
-            index_num = make_area_num(x, y, default_x, default_y)
-            check_area = check_area_exist(data_list, index_num)
+        index_num = make_area_num(x, y, default_x, default_y)
+        check_area = check_area_exist(data_list, index_num)
 
-            if check_area == -1:
-                index_info = []
-                index_info.append([x, y, z, 0, 0, 0, 0])
-                index_info.insert(0, index_num)
-                data_list.append(index_info)
-            else:
-                data_list[check_area].append([x, y, z, 0, 0, 0, 0])
+        if check_area == -1:
+            index_info = []
+            index_info.append([x, y, z, 0, 0, 0, 0])
+            index_info.insert(0, index_num)
+            data_list.append(index_info)
+        else:
+            data_list[check_area].append([x, y, z, 0, 0, 0, 0])
 
     npy_list, min_list = make_point_label(data_list)
     # print npy_list, min_list
@@ -91,21 +92,23 @@ def ply_to_gml(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'):
     out_filename = os.path.join(filepath, npy_file)
     print (out_filename, min_list)
 
-    model_path = os.getcwd()+'/sem_seg/model/log_6cls/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
     print(model_path)
 
     batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
 
 
 def ply_to_CityGML(args):
-    """Reading the .ply data and divide space
+    """Reading the .ply data starting the PinSout
 
     Dividing the entire PointCloud data into a certain size.
     Find the minimum value of each segmented data and subtract it to move the data to the origin.
 
     Args:
-        ply_path: The path where A is located
-
+        args: Parameter list that user inputs
+        args[1] : File path of PointCloud data
+        args[2] : Distance threshold
+        args[3] : Epsilon Value
     Returns:
         model_path: Path with the trained model needed to do Semantic segmentation.
         out_filename: The path where the 3D model will be saved
@@ -131,7 +134,7 @@ def ply_to_CityGML(args):
     # visual_viewer([original_point_cloud])
     plydata = PlyData.read(ply_path)
     dir, ply_file = os.path.split(ply_path)
-    filepath = os.path.join(dir, 'npy_data2')
+    filepath = os.path.join(dir, 'pointNetResult')
     if os.path.exists(filepath) is not True:
         os.mkdir(filepath)
     has_color = False
@@ -156,24 +159,16 @@ def ply_to_CityGML(args):
 
 
     npy_list, min_list = make_point_label([data_list])
-    # print npy_list, min_list
+
     npy_file = ply_file.split('.')[0]
     out_filename = os.path.join(filepath, npy_file)
-    # print (out_filename, min_list)
-    # data = np.load('/root/pointnet/data/Stanford_5cls/Area_6_office_1.npy')
-    # out_filename = "/home/dprt/Desktop/SC_DEMO/New Folder/test/st/npy_data2/office_1"
-    # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
+
 
     model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
-    # model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
-    # model_path = os.getcwd()+'/sem_seg/model/log6/model.ckpt'
-    # print(model_path)
-    # model_path = '/root/pointnet/sem_seg/log_5cls_2/model.ckpt'
-    # model_path = '/root/pointnet/sem_seg/log_5cls/model.ckpt'
     seg_result = batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
-
     # gp = GeneratePointCloud(distance_threshold, epsilon_value)
     # gp.make_wall_info(seg_result)
+
 def ply_to_CityGML2(args):
     """Reading the .ply data and divide space
 
@@ -381,13 +376,13 @@ def make_point_label(data_list):
                 # print points.size
                 npy_list.append(points)
                 min_list.append(min_value)
-                #
-                # area_data = np.asarray(data[1:], dtype=np.float32)[:, 0:3]
-                # cloud_data = pcl.PointCloud()
-                # cloud_data.from_array(area_data)
-                # print cloud_data.size
-                # out_filename3 = "/home/dprt/Desktop/SC_DEMO/New Folder/test/room2" + "_" + str(count) + ".pcd"
-                # pcl.save(cloud_data, out_filename3)
+
+                area_data = np.asarray(data[1:], dtype=np.float32)[:, 0:3]
+                cloud_data = pcl.PointCloud()
+                cloud_data.from_array(area_data)
+                print cloud_data.size
+                out_filename3 = "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/gridResult/gird" + "_" + str(count) + ".pcd"
+                pcl.save(cloud_data, out_filename3)
                 # out_filename2 = "/home/dprt/Desktop/SC_DEMO/New Folder/test/room2" + "_" + str(count) + ".npy"
                 # np.save(out_filename2, points)
 
@@ -484,11 +479,21 @@ def visual_viewer(cloud_list):
     viewer.InitCameraParameters()
     while viewer.WasStopped() != True:
         viewer.SpinOnce(100)
+
+def test(ply_path):
+    plydata = PlyData.read(ply_path)
+    lens = len(plydata.elements[0].data)
+    point_x = plydata.elements[0].data['x']
+    point_y = plydata.elements[0].data['Y']
+    point_z = plydata.elements[0].data['Z']
+    point_r = np.zeros(lens)
+    point_g = np.zeros(lens)
+    point_b = np.zeros(lens)
+
 if __name__ == '__main__':
-    # args = sys.argv
-    # args = [0, "/home/dprt/Desktop/PinSout_20201106_revise/PinSout/data/1000_841/sampling_in_d2.ply"]
-    # args = [0, "/home/dprt/Documents/test.ply"]
-    args = [0, "/home/dprt/Desktop/PinSout_20201106_revise/PinSout/data/sample_data/original_data.ply"]
-    ply_to_CityGML3(args)
-    # ply_to_gml("/home/dprt/Desktop/PinSout_20201106_revise/PinSout/data/sample_data/original_data.ply")
+    args = sys.argv
+    args = [0, "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/PointCloud_cs1_dec_x-y-z-localtime6precision - Cloud.ply"]
+    ply_to_CityGML(args)
+
+
 

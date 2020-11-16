@@ -17,13 +17,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 ''' New version '''
-BATCH_SIZE = 8
+BATCH_SIZE = 4
 NUM_POINT = 4096
 GPU_INDEX = 0
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(BASE_DIR)
-NUM_CLASSES = 5
+NUM_CLASSES = 6
 
 def evaluate(model_path, out_filename, booth_data, min_list):
     '''
@@ -148,8 +148,8 @@ def evaluate(model_path, out_filename, booth_data, min_list):
     logger.info("Result of Door : "+str(len(all_door)))
     logger.info("Finishing the PointNet")
     # print (len(ceiling_list), len(floor_list), len(wall_list), len(window_list), len(door_list), len(clutter_list))
-    wall_cloud = pcl.PointCloud()
-    wall_cloud.from_list(all_wall)
+    # wall_cloud = pcl.PointCloud()
+    # wall_cloud.from_list(all_wall)
 
 
     return wall_cloud
@@ -168,7 +168,7 @@ def eval_one_epoch(sess, ops, each_data):
     door_list = list()
     clutter_list = list()
 
-    # current_data, current_label = indoor3d_util2.room2blocks_wrapper_normalized(each_data, NUM_POINT)
+    #current_data, current_label = indoor3d_util2.room2blocks_wrapper_normalized(each_data, NUM_POINT)
     current_data, current_label = indoor3d_util.room2blocks_wrapper_normalized(each_data, NUM_POINT)
     current_data = current_data[:, 0:NUM_POINT, :]
 
@@ -192,9 +192,9 @@ def eval_one_epoch(sess, ops, each_data):
 
         pred_val = sess.run(ops['pred_softmax'], feed_dict=feed_dict)
 
-
-        pred_label = np.argmax(pred_val, 2)
-        # pred_label = np.argmax(pred_val[:, :, 0:12], 2)
+        #
+        # pred_label = np.argmax(pred_val, 2)
+        pred_label = np.argmax(pred_val[:, :, 0:12], 2)
         for b in range(BATCH_SIZE):
             pts = current_data[start_idx + b, :, :]
             # l = current_label[start_idx + b, :]
