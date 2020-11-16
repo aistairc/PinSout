@@ -214,18 +214,73 @@ This release has been tested on Linux Ubuntu 18.04 with
     $ source activate "your virtual environment name"
     $ conda install -c sirokujira python-pcl --channel conda-forge
     ```
-    3-2) 
+    3-2) Create new link files
     ```shell script
-    $ cd ~/anaconda3/envs/pointnet/lib
+    $ cd ~/anaconda3/envs/"your virtual environment name"/lib
     $ ln -s libboost_system.so.1.64.0 libboost_system.so.1.54.0
     $ ln -s libboost_filesystem.so.1.64.0 libboost_filesystem.so.1.54.0
     $ ln -s libboost_thread.so.1.64.0 libboost_thread.so.1.54.0
     $ ln -s libboost_iostreams.so.1.64.0 libboost_iostreams.so.1.54.0
     ```
+4. Install PostgreSQL with PostGIS and PgAdmin4
+    
+5. Install 3DCityDB and 3DCityDB importer&exporter
+
+    5-1) Downloading the 3DCityDB and 3DCityDB importer&exporter
+    - Downloading the 3DCityDB from [here](https://www.3dcitydb.org/3dcitydb/d3ddatabase/)
+    - Downloading the 3DCityDB importer&exporter from [here](https://www.3dcitydb.org/3dcitydb/d3dimpexp/)
+    
+    5-2) Installing the 3DCityDB and 3DCityDB importer&exporter following the document
+    - [Chapter 3 Implementation and Installation](https://www.3dcitydb.org/3dcitydb/fileadmin/downloaddata/3DCityDB_Documentation_v4.2.pdf) for installing 3DCityDB and 3DCityDB importer&exporter
 
 ### 2) Starting the PinSout
+1. Clone this project  
+    ```shell script
+    git clone https://github.com/aistairc/PinSout.git
+    ```  
 
- 
+2. Add the new information of created 3DCityDB
+
+    ```shell script
+    cd PinSout/src/citygml
+   
+    # Add the new information in PointCloud_To_CityGML.py
+    user = 'Your id for login to Postgresql'
+    password = 'Your password for login to Postgresql'
+    host_product = 'IP address of Postgresql'
+    dbname = 'Name of 3DCityDB installed in Postgresql'
+    port = 'Port number'
+    srid = 'The coordinate system number entered when installing 3DCityDB'
+    
+    # Example
+    user = 'postgres'
+    password = 'dprt'
+    host_product = 'localhost'
+    dbname = 'CityModelX'
+    port = '5432'
+    srid = 'SRID=4326;'
+    ```
+
+3. Running the PinSout.sh with three parameters
+
+    3-1) Add the path of CUDA and anaconda virtual environment in PinSout.sh
+    ```shell script
+    cd PinSout/src
+    #add the path to PinSout.sh
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+    export PATH="/root/anaconda3/envs/"anaconda3 virtual environment name"/bin:$PATH"
+    ```
+   
+    3-2) Running the PinSout.sh
+    - First argument : Path of PointCloud data
+    - Second argument : Value of distance threshold for Plane RANSAC ( default=0.05 )
+    - Third argument : Value of Epsilon for Intersection Function ( default=0.5 )
+    ```shell script
+    sh PinSout.sh ../data/1000_168/npy_data/dump/samplling_in_d2_wall_.pcd 0.04 0.5
+    ```
+4. Export the CityGML using 3DCityDB Importer&Exporter
+    - Exporting the CityGML following the 3DCityDB Importer&Exporter document
+        - [Chapter 5 Importer / Exporter](https://www.3dcitydb.org/3dcitydb/fileadmin/downloaddata/3DCityDB_Documentation_v4.2.pdf)
 
    
 ## Usage
