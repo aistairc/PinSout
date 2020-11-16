@@ -327,6 +327,7 @@ class PointCloudToCityGML:
         global CityObjectRoom
         global rootSurfaceID
         global RootSurfaceRoom
+        global roomCount
         # if objectClassID is 41:
         #     CityObjRoom = CityObjBuilding+"_room"+str(getCityObjectID() + 1)
         #     cursor.execute("INSERT INTO citydb.cityobject(id, objectclass_id, gmlid) values (%s, %s, %s)",
@@ -336,7 +337,8 @@ class PointCloudToCityGML:
         #
         #     makeRoom()
         if objectClassID is 41:
-            CityObjRoom = CityObjBuilding+"_room"+str(self.getCityObjectID() + 1)
+            # CityObjRoom = CityObjBuilding+"_room"+str(self.getCityObjectID() + 1)
+            CityObjRoom = CityObjBuilding + "_room" + str(roomCount)
             cursor.execute("INSERT INTO citydb.cityobject(id, objectclass_id, gmlid) values (%s, %s, %s)",
                            (int(self.getCityObjectID() + 1), objectClassID, CityObjRoom))
             product.commit()
@@ -814,10 +816,11 @@ class PointCloudToCityGML:
             self.makeCityObject(26)
             check_first_time = False
         # self.makeBuildingSurfaceGeometry()
-        # self.updateBuildingEnvelop()
+        roomCount += 1
         self.makeRoomObject(41)
         self.makeSurfaceGeometry()
-        roomCount += 1
+        self.updateBuildingEnvelop()
+
         logger.info("Finish to make Room Object : " + str(roomCount))
 
 

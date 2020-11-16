@@ -44,7 +44,7 @@ def CalculateCentroid2(old_point_list):
 
     a = Point_sort()
     point_list = a.SortPointsClockwise2(old_point_list, True)
-    print point_list
+    # print point_list
 
     centre_point = [0.0, 0.0, 0.0]
     area_total = 0.0

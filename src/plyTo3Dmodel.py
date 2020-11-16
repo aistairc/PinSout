@@ -1,12 +1,26 @@
 #!/root/anaconda3/envs/envname/bin/python2.7
 
 from plyfile import PlyData
+import random
 import os
 import sys
+import numpy as np
+import math
 from sem_seg import batch_inference
-from plane_ransac import *
+from sem_seg import batch_inference2
+from sem_seg import batch_inference3
+# from plane_ransac import GeneratePointCloud
+import sys
+import logging
+import pcl.pcl_visualization
+import pcl
 
-def ply_to_collada(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'):
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(logging.Formatter('%(asctime)s %(funcName)s [%(levelname)s]: %(message)s'))
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
+def ply_to_gml(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply'):
     """Reading the .ply data and divide space
 
     Dividing the entire PointCloud data into a certain size.
@@ -60,44 +74,30 @@ def ply_to_collada(ply_path='/home/dprt/Desktop/21/Untitled Folder 2/room2.ply')
                 print ("there is NaN value!!")
                 continue
 
-            # if has_color:
-            #     r = plydata.elements[0].data['red'][i]
-            #     g = plydata.elements[0].data['green'][i]
-            #     b = plydata.elements[0].data['blue'][i]
-            # else:
-            #     r = 0
-            #     g = 0
-            #     b = 0
-            # data_list.append([x, y, z, r, g, b])
             index_num = make_area_num(x, y, default_x, default_y)
             check_area = check_area_exist(data_list, index_num)
 
             if check_area == -1:
                 index_info = []
-                index_info.append([x, y, z, 0, 0, 0,1])
+                index_info.append([x, y, z, 0, 0, 0, 0])
                 index_info.insert(0, index_num)
                 data_list.append(index_info)
             else:
-                data_list[check_area].append([x, y, z, 0, 0, 0])
+                data_list[check_area].append([x, y, z, 0, 0, 0, 0])
 
     npy_list, min_list = make_point_label(data_list)
     # print npy_list, min_list
     npy_file = ply_file.split('.')[0]
     out_filename = os.path.join(filepath, npy_file)
     print (out_filename, min_list)
-    # data = np.load('/root/pointnet/data/Stanford_5cls/Area_6_office_1.npy')
-    # out_filename = "/home/dprt/Desktop/SC_DEMO/New Folder/test/st/npy_data2/office_1"
-    # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
 
-    # model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
     model_path = os.getcwd()+'/sem_seg/model/log_6cls/model.ckpt'
     print(model_path)
-    # model_path = '/root/pointnet/sem_seg/log_5cls_2/model.ckpt'
-    # model_path = '/root/pointnet/sem_seg/log_5cls/model.ckpt'
+
     batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
 
 
-def ply_to_collada2(args):
+def ply_to_CityGML(args):
     """Reading the .ply data and divide space
 
     Dividing the entire PointCloud data into a certain size.
@@ -112,11 +112,25 @@ def ply_to_collada2(args):
         npy_list: List of split PointCloud information
         min_list: Minimum value of each PointCloud data
     """
+
+
+    distance_threshold = 0.05
+    epsilon_value = 0.5
+
+
+    if len(args) == 1:
+        logger.info("There is no path for reading the PointCloud")
+        return
+    if len(args) == 4:
+        distance_threshold = float(args[2])
+        epsilon_value = float(args[3])
+    elif len(args) == 3:
+        distance_threshold = float(args[2])
     ply_path = args[1]
+    # original_point_cloud = pcl.load(ply_path)
+    # visual_viewer([original_point_cloud])
     plydata = PlyData.read(ply_path)
     dir, ply_file = os.path.split(ply_path)
-
-
     filepath = os.path.join(dir, 'npy_data2')
     if os.path.exists(filepath) is not True:
         os.mkdir(filepath)
@@ -137,29 +151,159 @@ def ply_to_collada2(args):
         if math.isnan(x) or math.isnan(y) or math.isnan(z):
             print ("there is NaN value!!")
             continue
-        data_list.append([x, y, z,0,0,0,5])
-
+        data_list.append([x, y, z, 0, 0, 0, 0])
+    print "finish"
 
 
     npy_list, min_list = make_point_label([data_list])
     # print npy_list, min_list
     npy_file = ply_file.split('.')[0]
     out_filename = os.path.join(filepath, npy_file)
-    print (out_filename, min_list)
+    # print (out_filename, min_list)
     # data = np.load('/root/pointnet/data/Stanford_5cls/Area_6_office_1.npy')
     # out_filename = "/home/dprt/Desktop/SC_DEMO/New Folder/test/st/npy_data2/office_1"
     # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
 
-    # model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
-    model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
+    # model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
     # model_path = os.getcwd()+'/sem_seg/model/log6/model.ckpt'
-    print(model_path)
+    # print(model_path)
     # model_path = '/root/pointnet/sem_seg/log_5cls_2/model.ckpt'
     # model_path = '/root/pointnet/sem_seg/log_5cls/model.ckpt'
     seg_result = batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
-    make_wall_info(seg_result)
+
+    # gp = GeneratePointCloud(distance_threshold, epsilon_value)
+    # gp.make_wall_info(seg_result)
+def ply_to_CityGML2(args):
+    """Reading the .ply data and divide space
+
+    Dividing the entire PointCloud data into a certain size.
+    Find the minimum value of each segmented data and subtract it to move the data to the origin.
+
+    Args:
+        ply_path: The path where A is located
+
+    Returns:
+        model_path: Path with the trained model needed to do Semantic segmentation.
+        out_filename: The path where the 3D model will be saved
+        npy_list: List of split PointCloud information
+        min_list: Minimum value of each PointCloud data
+    """
 
 
+    distance_threshold = 0.05
+    epsilon_value = 0.5
+
+
+    if len(args) == 1:
+        logger.info("There is no path for reading the PointCloud")
+        return
+    if len(args) == 4:
+        distance_threshold = float(args[2])
+        epsilon_value = float(args[3])
+    elif len(args) == 3:
+        distance_threshold = float(args[2])
+    ply_path = args[1]
+    # original_point_cloud = pcl.load(ply_path)
+    # visual_viewer([original_point_cloud])
+    # plydata = PlyData.read(ply_path)
+    dir, ply_file = os.path.split(ply_path)
+    filepath = os.path.join(dir, 'npy_data2')
+    if os.path.exists(filepath) is not True:
+        os.mkdir(filepath)
+    has_color = False
+    # for prop in plydata.elements[0].properties:
+    #     if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
+    #         has_color = True
+
+    npy_list = np.load(ply_path)
+    print npy_list[:, 0:6]
+    # print npy_list, min_list
+    npy_file = ply_file.split('.')[0]
+    out_filename = os.path.join(filepath, npy_file)
+
+
+    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
+
+    seg_result = batch_inference2.evaluate(model_path, out_filename, npy_list)
+def ply_to_CityGML3(args):
+    """Reading the .ply data and divide space
+
+    Dividing the entire PointCloud data into a certain size.
+    Find the minimum value of each segmented data and subtract it to move the data to the origin.
+
+    Args:
+        ply_path: The path where A is located
+
+    Returns:
+        model_path: Path with the trained model needed to do Semantic segmentation.
+        out_filename: The path where the 3D model will be saved
+        npy_list: List of split PointCloud information
+        min_list: Minimum value of each PointCloud data
+    """
+
+
+    distance_threshold = 0.05
+    epsilon_value = 0.5
+
+
+    if len(args) == 1:
+        logger.info("There is no path for reading the PointCloud")
+        return
+    if len(args) == 4:
+        distance_threshold = float(args[2])
+        epsilon_value = float(args[3])
+    elif len(args) == 3:
+        distance_threshold = float(args[2])
+    ply_path = args[1]
+    # original_point_cloud = pcl.load(ply_path)
+    # visual_viewer([original_point_cloud])
+    plydata = PlyData.read(ply_path)
+    dir, ply_file = os.path.split(ply_path)
+    filepath = os.path.join(dir, 'npy_data2')
+    if os.path.exists(filepath) is not True:
+        os.mkdir(filepath)
+    has_color = False
+    # for prop in plydata.elements[0].properties:
+    #     if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
+    #         has_color = True
+
+    lens = len(plydata.elements[0].data)
+
+    data_list = list()
+
+    for i in range(lens):
+        x = plydata.elements[0].data['x'][i]
+        y = plydata.elements[0].data['y'][i]
+        z = plydata.elements[0].data['z'][i]
+
+        if math.isnan(x) or math.isnan(y) or math.isnan(z):
+            print ("there is NaN value!!")
+            continue
+        data_list.append([x, y, z,0,0,0,0])
+    print "finish"
+
+
+    npy_list, min_list = make_point_label([data_list])
+    # print npy_list, min_list
+    npy_file = ply_file.split('.')[0]
+    out_filename = os.path.join(filepath, npy_file)
+    # print (out_filename, min_list)
+    # data = np.load('/root/pointnet/data/Stanford_5cls/Area_6_office_1.npy')
+    # out_filename = "/home/dprt/Desktop/SC_DEMO/New Folder/test/st/npy_data2/office_1"
+    # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
+
+    model_path = os.getcwd()+'/sem_seg/model/log_6cls/model.ckpt'
+    print len(min_list)
+    # model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
+    # model_path = os.getcwd()+'/sem_seg/model/log6/model.ckpt'
+    # print(model_path)
+    # model_path = '/root/pointnet/sem_seg/log_5cls_2/model.ckpt'
+    # model_path = '/root/pointnet/sem_seg/log_5cls/model.ckpt'
+    seg_result = batch_inference3.evaluate(model_path, out_filename, npy_list, min_list)
+
+    # gp = GeneratePointCloud(distance_threshold, epsilon_value)
+    # gp.make_wall_info(seg_result)
 def get_range(point_cloud):
     """Making the bouning box information
 
@@ -228,7 +372,7 @@ def make_point_label(data_list):
         count = 0
         for data in data_list:
             count = count + 1
-            if len(data) > 500:
+            if len(data) > 200:
                 points = np.asarray(data[1:])
                 min_value = np.amin(points, axis=0)[0:3]
                 # print min_value
@@ -294,9 +438,57 @@ def check_area_exist(data_list, index_area):
                 return data_list.index(data)
         return -1
 
+def visual_viewer(cloud_list):
+    """Visualizing Pointcloud data
 
+    Args:
+        cloud_list: list of PointClouds
+
+    Returns:
+        Visualizing Pointclouds data
+    """
+    viewer = pcl.pcl_visualization.PCLVisualizering('3D Viewer')
+
+    viewer.SetBackgroundColor(0, 0, 0)
+
+
+    r_list = []
+    b_list = []
+    g_list = []
+    r_num = random.randint(0, 256)
+    b_num = random.randint(0, 256)
+    g_num = random.randint(0, 256)
+
+    for i in range(len(cloud_list)):
+        while r_num in r_list:
+            r_num = random.randint(0, 256)
+        r_list.append(r_num)
+        while b_num in b_list:
+            b_num = random.randint(0, 256)
+        b_list.append(b_num)
+        while g_num in g_list:
+            g_num = random.randint(0, 256)
+        g_list.append(g_num)
+
+    for index in range(len(cloud_list)):
+        r = r_list[index]
+        b = b_list[index]
+        g = g_list[index]
+
+        point_size = 3
+        color_handle = pcl.pcl_visualization.PointCloudColorHandleringCustom(cloud_list[index], r, b, g)
+        id = b'inliers_cloud_' + str(index)
+        viewer.AddPointCloud_ColorHandler(cloud_list[index], color_handle, id)
+        viewer.SetPointCloudRenderingProperties(pcl.pcl_visualization.PCLVISUALIZER_POINT_SIZE, point_size, id)
+
+    viewer.InitCameraParameters()
+    while viewer.WasStopped() != True:
+        viewer.SpinOnce(100)
 if __name__ == '__main__':
-    args = sys.argv
-
-    ply_to_collada2(args)
+    # args = sys.argv
+    # args = [0, "/home/dprt/Desktop/PinSout_20201106_revise/PinSout/data/1000_841/sampling_in_d2.ply"]
+    # args = [0, "/home/dprt/Documents/test.ply"]
+    args = [0, "/home/dprt/Desktop/PinSout_20201106_revise/PinSout/data/sample_data/original_data.ply"]
+    ply_to_CityGML3(args)
+    # ply_to_gml("/home/dprt/Desktop/PinSout_20201106_revise/PinSout/data/sample_data/original_data.ply")
 
