@@ -51,10 +51,10 @@ def ply_to_CityGML_Grid(args):
     plydata = PlyData.read(ply_path)
     dir, ply_file = os.path.split(ply_path)
 
-    default_x = 10.0
-    default_y = 10.0
+    default_x = 3.0
+    default_y = 3.0
 
-    filepath = os.path.join(dir, 'pointNetResult')
+    filepath = os.path.join(dir, '8_floor_model_1127_1216')
     if os.path.exists(filepath) is not True:
         os.mkdir(filepath)
     has_color = False
@@ -70,7 +70,9 @@ def ply_to_CityGML_Grid(args):
         z = plydata.elements[0].data['z'][i]
         x = plydata.elements[0].data['x'][i]
         y = plydata.elements[0].data['y'][i]
-
+        r = plydata.elements[0].data['red'][i]
+        g = plydata.elements[0].data['green'][i]
+        b = plydata.elements[0].data['blue'][i]
         if math.isnan(x) or math.isnan(y) or math.isnan(z):
             print ("there is NaN value!!")
             continue
@@ -80,11 +82,12 @@ def ply_to_CityGML_Grid(args):
 
         if check_area == -1:
             index_info = []
-            index_info.append([x, y, z, 0, 0, 0, 0])
+            # index_info.append([x, y, z, 0, 0, 0, 2])
+            index_info.append([x, y, z, r, g, b, 2])
             index_info.insert(0, index_num)
             data_list.append(index_info)
         else:
-            data_list[check_area].append([x, y, z, 0, 0, 0, 0])
+            data_list[check_area].append([x, y, z, r, g, b, 2])
 
     npy_list, min_list = make_point_label(data_list)
     # print npy_list, min_list
@@ -92,7 +95,7 @@ def ply_to_CityGML_Grid(args):
     out_filename = os.path.join(filepath, npy_file)
     print (out_filename, min_list)
 
-    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log6_1127/model.ckpt'
     print(model_path)
 
     batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
@@ -134,7 +137,7 @@ def ply_to_CityGML(args):
     # visual_viewer([original_point_cloud])
     plydata = PlyData.read(ply_path)
     dir, ply_file = os.path.split(ply_path)
-    filepath = os.path.join(dir, 'pointNetResult')
+    filepath = os.path.join(dir, '8_floor_model_1127_1216_no')
     if os.path.exists(filepath) is not True:
         os.mkdir(filepath)
     has_color = False
@@ -150,11 +153,23 @@ def ply_to_CityGML(args):
         x = plydata.elements[0].data['x'][i]
         y = plydata.elements[0].data['y'][i]
         z = plydata.elements[0].data['z'][i]
+        r = plydata.elements[0].data['red'][i]
+        g = plydata.elements[0].data['green'][i]
+        b = plydata.elements[0].data['blue'][i]
+        # r = 0
+        # g = 0
+        # b = 0
 
         if math.isnan(x) or math.isnan(y) or math.isnan(z):
             print ("there is NaN value!!")
             continue
-        data_list.append([x, y, z, 0, 0, 0, 0])
+
+        # if math.isnan(r) or math.isnan(g) or math.isnan(b):
+        #     print ("there is rgb NaN value!!")
+        #
+
+        data_list.append([x, y, z, r, g, b, 0])
+        # data_list.append([x, y, z, 0, 0, 0, 5])
     print "finish"
 
 
@@ -164,7 +179,9 @@ def ply_to_CityGML(args):
     out_filename = os.path.join(filepath, npy_file)
 
 
-    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
+    # model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
+    # model_path = os.getcwd()+'/sem_seg/model/log_6cls/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log6_1127/model.ckpt'
     seg_result = batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
     # gp = GeneratePointCloud(distance_threshold, epsilon_value)
     # gp.make_wall_info(seg_result)
@@ -218,7 +235,7 @@ def ply_to_CityGML2(args):
     out_filename = os.path.join(filepath, npy_file)
 
 
-    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log_6cls/model.ckpt'
 
     seg_result = batch_inference2.evaluate(model_path, out_filename, npy_list)
 def ply_to_CityGML3(args):
@@ -275,6 +292,7 @@ def ply_to_CityGML3(args):
         if math.isnan(x) or math.isnan(y) or math.isnan(z):
             print ("there is NaN value!!")
             continue
+
         data_list.append([x, y, z,0,0,0,0])
     print "finish"
 
@@ -492,8 +510,16 @@ def test(ply_path):
 
 if __name__ == '__main__':
     args = sys.argv
-    args = [0, "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/PointCloud_cs1_dec_x-y-z-localtime6precision - Cloud.ply"]
-    ply_to_CityGML(args)
+    # args = [0, "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/PointCloud_cs1_dec_x-y-z-localtime6precision - Cloud.ply"]
+    # args = [0, "/home/dprt/Documents/office_1 - Cloud.ply"]
+    # args = [0, "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/1/original4.ply"]
+    # args = [0, "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/report_data/CaseStudy3-1.ply"]
+    # args = [0, "/home/dprt/Documents/DataSet/original data/original_data_color.ply"]
+    args = [0, "/home/dprt/Documents/DataSet/AIST_8_floor/8_floor_grid_pointsize/colorized.ply"]
+    # args = [0, "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/1/original_data.ply"]
+    # args = [0, "/home/dprt/Documents/office_1 - Cloud.ply"]
+    # ply_to_CityGML(args)
+    ply_to_CityGML_Grid(args)
 
 
 

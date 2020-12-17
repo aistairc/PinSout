@@ -21,7 +21,12 @@ g_class2color = {'ceiling': [0, 255, 0],
                  'window': [100, 100, 255],
                  'door': [200, 200, 100],
                  'clutter':     [50,50,50]}
-g_easy_view_labels = [0, 1, 2, 3, 4]
+# g_class2color = {'ceiling': [0, 255, 0],
+#                  'floor': [0, 0, 255],
+#                  'wall': [0, 255, 255],
+#                  'window': [100, 100, 255],
+#                  'door': [200, 200, 100]}
+g_easy_view_labels = [0, 1, 2, 3, 4, 5]
 g_label2color = {g_classes.index(cls): g_class2color[cls] for cls in g_classes}
 
 

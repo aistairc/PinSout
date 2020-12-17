@@ -85,8 +85,40 @@ class GeneratePointCloud:
             cluster_list.append(cloud)
 
             return cluster_list
+    def clustering2(self, cloud, tolerance=0.5, min_cluster_size=1000):
+        """Clustering the orginal point cloud data
+
+            The voxelization of the original data for the downsampling.
+            Extract clustered data from the voxelization data.
+
+            Args:
+                cloud: Original point cloud data
+                vg_size: The voxel size to be voxelized
+                tolerance: Cluster tolerance variable
+                min_cluster_size: Minimum number of points in clustered data
+
+            Returns:
+                cluster_list: List of the clustered cloud point data
+        """
 
 
+        cluster_list = list()
+        cloud_value = cloud
+        tree = cloud.make_kdtree()
+        ec = cloud.make_EuclideanClusterExtraction()
+        ec.set_ClusterTolerance(tolerance) # 0.5 = 50cm
+        ec.set_MinClusterSize(min_cluster_size) #  impose that the clusters found must have at least
+        ec.set_MaxClusterSize(cloud_value.size) #  impose that the clusters found must have at Maximum
+        ec.set_SearchMethod(tree)
+
+
+        cluster_indices = ec.Extract() # return index number that is included in the result of clustering
+
+        if len(cluster_indices) != 0:
+            inliers = cloud.extract(cluster_indices[0], negative=False)
+            outliers = cloud.extract(cluster_indices[0], negative=True)
+
+            self.visual_viewer([inliers])
 
     # def do_passthrough_filter( point_cloud, name_axis='z'):
     #
@@ -115,10 +147,14 @@ class GeneratePointCloud:
         # 50 neighbours to the candidate point.
 
         segmenter = cloud.make_segmenter_normals(ksearch=50)
+        # segmenter = cloud.make_segmenter()
+        # segmenter.set_model_type(pcl.SACMODEL_PLANE) # Fit a plane to the points.
+        segmenter.set_method_type(pcl.SAC_RANSAC)
         segmenter.set_model_type(pcl.SACMODEL_NORMAL_PLANE) # Fit a plane to the points.
         segmenter.set_optimize_coefficients(True)  # Do a little bit more optimisation once the plane has been fitted.
-        segmenter.set_normal_distance_weight(0.05)
-        segmenter.set_method_type(pcl.SAC_RANSAC)  # Use RANSAC for the sample consensus algorithm.
+        segmenter.set_normal_distance_weight(self.distance_threshold)
+          # Use RANSAC for the sample consensus algorithm.
+        # segmenter.set_MaxIterations(1000)
         segmenter.set_max_iterations(1000)  # Number of iterations for the RANSAC algorithm.
         segmenter.set_distance_threshold(self.distance_threshold) # The max distance from the fitted model a point can be for it to be an inlier.
         #0.05 / 100000 / 0.05 / 0.062
@@ -205,6 +241,42 @@ class GeneratePointCloud:
             distance_rate = round(float(count) / float(len(t)), 3)
         return distance_rate * 100, count
 
+    # def check_distance_plane2(self, point_cloud, coeff, e=0.01):
+    #     """Checking the distance between point and plane
+    #
+    #     Find the number of points where the distance between the planes is 0.05 or less
+    #     and calculate the percentage.
+    #
+    #     Args:
+    #         point_cloud: Pointcloud data extracted by plane
+    #         coeff: plane: Coefficient data of plane equation(a, b, c, d)
+    #     Returns:
+    #         distance_rate: Percentage of points with a distance of 0.05 or less
+    #     """
+    #     # checking the rate between point cloud and plane information
+    #     a = coeff[0]
+    #     b = coeff[1]
+    #     c = coeff[2]
+    #     d = coeff[3]
+    #     t = point_cloud
+    #     count = 0
+    #     for index in t:
+    #         x = index[0]
+    #         y = index[1]
+    #         z = index[2]
+    #
+    #         point_distance = float(
+    #             math.fabs(a * x + b * y + c * z + d) / math.sqrt(math.pow(a, 2) + math.pow(b, 2) + math.pow(c, 2)))
+    #
+    #         if point_distance <= e:
+    #             count += 1
+    #
+    #     if count == 0:
+    #         distance_rate = 0.0
+    #     else:
+    #         distance_rate = round(float(count) / float(len(t)), 3)
+    #     return distance_rate * 100, count
+
     def plane_cluster(self, cloud_data):
         """Clustering the exported plane data
 
@@ -217,7 +289,7 @@ class GeneratePointCloud:
             normal_vector: Plane coefficient list of clustered PointCloud data
         """
         max_size = cloud_data.size
-        min_size = 200
+        min_size = 50
         new_cloud_data = list()
         normal_vector = list()
         outliers_data = pcl.PointCloud()
@@ -232,11 +304,12 @@ class GeneratePointCloud:
             inliers = cloud_data.extract(cluster_indices[0], negative=False)
             outliers = cloud_data.extract(cluster_indices[0], negative=True)
             if inliers > min_size:
-                inliers_p, outliers_p, coeff_p = self.do_plane_ransac(inliers)
-                new_cloud_data.append(inliers_p)
-                normal_vector.append(coeff_p)
+                # inliers_p, outliers_p, coeff_p = self.do_plane_ransac(inliers)
+                new_cloud_data.append(inliers)
+                # normal_vector.append(coeff_p)
                 outliers_data = outliers
-        return new_cloud_data, normal_vector, outliers_data
+        # return new_cloud_data, normal_vector, outliers_data
+        return new_cloud_data, outliers_data
 
     def merge_dup_plane(self, plane_list, normal_vector):
         """Merging the parallel planes
@@ -279,7 +352,7 @@ class GeneratePointCloud:
                                    * np.linalg.norm(
                                 [normal_vector[j][0], normal_vector[j][1], normal_vector[j][2]]))
 
-                    if math.fabs(round(model_cos, 1)) == 1.0:
+                    if math.fabs(round(model_cos, 1)) > 0.9:
 
                         main_point = plane_list[i].to_list()[0]
                         distance_bw_planes = math.fabs(normal_vector[j][0] * main_point[0] + normal_vector[j][1] * main_point[1] + normal_vector[j][2] * main_point[2] + normal_vector[j][3]) / \
@@ -355,7 +428,8 @@ class GeneratePointCloud:
 
         original_size = cloud.size
         min_percentage = 10
-
+        count = 0
+        loopcount = 0
         while True:
 
             if cloud.height * cloud.width < 100:
@@ -363,48 +437,78 @@ class GeneratePointCloud:
                 break
 
             inliers_p, outliers_p, coeff_p = self.do_plane_ransac(cloud)
-            default_vector = [0, 0, -1]
+            default_vector = [0, 0, 1]
             model_value = [coeff_p[0], coeff_p[1], coeff_p[2]]
             model_cos = np.dot(default_vector, model_value) / (
                     np.linalg.norm(model_value) * np.linalg.norm(default_vector))
             #
             if math.fabs(model_cos) < 0.8:
-                if inliers_p.size > 200:
+                if inliers_p.size > 50:
+                    count += 1
+                    print count
                     plane_list.append(inliers_p)
                     normal_vector.append(coeff_p)
                     cloud = outliers_p
-                else:
-                    cloud = outliers_p
+                    loopcount = 0
+                    # self.visual_viewer(plane_list)
                 # clustered_plane_list, clustered_plane_coeff, outliers_data = self.plane_cluster(inliers_p)
+                # clustered_plane_list, outliers_data = self.plane_cluster(inliers_p)
                 # if len(clustered_plane_list) != 0:
+                #     count += 1
+                #     print count
                 #     plane_list.extend(clustered_plane_list)
-                #     normal_vector.extend(clustered_plane_coeff)
+                #     normal_vector.append(coeff_p)
                 #     new_outliers_p = pcl.PointCloud()
                 #     new_outliers_p.from_list(outliers_data.to_list() + outliers_p.to_list())
                 #     cloud = new_outliers_p
-                # else:
-                #     cloud = outliers_p
+                #     loopcount = 0
+                else:
+                    loopcount +=1
+                    cloud = outliers_p
+                if loopcount == 10:
+                    break
+
             else:
                 cloud = outliers_p
+            loopcount += 1
+            # self.visual_viewer2(cloud, plane_list)
+        self.visual_viewer([cloud])
+        checkedList = []
+        checkedPointList = []
+        for i in range(len(plane_list) - 1):
+            if i in checkedList:
+                continue
+            new_mergeCloud = plane_list[i].to_list()
+            for j in range(i + 1, len(plane_list)):
+                if j in checkedList:
+                    continue
+                else:
+                    model_cos = np.dot(
+                        [normal_vector[i][0], normal_vector[i][1], normal_vector[i][2]],
+                        [normal_vector[j][0], normal_vector[j][1], normal_vector[j][2]]) \
+                                / (np.linalg.norm(
+                        [normal_vector[i][0], normal_vector[i][1], normal_vector[i][2]])
+                                   * np.linalg.norm(
+                                [normal_vector[j][0], normal_vector[j][1], normal_vector[j][2]]))
+                    if math.fabs(model_cos) > 0.8:
+                        d1 = model_cos * math.fabs(normal_vector[i][3] - normal_vector[j][3])
+                        print i, j, d1
+                        if d1 < 0.1:
+                            checkedList.append(j)
+                            new_mergeCloud.extend(plane_list[j].to_list())
 
-        self.visual_viewer(plane_list)
-        # new_plane_list, new_normal_vector, new_bbox_list = self.merge_dup_plane(plane_list, normal_vector)
-        # new_plane_list2 = []
-        # new_bbox_list2 = []
-        # new_normal_vector2 = []
-        # for each_wall in new_plane_list:
-        #     fil = each_wall.make_statistical_outlier_filter()
-        #     # fil.set_mean_k(50)
-        #     # fil.set_std_dev_mul_thresh(0.5)
-        #     new_cloud = fil.filter()
-        #
-        #     inliers_p, outliers_p, coeff_p = self.do_plane_ransac2(new_cloud)
-        #     new_plane_list2.append(inliers_p)
-        #
-        #     new_normal_vector2.append(coeff_p)
-        #     new_bbox_list2.append(self.get_range(new_cloud))
-        #
-        # return new_plane_list2, new_normal_vector2, new_bbox_list2
+            if i not in checkedList:
+                checkedList.append(i)
+            if len(new_mergeCloud) > 0:
+                each_data_path = "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/Ransac_result/"+str(i)+".pcd"
+                mergeCloud = pcl.PointCloud()
+                mergeCloud.from_list(new_mergeCloud)
+                checkedPointList.append(mergeCloud)
+                pcl.save(mergeCloud, each_data_path)
+
+
+
+
 
 
     def make_room_info(self):
@@ -425,7 +529,9 @@ class GeneratePointCloud:
         logger.info("Starting the function to make the room information")
         # clustering the pointcloud data
         logger.info("Starting the Clustering function")
+        # cluster_list = self.clustering2(self.segmented_wall)
         cluster_list = self.clustering(self.segmented_wall)
+        # cluster_list = [self.segmented_wall]
         logger.info("Number of Clustered data : "+str(len(cluster_list)))
         room_surface_list = list()
         p_s = ps.Point_sort()
@@ -433,22 +539,22 @@ class GeneratePointCloud:
         count = 0
 
         all_room = []
-        for clustered_cloud in cluster_list:
-            count += 1
-            logger.info("Starting to make the room information from each Cluster data : "+str(count))
-            self.get_plane_list(clustered_cloud)
-            # wall_point_list, wall_vector_list, wall_bbox_list = self.get_plane_list(clustered_cloud)
-            # self.visual_viewer(wall_point_list)
-            # side_line_info = []
-            # for wall_index in range(len(wall_point_list)):
-            #
-            #     side_line_info.append(self.make_side_line(wall_bbox_list[wall_index], wall_vector_list[wall_index]))
-
-
-            # result_ceiling, result_floor, result_wall = self.get_intersection_line(wall_bbox_list, wall_vector_list, side_line_info, wall_point_list)
-            # for each_i in range(len(result_wall)) :
-            #     make_CityGML = gml.PointCloudToCityGML([result_ceiling[each_i]], [result_floor[each_i]], result_wall[each_i], [], [])
-            #     make_CityGML.MakeRoomObject()
+        # for clustered_cloud in cluster_list:
+        #     count += 1
+        #     logger.info("Starting to make the room information from each Cluster data : "+str(count))
+        #     self.get_plane_list(clustered_cloud)
+        #     # wall_point_list, wall_vector_list, wall_bbox_list = self.get_plane_list(clustered_cloud)
+        #     # self.visual_viewer(wall_point_list)
+        #     # side_line_info = []
+        #     # for wall_index in range(len(wall_point_list)):
+        #     #
+        #     #     side_line_info.append(self.make_side_line(wall_bbox_list[wall_index], wall_vector_list[wall_index]))
+        #
+        #
+        #     # result_ceiling, result_floor, result_wall = self.get_intersection_line(wall_bbox_list, wall_vector_list, side_line_info, wall_point_list)
+        #     # for each_i in range(len(result_wall)) :
+        #     #     make_CityGML = gml.PointCloudToCityGML([result_ceiling[each_i]], [result_floor[each_i]], result_wall[each_i], [], [])
+        #     #     make_CityGML.MakeRoomObject()
     def make_chair_info(self, cloud, save_path):
         """Making the chair information
 
@@ -917,8 +1023,6 @@ class GeneratePointCloud:
         check_wall_info = [[] for i in range(len(normal_vector))]
         each_wall_info = [[] for i in range(len(normal_vector))]
 
-
-
         for point_i in range(len(normal_vector)):
             for point_j in range(len(normal_vector)):
                 if point_i != point_j and point_j not in check_wall_info[point_i]:
@@ -1287,6 +1391,8 @@ if __name__ == "__main__":
 
 
     # wall_cloud = pcl.load("/home/dprt/Desktop/PinSout_20201106_revise/PinSout/data/1000_168/npy_data2/dump/sampling_in_d2_wall_.pcd")
-    wall_cloud = pcl.load("/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/PointCloud_result_wall.ply")
+    # wall_cloud = pcl.load("/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/PointCloud_result_wall.ply")
+    wall_cloud = pcl.load("/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/report_data/CaseStudy3-1.ply")
+    #wall_cloud = pcl.load("/home/dprt/Desktop/PinSout_20201106_revise (1)/PinSout/data/1000_168/npy_data2/dump/sampling_in_d2_wall_.pcd")
     a = GeneratePointCloud(0.05, 0.5, wall_cloud)
     a.make_room_info()

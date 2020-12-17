@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 ''' New version '''
-BATCH_SIZE = 4
+BATCH_SIZE = 1
 NUM_POINT = 4096
 GPU_INDEX = 0
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -155,9 +155,6 @@ def evaluate(model_path, out_filename, booth_data, min_list):
     return wall_cloud
 
 
-
-
-
 def eval_one_epoch(sess, ops, each_data):
 
     is_training = False
@@ -192,9 +189,9 @@ def eval_one_epoch(sess, ops, each_data):
 
         pred_val = sess.run(ops['pred_softmax'], feed_dict=feed_dict)
 
-        #
-        # pred_label = np.argmax(pred_val, 2)
-        pred_label = np.argmax(pred_val[:, :, 0:12], 2)
+        # #
+        pred_label = np.argmax(pred_val, 2)
+        # pred_label = np.argmax(pred_val[:, :, 0:NUM_CLASSES-1], 2)
         for b in range(BATCH_SIZE):
             pts = current_data[start_idx + b, :, :]
             # l = current_label[start_idx + b, :]
