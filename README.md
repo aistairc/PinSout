@@ -120,10 +120,11 @@ This release has been tested on Linux Ubuntu 18.04 with
     $ sudo apt-get install nvidia-driver-455
     $ sudo reboot
     ```
+    If a problem occurs during or after the graphics card is installed, delete it and then reinstall it.
     ```shell script
     $ sudo apt --purge autoremove nvidia*
     ```
-    1-3) 
+    1-3) Checking Nvidia-Driver Information
     ```shell script
     $ nvidia-settings
     or
@@ -202,7 +203,7 @@ This release has been tested on Linux Ubuntu 18.04 with
     - Creating a virtual environment in Anaconda3 and install Tensorflow and python-library
     ```shell script
     $ conda create --name "your virtual environment name" python=2.7.18
-    $ source activate "your virtual environment name"
+    $ conda activate "your virtual environment name"
     $ pip install tensorflow-gpu==1.14.0
     $ pip isntall numpy
     $ sudo apt-get install libhdf5-dev
