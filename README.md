@@ -277,7 +277,7 @@ This release has been tested on Linux Ubuntu 18.04 with
     - Second argument : Value of distance threshold for Plane RANSAC ( default=0.05 )
     - Third argument : Value of Epsilon for Intersection Function ( default=0.5 )
     ```shell script
-    sh PinSout.sh ../data/1000_168/npy_data/dump/samplling_in_d2_wall_.pcd 0.04 0.5
+    sh PinSout.sh ../data/sample_data/original_data.ply 0.04 0.5
     ```
 4. Export the CityGML using 3DCityDB Importer&Exporter
     - Exporting the CityGML following the 3DCityDB Importer&Exporter document
