@@ -165,7 +165,7 @@ This release has been tested on Linux Ubuntu 18.04 with
     ```shell script
     $ cd Downloads/
     $ tar -xavf cudnn-10.0-linux-x64-v7.4.1.5.tgz
-    $ sudo cp cuda/include/cudnn.h /use/local/cuda/include
+    $ sudo cp cuda/include/cudnn.h /usr/local/cuda/include
     $ sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
     $ sudo chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
     ``` 
