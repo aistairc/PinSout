@@ -137,7 +137,7 @@ This release has been tested on Linux Ubuntu 18.04 with
     2-1) Set up CUDA
     - Downloading the cuda runfile and install from [CUDA Download]
     ```shell script
-    $ sudo ~/Downloads/cuda_10.0.130_410.48_linux.run
+    $ sudo sh ~/Downloads/cuda_10.0.130_410.48_linux.run
     ```
     - Add cuda path to /etc/environment
     ```shell script
@@ -164,7 +164,7 @@ This release has been tested on Linux Ubuntu 18.04 with
     - Install cuDNN v7.4.1 Library for Linux
     ```shell script
     $ cd Downloads/
-    $ tar –xavf cudnn-10.0-linux-x64-v7.4.1.5.tgz
+    $ tar -xavf cudnn-10.0-linux-x64-v7.4.1.5.tgz
     $ sudo cp cuda/include/cudnn.h /use/local/cuda/include
     $ sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
     $ sudo chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
@@ -177,9 +177,9 @@ This release has been tested on Linux Ubuntu 18.04 with
     ```
     - Install cuDDN v7.4.1 Runtime Library, Developer Library, Code Samples and User Guide
     ```shell script
-    $ sudo dpkg –i libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb
-    $ sudo dpkg –i libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb
-    $ sudo dpkg –i libcudnn7-doc_7.4.1.5-1+cuda10.0_amd64.deb
+    $ sudo dpkg -i libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb
+    $ sudo dpkg -i libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb
+    $ sudo dpkg -i libcudnn7-doc_7.4.1.5-1+cuda10.0_amd64.deb
     ```
     - Testing the CUDA and cuDNN
     ```shell script
