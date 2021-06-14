@@ -183,7 +183,7 @@ This release has been tested on Linux Ubuntu 18.04 with
     ```
     - Testing the CUDA and cuDNN
     ```shell script
-    $ cp –r /usr/src/cudnn_samples_v7/ ~/
+    $ cp -r /usr/src/cudnn_samples_v7/ ~/
     $ cd ~/cudnn_samples_v7/mnistCUDNN
     $ sudo make clean && make
     # or sudo make
