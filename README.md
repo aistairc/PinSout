@@ -207,7 +207,7 @@ This release has been tested on Linux Ubuntu 18.04 with
     $ pip install tensorflow-gpu==1.14.0
     $ pip install numpy
     $ sudo apt-get install libhdf5-dev
-    $ pip isntall h5py
+    $ pip install h5py
     ```
 3. Install python-pcl from [Anaconda Cloud]  
     3-1) Download and install python-pcl
