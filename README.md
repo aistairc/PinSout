@@ -205,7 +205,7 @@ This release has been tested on Linux Ubuntu 18.04 with
     $ conda create --name "your virtual environment name" python=2.7.18
     $ conda activate "your virtual environment name"
     $ pip install tensorflow-gpu==1.14.0
-    $ pip isntall numpy
+    $ pip install numpy
     $ sudo apt-get install libhdf5-dev
     $ pip isntall h5py
     ```
