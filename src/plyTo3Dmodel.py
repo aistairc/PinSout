@@ -253,5 +253,5 @@ def make_point_label(data_list):
 
 if __name__ == '__main__':
 
-    args = ["test", "../data/sample_data/original_data.ply", 0.05, 0.1]
+    args = ["test", "../data/sample_data/original_data.ply", 0.052, 0.1]
     ply_to_CityGML(args)

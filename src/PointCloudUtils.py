@@ -352,20 +352,14 @@ def grid_subsampling_withoutRGB(points, voxel_size):
     voxel_grid={}
     grid_barycenter,grid_candidate_center=[],[]
     last_seen=0
-    maxcount1 = 0
-    maxcount2 = 0
+
     for idx,vox in enumerate(non_empty_voxel_keys):
         # Adding the points and color information to each voxel
         voxel_grid[tuple(vox)]=points[idx_pts_vox_sorted[last_seen:last_seen+nb_pts_per_voxel[idx]]]
         grid_barycenter.append(np.mean(voxel_grid[tuple(vox)],axis=0))
         grid_candidate_center.append(voxel_grid[tuple(vox)][np.linalg.norm(voxel_grid[tuple(vox)]-np.mean(voxel_grid[tuple(vox)],axis=0),axis=1).argmin()])
         last_seen+=nb_pts_per_voxel[idx]
-    # print maxcount1
-    # print maxcount2
-    # print maxcount
-    # np.savetxt("/home/dprt/Documents/20210414_PinSout/20210419_new_result/downsampling1.txt", grid_barycenter)
-    # np.savetxt("/home/dprt/Documents/20210414_PinSout/20210419_new_result/downsampling2.txt", grid_candidate_center)
-    # return grid_candidate_center
+
     return grid_barycenter
 
 
