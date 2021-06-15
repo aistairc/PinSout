@@ -61,7 +61,7 @@ class GeneratePointCloud:
             model_value = [coeff_p[0], coeff_p[1], coeff_p[2]]
             model_cos = np.dot(default_vector, model_value) / (
                     np.linalg.norm(model_value) * np.linalg.norm(default_vector))
-            # print cloud.height * cloud.width
+
             if math.fabs(round(model_cos, 1)) <= 0.1:
                 # In the case of a plane perpendicular to the floor surface
                 # if inliers_p.size >= (1250 * 0.5): checking here
@@ -218,7 +218,7 @@ class GeneratePointCloud:
                     if check_height is False:
                         check_height = True if math.fabs(bbox_info[0][2]) >= 1.5 else False
                     check_area = True if make_box.area > 0.1 else False
-                    # print check_height, check_area
+
                     if check_height:
                         # 4 outer points of extracted result of clustering
                         side_points = PointCloudUtils.make_side_line(bbox_info, coeff_p)
@@ -246,7 +246,6 @@ class GeneratePointCloud:
                 merged_normal_vector: List of each PointCloud's plane equation
                 merged_bbox_info: List of each PointCloud's boundingbox info
        """
-        global CHECK_PLANE_DISTANCE
         used_v = [True for i in range(len(all_wall))]
         merged_point_cloud = []
         merged_normal_vector = []
@@ -437,12 +436,11 @@ class GeneratePointCloud:
                 result_ceiling, result_floor, result_wall = Graph2CtiyGML.make_graph()
                 if result_ceiling != None and result_floor != None and result_wall != None:
                     PointCloudUtils.saveAsWKT(clustered_i, result_ceiling, result_floor, result_wall)
-                    # make_gml_file2 = gml.PointCloudToCityGML([ceiling], [floor], wall_list, [], [])
-                    # make_gml_file2.MakeRoomObject()
+
 
 if __name__ == "__main__":
 
     wall_cloud = pcl.load("../data/sample_data/original_data_result/dump/original_data_wall.ply")
-    GeneratePointCloudData = GeneratePointCloud(0.05, 0.1, wall_cloud, [], [])
+    GeneratePointCloudData = GeneratePointCloud(0.052, 0.1, wall_cloud, [], "123")
     only_wall_list = GeneratePointCloudData.make_room_info()
 
