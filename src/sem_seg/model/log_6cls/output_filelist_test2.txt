@@ -1,0 +1,3 @@
+log6class/dump_test2/Area_1_apartment_1_pred.txt
+log6class/dump_test2/Area_1_boardroom_1_pred.txt
+log6class/dump_test2/Area_1_office_1_pred.txt

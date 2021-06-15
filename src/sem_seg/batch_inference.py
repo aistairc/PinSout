@@ -4,10 +4,7 @@ import sys
 import pcl
 import numpy as np
 import tensorflow as tf
-# from plane_ransac import *
-
 from model import *
-# import indoor3d_util2
 import indoor3d_util
 import sys
 import logging
@@ -31,15 +28,11 @@ def evaluate(model_path, out_filename, booth_data, min_list):
     :param model_path: trained model path
     :param filepath: file stored dir
     :param booth_data: point cloud data type : Array / value [x, y, z, r, g, b, label(5)]
-    :param xyz_min: min xyz of ply data(all)
     :param min_list: min xyz of each npy data
     :return: 3D model path, bounding box area of chair data [max point(x, y, z), min point(x, y, z]
     '''
     is_training = False
 
-    # BATCH_SIZE = 1
-    # NUM_POINT = 4096
-    # GPU_INDEX = 0
     MODEL_PATH = model_path
 
     DUMP_DIR = os.path.join(os.path.dirname(out_filename), 'dump')
@@ -80,15 +73,11 @@ def evaluate(model_path, out_filename, booth_data, min_list):
     all_wall = list()
     all_window = list()
     all_door = list()
-    # all_chair = list()
-    # all_table = list()
     all_clutter = list()
-    # scaned_data = np.load(ROOM_PATH_LIST[0])
 
 
     logger.info("Starting the PointNet")
     for each_i in range(len(booth_data)):
-
 
         ceiling_list, floor_list, wall_list, window_list, door_list, clutter_list = eval_one_epoch(sess, ops, booth_data[each_i])
         if len(ceiling_list) != 0:
@@ -113,7 +102,7 @@ def evaluate(model_path, out_filename, booth_data, min_list):
             wall_cloud = pcl.PointCloud()
             wall_cloud.from_list(temp_value_3.tolist())
             pcl.save(wall_cloud,
-                     os.path.join(DUMP_DIR, os.path.basename(out_filename)) + '_wall' + "_" + str(each_i) + ".pcd")
+                     os.path.join(DUMP_DIR, os.path.basename(out_filename)) + '_wall' + "_" + str(each_i) + ".ply")
             all_wall += temp_value_3.tolist()
         if len(window_list) != 0:
             temp_value_4 = np.asarray(window_list)
@@ -123,6 +112,7 @@ def evaluate(model_path, out_filename, booth_data, min_list):
             pcl.save(window_cloud,
                      os.path.join(DUMP_DIR, os.path.basename(out_filename)) +'_window' + "_" + str(each_i)+".pcd")
             all_window += temp_value_4.tolist()
+            # all_wall += temp_value_4.tolist()
         if len(door_list) != 0:
             temp_value_5 = np.asarray(door_list)
             temp_value_5 += min_list[each_i]
@@ -130,6 +120,7 @@ def evaluate(model_path, out_filename, booth_data, min_list):
             door_cloud.from_list(temp_value_5.tolist())
             pcl.save(door_cloud, os.path.join(DUMP_DIR, os.path.basename(out_filename)) + '_door' + "_" + str(each_i)+".pcd")
             all_door += temp_value_5.tolist()
+            # all_wall += temp_value_5.tolist()
         if len(clutter_list) != 0:
             temp_value_6 = np.asarray(clutter_list)
             temp_value_6 += min_list[each_i]
@@ -146,13 +137,19 @@ def evaluate(model_path, out_filename, booth_data, min_list):
     logger.info("Result of Wall : "+ str(len(all_wall)))
     logger.info("Result of Window : "+str(len(all_window)))
     logger.info("Result of Door : "+str(len(all_door)))
+    logger.info("Result of Clutter : "+str(len(all_clutter)))
     logger.info("Finishing the PointNet")
-    # print (len(ceiling_list), len(floor_list), len(wall_list), len(window_list), len(door_list), len(clutter_list))
-    # wall_cloud = pcl.PointCloud()
-    # wall_cloud.from_list(all_wall)
 
+    wall_cloud = pcl.PointCloud()
+    wall_cloud.from_list(all_wall + all_door + all_window)
+    door_cloud = pcl.PointCloud()
+    door_cloud.from_list(all_door)
+    window_cloud = pcl.PointCloud()
+    window_cloud.from_list(all_window)
 
-    return wall_cloud
+    pcl.save(wall_cloud,
+             os.path.join(DUMP_DIR, os.path.basename(out_filename)) + '_wall' + ".ply")
+    return wall_cloud, door_cloud, window_cloud
 
 
 def eval_one_epoch(sess, ops, each_data):
@@ -165,10 +162,10 @@ def eval_one_epoch(sess, ops, each_data):
     door_list = list()
     clutter_list = list()
 
-    #current_data, current_label = indoor3d_util2.room2blocks_wrapper_normalized(each_data, NUM_POINT)
+
     current_data, current_label = indoor3d_util.room2blocks_wrapper_normalized(each_data, NUM_POINT)
     current_data = current_data[:, 0:NUM_POINT, :]
-
+    current_label = np.squeeze(current_label)
     # Get room dimension..
     data_label = each_data
     data = data_label[:, 0:6]
@@ -176,9 +173,9 @@ def eval_one_epoch(sess, ops, each_data):
     max_room_y = max(data[:, 1])
     max_room_z = max(data[:, 2])
     file_size = current_data.shape[0]
+
     num_batches = file_size // BATCH_SIZE
 
-    # if file_size >= 1:
 
     for batch_idx in range(num_batches):
         start_idx = batch_idx * BATCH_SIZE
@@ -189,12 +186,11 @@ def eval_one_epoch(sess, ops, each_data):
 
         pred_val = sess.run(ops['pred_softmax'], feed_dict=feed_dict)
 
-        # #
         pred_label = np.argmax(pred_val, 2)
-        # pred_label = np.argmax(pred_val[:, :, 0:NUM_CLASSES-1], 2)
+
         for b in range(BATCH_SIZE):
             pts = current_data[start_idx + b, :, :]
-            # l = current_label[start_idx + b, :]
+
             pts[:, 6] *= max_room_x
             pts[:, 7] *= max_room_y
             pts[:, 8] *= max_room_z

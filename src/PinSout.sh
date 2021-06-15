@@ -8,7 +8,7 @@ echo----------------------------------------------------------------------------
 echo
 echo First argument : Path of PointCloud data
 echo Second argument : Value of distance threshold for Plane RANSAC default=0.05
-echo Third argument : Value of Epslion for Intersection Function default=0.5
+echo Third argument : Value of Epslion for Intersection Function default=0.1
 echo ---------------------------------------------------------------------------
 echo
 echo There are $# arguments to $0: $*
