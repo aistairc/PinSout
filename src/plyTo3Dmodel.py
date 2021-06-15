@@ -7,8 +7,8 @@ import sys
 import numpy as np
 import math
 from sem_seg import batch_inference
-from sem_seg import batch_inference2
-from sem_seg import batch_inference3
+#from sem_seg import batch_inference2
+#from sem_seg import batch_inference3
 # from plane_ransac import GeneratePointCloud
 import sys
 import logging
@@ -58,9 +58,9 @@ def ply_to_CityGML_Grid(args):
     if os.path.exists(filepath) is not True:
         os.mkdir(filepath)
     has_color = False
-    # for prop in plydata.elements[0].properties:
-    #     if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
-    #         has_color = True
+    for prop in plydata.elements[0].properties:
+         if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
+             has_color = True
 
     lens = len(plydata.elements[0].data)
 
@@ -70,9 +70,14 @@ def ply_to_CityGML_Grid(args):
         z = plydata.elements[0].data['z'][i]
         x = plydata.elements[0].data['x'][i]
         y = plydata.elements[0].data['y'][i]
-        r = plydata.elements[0].data['red'][i]
-        g = plydata.elements[0].data['green'][i]
-        b = plydata.elements[0].data['blue'][i]
+        if has_color:
+        	r = plydata.elements[0].data['red'][i]
+        	g = plydata.elements[0].data['green'][i]
+        	b = plydata.elements[0].data['blue'][i]
+        else:
+        	r = 0
+        	g = 0
+        	b = 0
         if math.isnan(x) or math.isnan(y) or math.isnan(z):
             print ("there is NaN value!!")
             continue
@@ -95,7 +100,7 @@ def ply_to_CityGML_Grid(args):
     out_filename = os.path.join(filepath, npy_file)
     print (out_filename, min_list)
 
-    model_path = os.getcwd()+'/sem_seg/model/log6_1127/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
     print(model_path)
 
     batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
@@ -141,9 +146,9 @@ def ply_to_CityGML(args):
     if os.path.exists(filepath) is not True:
         os.mkdir(filepath)
     has_color = False
-    # for prop in plydata.elements[0].properties:
-    #     if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
-    #         has_color = True
+    for prop in plydata.elements[0].properties:
+         if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
+             has_color = True
 
     lens = len(plydata.elements[0].data)
 
@@ -153,12 +158,14 @@ def ply_to_CityGML(args):
         x = plydata.elements[0].data['x'][i]
         y = plydata.elements[0].data['y'][i]
         z = plydata.elements[0].data['z'][i]
-        r = plydata.elements[0].data['red'][i]
-        g = plydata.elements[0].data['green'][i]
-        b = plydata.elements[0].data['blue'][i]
-        # r = 0
-        # g = 0
-        # b = 0
+        if has_color:
+        	r = plydata.elements[0].data['red'][i]
+        	g = plydata.elements[0].data['green'][i]
+        	b = plydata.elements[0].data['blue'][i]
+        else:
+        	r = 0
+        	g = 0
+        	b = 0
 
         if math.isnan(x) or math.isnan(y) or math.isnan(z):
             print ("there is NaN value!!")
@@ -179,9 +186,9 @@ def ply_to_CityGML(args):
     out_filename = os.path.join(filepath, npy_file)
 
 
-    # model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
     # model_path = os.getcwd()+'/sem_seg/model/log_6cls/model.ckpt'
-    model_path = os.getcwd()+'/sem_seg/model/log6_1127/model.ckpt'
+    #model_path = os.getcwd()+'/sem_seg/model/log6_1127/model.ckpt'
     seg_result = batch_inference.evaluate(model_path, out_filename, npy_list, min_list)
     # gp = GeneratePointCloud(distance_threshold, epsilon_value)
     # gp.make_wall_info(seg_result)
@@ -235,7 +242,7 @@ def ply_to_CityGML2(args):
     out_filename = os.path.join(filepath, npy_file)
 
 
-    model_path = os.getcwd()+'/sem_seg/model/log_6cls/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
 
     seg_result = batch_inference2.evaluate(model_path, out_filename, npy_list)
 def ply_to_CityGML3(args):
@@ -276,9 +283,9 @@ def ply_to_CityGML3(args):
     if os.path.exists(filepath) is not True:
         os.mkdir(filepath)
     has_color = False
-    # for prop in plydata.elements[0].properties:
-    #     if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
-    #         has_color = True
+    for prop in plydata.elements[0].properties:
+         if prop.name == 'red' or prop.name == 'blue' or prop.name == 'green':
+             has_color = True
 
     lens = len(plydata.elements[0].data)
 
@@ -306,7 +313,7 @@ def ply_to_CityGML3(args):
     # out_filename = "/home/dprt/Desktop/SC_DEMO/New Folder/test/st/npy_data2/office_1"
     # model_path = '/home/dprt/Downloads/log_6cls_test16/model.ckpt'
 
-    model_path = os.getcwd()+'/sem_seg/model/log_6cls/model.ckpt'
+    model_path = os.getcwd()+'/sem_seg/model/log_5cls/model.ckpt'
     print len(min_list)
     # model_path = os.getcwd()+'/sem_seg/model/log6class/model.ckpt'
     # model_path = os.getcwd()+'/sem_seg/model/log6/model.ckpt'
@@ -383,6 +390,11 @@ def make_point_label(data_list):
         npy_list = []
         min_list = []
         count = 0
+        path = 'temp'
+        try: 
+    		os.mkdir(path) 
+	except OSError as error: 
+    		pass
         for data in data_list:
             count = count + 1
             if len(data) > 200:
@@ -399,7 +411,8 @@ def make_point_label(data_list):
                 cloud_data = pcl.PointCloud()
                 cloud_data.from_array(area_data)
                 print cloud_data.size
-                out_filename3 = "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/gridResult/gird" + "_" + str(count) + ".pcd"
+
+                out_filename3 =  "./temp/"+str(count) + ".pcd"
                 pcl.save(cloud_data, out_filename3)
                 # out_filename2 = "/home/dprt/Desktop/SC_DEMO/New Folder/test/room2" + "_" + str(count) + ".npy"
                 # np.save(out_filename2, points)
@@ -515,10 +528,10 @@ if __name__ == '__main__':
     # args = [0, "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/1/original4.ply"]
     # args = [0, "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/report_data/CaseStudy3-1.ply"]
     # args = [0, "/home/dprt/Documents/DataSet/original data/original_data_color.ply"]
-    args = [0, "/home/dprt/Documents/DataSet/AIST_8_floor/8_floor_grid_pointsize/colorized.ply"]
+    #args = [0, "/home/dprt/Documents/DataSet/AIST_8_floor/8_floor_grid_pointsize/colorized.ply"]
     # args = [0, "/home/dprt/Documents/DataSet/ISPRS Benchmark Dataset/CaseStudy1/1/original_data.ply"]
-    # args = [0, "/home/dprt/Documents/office_1 - Cloud.ply"]
-    # ply_to_CityGML(args)
+    args = [0, "../data/sample_data/original_data.ply"]
+    #ply_to_CityGML(args)
     ply_to_CityGML_Grid(args)
 
 

@@ -4,7 +4,7 @@ export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 export PATH="/root/anaconda3/envs/envname/bin:$PATH"
 
 echo Starting the PinSout
-echo----------------------------------------------------------------------------
+echo ----------------------------------------------------------------------------
 echo
 echo First argument : Path of PointCloud data
 echo Second argument : Value of distance threshold for Plane RANSAC default=0.05

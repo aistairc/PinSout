@@ -137,7 +137,7 @@ This release has been tested on Linux Ubuntu 18.04 with
     2-1) Set up CUDA
     - Downloading the cuda runfile and install from [CUDA Download]
     ```shell script
-    $ sudo ~/Downloads/cuda_10.0.130_410.48_linux.run
+    $ sudo sh ~/Downloads/cuda_10.0.130_410.48_linux.run
     ```
     - Add cuda path to /etc/environment
     ```shell script
@@ -164,8 +164,8 @@ This release has been tested on Linux Ubuntu 18.04 with
     - Install cuDNN v7.4.1 Library for Linux
     ```shell script
     $ cd Downloads/
-    $ tar –xavf cudnn-10.0-linux-x64-v7.4.1.5.tgz
-    $ sudo cp cuda/include/cudnn.h /use/local/cuda/include
+    $ tar -xavf cudnn-10.0-linux-x64-v7.4.1.5.tgz
+    $ sudo cp cuda/include/cudnn.h /usr/local/cuda/include
     $ sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
     $ sudo chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
     ``` 
@@ -177,13 +177,13 @@ This release has been tested on Linux Ubuntu 18.04 with
     ```
     - Install cuDDN v7.4.1 Runtime Library, Developer Library, Code Samples and User Guide
     ```shell script
-    $ sudo dpkg –i libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb
-    $ sudo dpkg –i libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb
-    $ sudo dpkg –i libcudnn7-doc_7.4.1.5-1+cuda10.0_amd64.deb
+    $ sudo dpkg -i libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb
+    $ sudo dpkg -i libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb
+    $ sudo dpkg -i libcudnn7-doc_7.4.1.5-1+cuda10.0_amd64.deb
     ```
     - Testing the CUDA and cuDNN
     ```shell script
-    $ cp –r /usr/src/cudnn_samples_v7/ ~/
+    $ cp -r /usr/src/cudnn_samples_v7/ ~/
     $ cd ~/cudnn_samples_v7/mnistCUDNN
     $ sudo make clean && make
     # or sudo make
@@ -205,9 +205,9 @@ This release has been tested on Linux Ubuntu 18.04 with
     $ conda create --name "your virtual environment name" python=2.7.18
     $ conda activate "your virtual environment name"
     $ pip install tensorflow-gpu==1.14.0
-    $ pip isntall numpy
+    $ pip install numpy
     $ sudo apt-get install libhdf5-dev
-    $ pip isntall h5py
+    $ pip install h5py
     ```
 3. Install python-pcl from [Anaconda Cloud]  
     3-1) Download and install python-pcl
@@ -277,7 +277,7 @@ This release has been tested on Linux Ubuntu 18.04 with
     - Second argument : Value of distance threshold for Plane RANSAC ( default=0.05 )
     - Third argument : Value of Epsilon for Intersection Function ( default=0.5 )
     ```shell script
-    sh PinSout.sh ../data/1000_168/npy_data/dump/samplling_in_d2_wall_.pcd 0.04 0.5
+    sh PinSout.sh ../data/sample_data/original_data.ply 0.04 0.5
     ```
 4. Export the CityGML using 3DCityDB Importer&Exporter
     - Exporting the CityGML following the 3DCityDB Importer&Exporter document
