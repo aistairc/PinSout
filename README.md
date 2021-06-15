@@ -56,18 +56,19 @@ We used the following open sources in each step (*Semantic segmentation, Polygon
       Database schema implements the CityGML standard.
 
 ## System Requirements
-This release has been tested on Linux Ubuntu 16.04 with
-> Anaconda - Python 2.7.6  
+This release has been tested on Linux Ubuntu 18.04 with
+> Anaconda3 - Python 2.7.18 
 > PostgreSQL DBMS >= 9.3 with PostGIS extension >= 2.0
 
 ## Installation
-* [PostgreSQL with PostGIS](https://www.postgresql.org/download/)
-
-* [Anaconda](https://www.anaconda.com/distribution/)
 
 * [PointNet]  
    
+* [Anaconda](https://www.anaconda.com/distribution/)
+
 * [Python-PCL]  
+
+* [PostgreSQL with PostGIS](https://www.postgresql.org/download/)
 
 * [3DCityDB](https://www.3dcitydb.org/3dcitydb/d3ddatabase/)  
 
@@ -83,135 +84,206 @@ This release has been tested on Linux Ubuntu 16.04 with
 * [Stanford 2D-3D-Semantics Dataset](http://buildingparser.stanford.edu/dataset.html)
 * Office type rooms, except complex types ( Convert all offices in area_1)
 
-### 1) Preparing to use **PointNet**
-1. Run [PointNet] and go to the **sem_seg** folder.
-    * Download 3D indoor parsing dataset (S3DIS Dataset) for testing and visualization. 
-    Dataset version 1.2 is used in this work.
-    * Before we start collect_indoor3d_data.py, we change the entry in the **"meta/class_names.txt"** to ceiling, floor, wall, door and window
-    * Change the value of **"g_class2color and g_easy_view_labels"** in the "indoor3d_util.py" 
-    ```python
-    g_classes = [x.rstrip() for x in open(os.path.join(BASE_DIR, 'meta/class_names.txt'))]
-    """g_class2color = {'ceiling':	 [0, 255, 0],  # 0
-                 'floor':	 [0, 0, 255],      # 1
-                 'wall':	 [0, 255, 255],    # 2
-                 'beam':     [255, 255, 0],    # 3
-                 'column':   [255, 0, 255],    # 4
-                 'window':   [100, 100, 255],  # 5
-                 'door':     [200, 200, 100],  # 6
-                 'table':    [170, 120, 200],  # 7
-                 'chair':    [255, 0, 0],      # 8
-                 'sofa':     [200, 100, 100],  # 9
-                 'bookcase': [10, 200, 100],   # 10
-                 'board':    [200, 200, 200],  # 11
-                 'clutter':  [50, 50, 50]}     # 12
-           g_easy_view_labels = [7, 8, 9, 10, 11, 1]"""
-    g_class2color = {'ceiling':	 [0, 255, 0],  # 0
-                 'floor':	 [0, 0, 255],        # 1
-                 'wall':	 [0, 255, 255],       # 2                 
-                 'window':   [100, 100, 255],  # 3
-                 'door':     [200, 200, 100]}  # 4   
-    g_easy_view_labels = [0, 1, 2, 3, 4]
+### 1) Preparing to use **PinSout**
+1. Installing Graphic drivers.  
+    1-1) Checking and selecting the Graphic driver
+    ```shell script
+    $ sudo lshw -C display
     ```
-    ```sh
-    $ python collect_indoor3d_data.py
+    or 
+    ```shell script
+    $ ubuntu-drivers devices
+    == /sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0 ==
+    modalias : pci:v000010DEd00001BE1sv00001028sd0000088Bbc03sc00i00
+    vendor   : NVIDIA Corporation
+    model    : GP104M [GeForce GTX 1070 Mobile]
+    driver   : nvidia-driver-415 - third-party free
+    driver   : nvidia-driver-450-server - distro non-free
+    driver   : nvidia-driver-435 - distro non-free
+    driver   : nvidia-driver-455 - third-party free recommended
+    driver   : nvidia-driver-418-server - distro non-free
+    driver   : nvidia-driver-410 - third-party free
+    driver   : nvidia-driver-450 - distro non-free
+    driver   : nvidia-driver-390 - distro non-free
+    driver   : nvidia-driver-440-server - distro non-free
+    driver   : xserver-xorg-video-nouveau - distro free builtin
     ```
-    ```sh
-    $ python gen_indoor3d_h5.py
+    1-2) Installing the nvidia-driver-455
+    First add the following repository:
+    ```shell script
+    $ sudo add-apt-repository ppa:graphics-drivers/ppa
+    $ sudo apt update
+    ```
+    ```shell script
+    $ apt-cache search nvidia | grep nvidia-driver-455
+    nvidia-driver-455 - NVIDIA driver metapackage
+    $ sudo apt-get install nvidia-driver-455
+    $ sudo reboot
+    ```
+    If a problem occurs during or after the graphics card is installed, delete it and then reinstall it.
+    ```shell script
+    $ sudo apt --purge autoremove nvidia*
+    ```
+    1-3) Checking Nvidia-Driver Information
+    ```shell script
+    $ nvidia-settings
+    or
+    $ nvidia-smi
+    ```
+2. Installing CUDA, cuDNN, Tensorflow
+    - Checking the version of CUDA, cuDNN and Tensorflow using [CUDA Tookit Version] and [Tensorflow Version]
+    - PinSout is testing on CUDA-10.0, cuDNN-7.4.1 and Tesorflow-1.14.0  
+    
+    2-1) Set up CUDA
+    - Downloading the cuda runfile and install from [CUDA Download]
+    ```shell script
+    $ sudo ~/Downloads/cuda_10.0.130_410.48_linux.run
+    ```
+    - Add cuda path to /etc/environment
+    ```shell script
+    $ sudo nano /etc/environment
+    Append ':/usr/local/cuda/bin' at the end of the PATH
+    $ sudo reboot
+    ```
+    - Testing the CUDA using CUDA samples
+    ```shell script
+    $ cd /usr/local/cuda-10.0/samples
+    $ sudo make
+    $ cd /usr/local/cuda-10.0/samples/bin/x86_64/linux/release
+    $ ./deviceQuery
+    # result:
+    deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 11.1, CUDA Runtime Version = 10.0, NumDevs = 1 Result = PASS
     ```  
-    * To prepare your HDF5 data, you need to firstly download 3D indoor parsing dataset and then use training if no model has been learned
-
-2. Training  
-    * Change the value of **"NUM_CLASSES"** and directory path in "train.py"
-    ```python
-    """ NUM_CLASSES = 13 """
-    NUM_CLASSES = 5
-    ALL_FILES = provider.getDataFiles('Your indoor3d_sem_seg_hdf5_data path/all_files.txt')
-    room_filelist = [line.rstrip() for line in open('Your indoor3d_sem_seg_hdf5_data path/room_filelist.txt')]
+    2-2) Set up cuDNN
+    - Downloading the cuDNN files from [cuDNN Download] after login
+        - cuDNN v7.4.1 Library for Linux  
+        - cuDNN v7.4.1 Runtime Library for Ubuntu 18.04(Deb)  
+        - cuDNN v7.4.1 Developer Library for Ubuntu 18.04(Deb)  
+        - cuDNN v7.4.1 Code Samples and User Guide for Ubuntu 18.04(Deb)  
+   
+    - Install cuDNN v7.4.1 Library for Linux
+    ```shell script
+    $ cd Downloads/
+    $ tar –xavf cudnn-10.0-linux-x64-v7.4.1.5.tgz
+    $ sudo cp cuda/include/cudnn.h /use/local/cuda/include
+    $ sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
+    $ sudo chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
+    ``` 
+    - Add the path of CUDA and cuDNN
+    ```shell script
+    $ nano ~/.bashrc
+    $ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64"
+    $ source ~/.bashrc
     ```
-    * Once you have downloaded prepared HDF5 files or prepared them by yourself, to start training:
-    ```sh
-    $ python train.py --log_dir log_5cls --test_area 6
+    - Install cuDDN v7.4.1 Runtime Library, Developer Library, Code Samples and User Guide
+    ```shell script
+    $ sudo dpkg –i libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb
+    $ sudo dpkg –i libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb
+    $ sudo dpkg –i libcudnn7-doc_7.4.1.5-1+cuda10.0_amd64.deb
     ```
-    In default, a simple model based on vanilla PointNet is used for training. 
-    Area_6 is used for the test set.
-
-3. Test  
-    * Testing requires a download of 3D indoor parsing data and preprocessing with collect_indoor3d_data.py
-
-    After training, use batch_inference.py command to segment rooms in the test set. 
-    In this work, we use 6-fold training that trains six models. 
-        
-        For model_1, area_2 ~ _6 are used as the training data set, and area_1 is used as the test data set. 
-        For model_2, area_1, _3 ~ _6 are used as the training data set and area_2 is used as the test data set
-        ...
-         
-    Note that S3DIS dataset paper uses a different 3-fold training, which was not publicly announced at the time of our work.
-    * Chage the value of **"NUM_CLASSES"** in the "batch_inference.py" 
-    ```python
-    """ NUM_CLASSES = 13 """
-    NUM_CLASSES = 5
+    - Testing the CUDA and cuDNN
+    ```shell script
+    $ cp –r /usr/src/cudnn_samples_v7/ ~/
+    $ cd ~/cudnn_samples_v7/mnistCUDNN
+    $ sudo make clean && make
+    # or sudo make
+    $ ./mnistCUDNN
     ```
-    For example, to test model_6, using the below command:
-    ```sh
-    $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/area6_data_label.txt --visu
+     - If there were installed correctly you should see __"Test passed!"__ at the end of the output  
+      
+    2-3) Set up Tensorflow
+    - Installing Anaconda3 on Ubuntu 18.04
+    - Download the installation script file from [Anaconda Homepage]
+    ```shell script
+    $ sudo apt install python-pip
+    $ bash ~/Downloads/Anaconda3-2020.07-Linux-x86_64.sh
+    # after finish install the Aanaconda3
+    $ source ~/.bashrc
     ```
-    --model_path : The path where model.ckpt file is stored  
-    --dump_dir : The folder where forecasted results are stored  
-    --output_filelist : Set file path/name where the path of the prediction result is stored  
-    --room_data_filelist : .npy file path to test  
-    --visu : Use when visualizing  
-
-4. Check the result  
-    * Check the result with CloudCompare.
+    - Creating a virtual environment in Anaconda3 and install Tensorflow and python-library
+    ```shell script
+    $ conda create --name "your virtual environment name" python=2.7.18
+    $ conda activate "your virtual environment name"
+    $ pip install tensorflow-gpu==1.14.0
+    $ pip isntall numpy
+    $ sudo apt-get install libhdf5-dev
+    $ pip isntall h5py
+    ```
+3. Install python-pcl from [Anaconda Cloud]  
+    3-1) Download and install python-pcl
+    ```shell script
+    $ source activate "your virtual environment name"
+    $ conda install -c sirokujira python-pcl --channel conda-forge
+    ```
+    3-2) Create new link files
+    ```shell script
+    $ cd ~/anaconda3/envs/"your virtual environment name"/lib
+    $ ln -s libboost_system.so.1.64.0 libboost_system.so.1.54.0
+    $ ln -s libboost_filesystem.so.1.64.0 libboost_filesystem.so.1.54.0
+    $ ln -s libboost_thread.so.1.64.0 libboost_thread.so.1.54.0
+    $ ln -s libboost_iostreams.so.1.64.0 libboost_iostreams.so.1.54.0
+    ```
+4. Install PostgreSQL with PostGIS and PgAdmin4
     
-### 2) Generate CityGML data from point cloud 
-1. Run **PostgreSQL pgadmin**
+5. Install 3DCityDB and 3DCityDB importer&exporter
 
-2. Run **PinSout**  
-    * Modify the contents of area_data_label to "data/***your result folder***/Area_1_office_1.npy"
-    * Add the PinSout's files in **sem_seg**
-    * We are conducting the three functions in the **batch_inference.py**
-    1. ***Semantic Segmentation*** - Classify semantics from point
-    ```python
-    """ Ceiling ""
-    if pred[i] == 0:
-    cnt_ceiling += 1
-    coord_ceiling = str(pts[i, 6]) + ' ' + str(pts[i, 7]) + ' ' + str(pts[i, 8]) + '\n'
-    ceiling_list.append(coord_ceiling)
-    ceiling_list2.append([pts[i, 6], pts[i, 7], pts[i, 8]])
-    fout_ceiling_label.write('ply\n'
-                             'format ascii 1.0\n'
-                             'element vertex %d\n'
-                             'property float x\n'
-                             'property float y\n'
-                             'property float z\n'
-                             'end_header\n' % cnt_ceiling)
-    fout_ceiling_label.writelines(ceiling_list)
-    ceiling_cloud = pc.PointCloud() 
-    ceiling_cloud.from_array(np.asarray(ceiling_list2, dtype=np.float32))
-    ```
-    2. ***Polygonization*** - Construct polygons from point
-    ```python
-    make_gml_data2 = mcd2.MakeCityGMLData(pred_cloud, ceiling_cloud, floor_cloud, wall_cloud, door_cloud, window_cloud)
-    wall_surface, ceiling_surface, floor_surface, door_surface, window_surface = make_gml_data2.make_point_surface()
-    ```
-    3. ***Featurizaiotn*** - Mapping between semantic features and surfaces
-    ```python
-    make_gml_file2 = gml2.PointCloudToCityGML(ceiling_surface, floor_surface, wall_surface, door_surface, window_surface)
-    make_gml_file2.MakeRoomObject()
-    ```
-    * Running the **"batch_inference.py"**
-    ```sh
-    $ python batch_inference.py --model_path log_5cls/model.ckpt --dump_dir log_5cls/dump --output_filelist log_5cls/output_filelist.txt --room_data_filelist meta/Your area_data_label.txt --visu
-    ```
-3. Export to CityGML file 
-    * Check the result using **pgadmin** or **3DCityDB importer&exporter**.
-    * Export the CityGML file using **3DCityDB importer&exporter**.
-
-4. Check the CityGML file  
-    * Run the FZK Viewer to visualize the CityGML file.
-    * Select and execute the "Local CRS" at the bottom of the Spatial Reference System.
+    5-1) Downloading the 3DCityDB and 3DCityDB importer&exporter
+    - Downloading the 3DCityDB from [here](https://www.3dcitydb.org/3dcitydb/d3ddatabase/)
+    - Downloading the 3DCityDB importer&exporter from [here](https://www.3dcitydb.org/3dcitydb/d3dimpexp/)
     
+    5-2) Installing the 3DCityDB and 3DCityDB importer&exporter following the document
+    - [Chapter 3 Implementation and Installation](https://www.3dcitydb.org/3dcitydb/fileadmin/downloaddata/3DCityDB_Documentation_v4.2.pdf) for installing 3DCityDB and 3DCityDB importer&exporter
+
+### 2) Starting the PinSout
+1. Clone this project  
+    ```shell script
+    git clone https://github.com/aistairc/PinSout.git
+    ```  
+
+2. Add the new information of created 3DCityDB
+
+    ```shell script
+    cd PinSout/src/citygml
+   
+    # Add the new information in PointCloud_To_CityGML.py
+    user = 'Your id for login to Postgresql'
+    password = 'Your password for login to Postgresql'
+    host_product = 'IP address of Postgresql'
+    dbname = 'Name of 3DCityDB installed in Postgresql'
+    port = 'Port number'
+    srid = 'The coordinate system number entered when installing 3DCityDB'
+    
+    # Example
+    user = 'postgres'
+    password = 'dprt'
+    host_product = 'localhost'
+    dbname = 'CityModelX'
+    port = '5432'
+    srid = 'SRID=4326;'
+    ```
+
+3. Running the PinSout.sh with three parameters
+
+    3-1) Add the path of CUDA and anaconda virtual environment in PinSout.sh
+    ```shell script
+    cd PinSout/src
+    #add the path to PinSout.sh
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+    export PATH="/root/anaconda3/envs/"anaconda3 virtual environment name"/bin:$PATH"
+    ```
+   
+    3-2) Running the PinSout.sh
+    - First argument : Path of PointCloud data
+    - Second argument : Value of distance threshold for Plane RANSAC ( default=0.05 )
+    - Third argument : Value of Epsilon for Intersection Function ( default=0.5 )
+    ```shell script
+    sh PinSout.sh ../data/1000_168/npy_data/dump/samplling_in_d2_wall_.pcd 0.04 0.5
+    ```
+4. Export the CityGML using 3DCityDB Importer&Exporter
+    - Exporting the CityGML following the 3DCityDB Importer&Exporter document
+        - [Chapter 5 Importer / Exporter](https://www.3dcitydb.org/3dcitydb/fileadmin/downloaddata/3DCityDB_Documentation_v4.2.pdf)
+
+   
 ## Usage
 For detail information about usage, please see the [User Guide](https://github.com/aistairc/PinSout/wiki)
 * [Polygonization](https://github.com/aistairc/PinSout/wiki/Make_CityGML_Data)
@@ -236,4 +308,9 @@ https://www.airc.aist.go.jp/en/dprt/
 [3DCityDB importer&exporter]: <https://www.3dcitydb.org/3dcitydb/d3dimpexp/>  
 [FZK Viewer]: <https://www.iai.kit.edu/1302.php>  
 [CloudCompare]: <https://www.danielgm.net/cc/>  
-
+[CUDA Tookit Version]: <https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html#cuda-major-component-versions__table-cuda-toolkit-driver-versions>
+[CUDA Download]: <https://developer.nvidia.com/cuda-10.0-download-archive>
+[cuDNN Download]: <https://developer.nvidia.com/rdp/cudnn-archive>
+[Tensorflow Version]: <https://www.tensorflow.org/install/source?hl=en#gpu>
+[Anaconda Homepage]: <https://www.anaconda.com/products/individual>
+[Anaconda Cloud]: <https://anaconda.org/sirokujira/python-pcl>

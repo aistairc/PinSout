@@ -1,7 +1,0 @@
-ceiling
-floor
-wall
-door
-table
-chair
-clutter

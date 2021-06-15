@@ -2,8 +2,14 @@ import math
 import numpy as np
 import psycopg2
 from decimal import *
-import Point_Sort as ps
 import matplotlib.pyplot as plt
+import sys
+import logging
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(logging.Formatter('%(asctime)s %(funcName)s [%(levelname)s]: %(message)s'))
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
 """  db connect  """
 
 user = 'postgres'
@@ -11,7 +17,7 @@ password = 'dprt'
 host_product = 'localhost'
 dbname = 'CityModelX'
 port = '5432'
-
+srid = 'SRID=4326;'
 product_connection_string = "dbname={dbname} user={user} host={host} password={password} port={port}" \
     .format(dbname=dbname,
             user=user,
@@ -52,6 +58,8 @@ RootSurfaceRoom = 0
 buildingCounter = 0
 buildingMaxArray = []
 buildingMinArray = []
+check_first_time = True
+roomCount = 0
 ''' END '''
 class PointCloudToCityGML:
 
@@ -64,12 +72,19 @@ class PointCloudToCityGML:
         self.ceiling_list = ceiling_point
         self.floor_list = floor_point
         self.wall_list = wall_point
-        self.door_list = [] if len(door_point) - 1 != 0 else door_point
+
+        if len(door_point) != 0:
+            self.door_list = door_point
+        else:
+            self.door_list = []
+        # self.door_list = [] if len(door_point) - 1 != 0 else door_point
+
         self.window_list = [] if len(window_point) - 1 != 0 else window_point
 
     def makePolygonz (self, sideinfo):
         # srid = "SRID=25833;"
-        srid = "SRID=4326;"
+        global srid
+        # srid = "SRID=4326;"
         polygonSet = "POLYGONZ(())"
         side = self.deleteString(sideinfo, len(sideinfo)-1)
         polygonz = (srid+self.insertString(polygonSet, 10, side))
@@ -121,12 +136,13 @@ class PointCloudToCityGML:
 
             return lastSurfaceID
     def getSurfaceGeometry (self, surface_id, surface):
+        global srid
         # cursor.execute("SELECT geometry from citydb.surface_geometry where id = '%s'" % surface_id)
         cursor.execute("SELECT ST_AsText(geometry) from citydb.surface_geometry where id = '%s'" % surface_id)
         update_geomerty = cursor.fetchone()[0]
         polygonz = self.insertString(update_geomerty, len(update_geomerty)-1, surface)
         # print polygonz
-        srid = "SRID=4326;"
+        # srid = "SRID=4326;"
         update_geomerty2 = srid + polygonz
         return update_geomerty2
 
@@ -313,6 +329,7 @@ class PointCloudToCityGML:
         global CityObjectRoom
         global rootSurfaceID
         global RootSurfaceRoom
+        global roomCount
         # if objectClassID is 41:
         #     CityObjRoom = CityObjBuilding+"_room"+str(getCityObjectID() + 1)
         #     cursor.execute("INSERT INTO citydb.cityobject(id, objectclass_id, gmlid) values (%s, %s, %s)",
@@ -322,7 +339,8 @@ class PointCloudToCityGML:
         #
         #     makeRoom()
         if objectClassID is 41:
-            CityObjRoom = CityObjBuilding+"_room"+str(self.getCityObjectID() + 1)
+            # CityObjRoom = CityObjBuilding+"_room"+str(self.getCityObjectID() + 1)
+            CityObjRoom = CityObjBuilding + "_room" + str(roomCount)
             cursor.execute("INSERT INTO citydb.cityobject(id, objectclass_id, gmlid) values (%s, %s, %s)",
                            (int(self.getCityObjectID() + 1), objectClassID, CityObjRoom))
             product.commit()
@@ -619,6 +637,7 @@ class PointCloudToCityGML:
                 InteriorWallSurfaceGmlid = self.getSurfaceGmlID() + "_InteriorWallSurface_" + str(self.getSurfaceGeometryID() + 1)
                 InteriorWallSurfaceInfo = ""
                 for each_point in wall_index:
+
                     InteriorWallSurfaceInfo += str(each_point[0]) + " " + str(each_point[1]) + " " + str(each_point[2]) + ","
                 surface = self.makePolygonz(InteriorWallSurfaceInfo)
                 cursor.execute(
@@ -633,8 +652,10 @@ class PointCloudToCityGML:
                 product.commit()
                 self.updateEnvelop(InteriorWallSurfaceInfo, int(self.getCityObjectID()))
                 for index in self.door_list:
+
                     i = index[len(index) - 1]
                     if i == count:
+
                         door_temp_list = index[:len(index) - 1]
                         door_temp_list_2 = index[:len(index) - 1]
                         door_temp_list_2.reverse()
@@ -791,12 +812,18 @@ class PointCloudToCityGML:
         #             "wall": 31,
         #             "floor": 32
         #             }
-        self.makeCityObject(26)
+        global check_first_time
+        global roomCount
+        if check_first_time:
+            self.makeCityObject(26)
+            check_first_time = False
         # self.makeBuildingSurfaceGeometry()
-        # self.updateBuildingEnvelop()
+        roomCount += 1
         self.makeRoomObject(41)
         self.makeSurfaceGeometry()
+        self.updateBuildingEnvelop()
 
+        logger.info("Finish to make Room Object : " + str(roomCount))
 
 
     def visual_graph(self, point_list):
